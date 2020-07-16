@@ -32,11 +32,11 @@
 #define	INIT_H
 
 #include <xc.h> // include processor files - each processor file is guarded. 
-#include "utils.h"
 #include <libpic30.h>
+#include "utils.h"
 
 void initUART(int port, int baudrate);
-void initPWM(int port, char *args);
+void initPWM(void);
 void initInterrupts(void);
 void initUnusedIOPorts(int ports[]);
 
@@ -69,17 +69,6 @@ void initUnusedIOPorts(int ports[]);
  */
 // TODO Insert declarations or function prototypes (right here) to leverage 
 // live documentation
-
-#ifdef	__cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
-    // TODO If C++ is being used, regular C code needs function names to have C 
-    // linkage so the functions can be used by the c code. 
-
-#ifdef	__cplusplus
-}
-#endif /* __cplusplus */
 
 #endif	/* INIT_H */
 

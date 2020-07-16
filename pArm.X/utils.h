@@ -41,6 +41,8 @@
     for (item = array; item < (array + size); ++item)
 #define CLK_SPEED 7.3728
 
+typedef unsigned long time_t;
+
 // TODO Insert appropriate #include <>
 
 // TODO Insert C++ class definitions if appropriate

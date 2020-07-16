@@ -6,10 +6,8 @@
  */
 
 #include <p33EP512GM604.h>
-
 #include "init.h"
 
-#define delayUs(x) _delay((unsigned long) (x * (CLK_SPEED / 2000000.0)))
 
 void initUART(int port, int baudrate) {
     // RX RPI44
@@ -43,4 +41,82 @@ void initUART(int port, int baudrate) {
     U1STAbits.UTXEN = 1;
     
     __delay32((int) ((1 / baudrate) * 1E6));
+}
+
+void initPWM(void) {
+    TRISBbits.TRISB11 = 0; // PWM3L
+    TRISBbits.TRISB13 = 0; // PMW2L
+    TRISBbits.TRISB15 = 0; // PWM1L
+    TRISAbits.TRISA7 = 0; // PMW4L
+    
+    // Initialize intependent time base to zero.
+    // As we are using PWMxL, we only use 
+    // SPHASEx ports. If using PWMxH, just change 
+    // SPHASEx to PHASEx ones.
+    SPHASE3 = 0;
+    SPHASE2 = 0;
+    SPHASE1 = 0;
+    SPHASE4 = 0;
+    
+    // By default, set no duty cycle of programmed signals
+    SDC4 = 0;
+    SDC3 = 0;
+    SDC2 = 0;
+    SDC1 = 0;
+    
+    // Disable Dead Time values
+    ALTDTR4 = 0;
+    ALTDTR3 = 0;
+    ALTDTR2 = 0;
+    ALTDTR1 = 0;
+    
+    DTR4 = 0;
+    DTR3 = 0;
+    DTR2 = 0;
+    DTR1 = 0;
+    
+    // True independent work mode, so then both PWMxH and
+    // PWMxL can be used independently
+    IOCON4bits.PMOD = 0x11;
+    IOCON3bits.PMOD = 0x11;
+    IOCON2bits.PMOD = 0x11;
+    IOCON1bits.PMOD = 0x11;
+    
+    // Disable PWM fault input
+    FCLCON4bits.FLTMOD = 0b11;
+    FCLCON3bits.FLTMOD = 0b11;
+    FCLCON2bits.FLTMOD = 0b11;
+    FCLCON1bits.FLTMOD = 0b11;
+    
+    // Do not swap LOW/HIGH values
+    IOCON4bits.SWAP = 0;
+    IOCON3bits.SWAP = 0;
+    IOCON2bits.SWAP = 0;
+    IOCON1bits.SWAP = 0;
+    
+    // Set pins as PWM ones
+    IOCON4bits.PENL = 1;
+    IOCON3bits.PENL = 1;
+    IOCON2bits.PENL = 1;
+    IOCON1bits.PENL = 1;
+    // Disable high output as we are not using it
+    IOCON4bits.PENH = 0;
+    IOCON3bits.PENH = 0;
+    IOCON2bits.PENH = 0;
+    IOCON1bits.PENH = 0;
+    
+    // Disable dead time in-between output switches
+    PWMCON4bits.DTC = 0b10;
+    PWMCON3bits.DTC = 0b10;
+    PWMCON2bits.DTC = 0b10;
+    PWMCON1bits.DTC = 0b10;
+    
+    // Set PWM configurations to zero by default
+    PWMCON4 = 0;
+    PWMCON3 = 0;
+    PWMCON2 = 0;
+    PWMCON1 = 0;
+    
+    // Finally, set prescaler to 1:1
+    PTCON2 = 0;
 }
