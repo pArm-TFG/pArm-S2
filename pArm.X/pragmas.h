@@ -28,48 +28,23 @@
 
 // This is a guard condition so that contents of this file are not included
 // more than once.  
-#ifndef INIT_H
-#define	INIT_H
+#ifndef PRAGMAS_H
+#define	PRAGMAS_H
 
-#include <xc.h> // include processor files - each processor file is guarded. 
-#include <libpic30.h>
-#include "utils.h"
+// Configurations for oscilator
+#pragma config POSCMD = XT      // Primary oscilator mode bits
+#pragma config OSCIOFNC = OFF   // OSC2 pin function bit (OSC2 as clock output)
+#pragma config IOL1WAY = OFF    // Peripheral pin select config (allows multiple reconfigurations)
+#pragma config FCKSM = CSECMD   // Clock switching mode bits
 
-void initBoard(void);
-void initUART(int port, int baudrate);
-void initPWM(void);
-void initInterrupts(void);
-void initUnusedIOPorts(void);
+// Configuration for oscilator selection
+#pragma config FNOSC = PRI      // Oscillator source selection
+#pragma config PWMLOCK = OFF    // PWM lock enable bit
+#pragma config IESO = ON        // Two-speed oscilator start-up enable bit
 
-// TODO Insert appropriate #include <>
+// Configuration for general segment
+#pragma config GWRP = OFF       // General segment write-protection bit
+#pragma config GCP = OFF        // General segment code-protection bit
 
-// TODO Insert C++ class definitions if appropriate
-
-// TODO Insert declarations
-
-// Comment a function and leverage automatic documentation with slash star star
-/**
-    <p><b>Function prototype:</b></p>
-  
-    <p><b>Summary:</b></p>
-
-    <p><b>Description:</b></p>
-
-    <p><b>Precondition:</b></p>
-
-    <p><b>Parameters:</b></p>
-
-    <p><b>Returns:</b></p>
-
-    <p><b>Example:</b></p>
-    <code>
- 
-    </code>
-
-    <p><b>Remarks:</b></p>
- */
-// TODO Insert declarations or function prototypes (right here) to leverage 
-// live documentation
-
-#endif	/* INIT_H */
+#endif	/* PRAGMAS_H */
 

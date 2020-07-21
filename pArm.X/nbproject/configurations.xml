@@ -6,6 +6,7 @@
                    projectFiles="true">
       <itemPath>init.h</itemPath>
       <itemPath>utils.h</itemPath>
+      <itemPath>pragmas.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

@@ -6,11 +6,14 @@
  */
 
 
+#include "pragmas.h"
 #include <xc.h>
 #include "utils.h"
 #include "init.h"
 
 
 int main(void) {
+    initBoard();
+    initPWM();
     return 0;
 }

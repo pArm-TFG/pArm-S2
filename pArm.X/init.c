@@ -9,6 +9,37 @@
 #include "init.h"
 
 
+void initBoard(void) {
+    // Disable watchdog timer
+    RCONbits.SWDTEN = 0;
+    
+    // Setup de PLL for reaching 40 MHz with a 7.3728 clock.
+    // Maximum speed is of 140 MHz as the maximum temperature
+    // of 85 ºC implies 70 MIPS.
+    //
+    // For working at ~40 MHz:
+    // F_osc = F_in * M / (N1 * N2)
+    // F_cy = F_osc / 2
+    // F_osc ~= 80 MHz -> F_osc = 7.3728 * 217 / (5 * 4) = 79.9949 MHz
+    // F_cy = F_osc / 2 = 39.9974 MHz
+    //
+    // Then, setup the PLL's prescaler, postcaler and divisor
+    PLLFBDbits.PLLDIV = 215;    // M = PLLDIV + 2 -> PLLDIV = 217 - 2 = 215
+    CLKDIVbits.PLLPOST = 1;     // N2 = 2 * (PLLPOST + 1) -> PLLPOST = (N2 / 2) - 1 = 1
+    CLKDIVbits.PLLPRE = 3;      // N1 = PLLPRE + 2; -> PLLPRE = N1 - 2 = 3
+    
+    // Notify clock to use PLL
+    // Start clock switching to primary
+    __builtin_write_OSCCONH(0x03);
+    __builtin_write_OSCCONL(0x01);
+    
+    // And wait for clock switching to happen
+    // First, wait for clock switch to occur
+    // and thenm wait the PLL to lock
+    while (OSCCONbits.COSC != 0b011);
+    while (OSCCONbits.LOCK != 1);
+}
+
 void initUART(int port, int baudrate) {
     // RX RPI44
     RPINR18bits.U1RXR = 0b0101100;
@@ -49,6 +80,19 @@ void initPWM(void) {
     TRISBbits.TRISB15 = 0; // PWM1L
     TRISAbits.TRISA7 = 0; // PMW4L
     
+    PTCON2bits.PCLKDIV = 0b101;  // Prescaler 1:32
+    
+    // Setup PWM period - the motors have a
+    // minimum time in between pulses of 20ms,
+    // so the frequency must be of 50 Hz.
+    //
+    // F_osc = 79.9949
+    // F_PWM = 50 Hz
+    // PWM_Prescaler = 32
+    // PTPER = F_osc / (F_PWM * PWM_Prescaler) --> PTPER = 79.9949 MHz / (50 Hz * 32)
+    // = 49996.8 ~= 49996 = PTPER --> F_PWM = 50.00080006... Hz
+    PTPER = 49996;
+    
     // Initialize intependent time base to zero.
     // As we are using PWMxL, we only use 
     // SPHASEx ports. If using PWMxH, just change 
@@ -77,10 +121,10 @@ void initPWM(void) {
     
     // True independent work mode, so then both PWMxH and
     // PWMxL can be used independently
-    IOCON4bits.PMOD = 0x11;
-    IOCON3bits.PMOD = 0x11;
-    IOCON2bits.PMOD = 0x11;
-    IOCON1bits.PMOD = 0x11;
+    IOCON4bits.PMOD = 0b11;
+    IOCON3bits.PMOD = 0b11;
+    IOCON2bits.PMOD = 0b11;
+    IOCON1bits.PMOD = 0b11;
     
     // Disable PWM fault input
     FCLCON4bits.FLTMOD = 0b11;
@@ -104,6 +148,12 @@ void initPWM(void) {
     IOCON3bits.PENH = 0;
     IOCON2bits.PENH = 0;
     IOCON1bits.PENH = 0;
+
+    // Set PWM configurations to zero by default
+    PWMCON4 = 0;
+    PWMCON3 = 0;
+    PWMCON2 = 0;
+    PWMCON1 = 0;
     
     // Disable dead time in-between output switches
     PWMCON4bits.DTC = 0b10;
@@ -111,12 +161,6 @@ void initPWM(void) {
     PWMCON2bits.DTC = 0b10;
     PWMCON1bits.DTC = 0b10;
     
-    // Set PWM configurations to zero by default
-    PWMCON4 = 0;
-    PWMCON3 = 0;
-    PWMCON2 = 0;
-    PWMCON1 = 0;
-    
-    // Finally, set prescaler to 1:1
-    PTCON2 = 0;
+    // and enable the PWM module
+    PTCONbits.PTEN = 1;
 }
