@@ -6,10 +6,11 @@
                    projectFiles="true">
       <itemPath>init.h</itemPath>
       <itemPath>pragmas.h</itemPath>
-      <itemPath>servo.h</itemPath>
       <itemPath>utils/utils.h</itemPath>
       <itemPath>utils/defs.h</itemPath>
       <itemPath>utils/types.h</itemPath>
+      <itemPath>motor/servo.h</itemPath>
+      <itemPath>motor/motor.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -20,7 +21,7 @@
                    projectFiles="true">
       <itemPath>main.c</itemPath>
       <itemPath>init.c</itemPath>
-      <itemPath>servo.c</itemPath>
+      <itemPath>motor/servo.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -30,6 +31,7 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>utils</Elem>
+    <Elem>motor</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -39,7 +41,7 @@
         <targetDevice>dsPIC33EP512GM604</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>noID</platformTool>
+        <platformTool></platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.50</languageToolchainVersion>
         <platform>2</platform>

@@ -29,13 +29,10 @@
 #ifndef TYPES_H
 #define	TYPES_H
 
+#include <xc.h>
+
 // Time definitions
 typedef unsigned long long time_t;
-
-// Motors' definitions
-typedef struct {
-    uint16_t *dutyCycleRegister;
-} Servo;
 
 #endif	/* TYPES_H */
 

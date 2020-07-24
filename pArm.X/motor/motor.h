@@ -20,20 +20,22 @@
  */
 
 /* 
- * File: servo.h
+ * File: motor.h
  * Author: Javinator9889
- * Comments: Servo controller header file
+ * Comments: The motor handler header file definition
  * Revision history: 1.0
  */
 
-#ifndef SERVO_H
-#define	SERVO_H
+#ifndef MOTOR_H
+#define	MOTOR_H
 
-#include "utils/types.h"
+#include "servo.h"
+#include "../utils/types.h"
 
-void writeAngle(Servo *servo, uint16_t angle);
-void writeMilliseconds(Servo *servo, double ms);
-void writeValue(Servo *servo, uint16_t dutyCycleValue);
+typedef struct {
+    const Servo *servoHandler;
+    time_t position;
+};
 
-#endif	/* SERVO_H */
+#endif	/* MOTOR_H */
 
