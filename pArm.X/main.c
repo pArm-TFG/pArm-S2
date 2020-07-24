@@ -12,6 +12,7 @@
 #include "init.h"
 #include "servo.h"
 
+
 int main(void) {
     initBoard();
     initPWM();
@@ -58,13 +59,13 @@ int main(void) {
     const Servo motor_4 = {0, &SDC1, 0UL};
     const Servo motor_3 = {0, &SDC2, 0UL};
     const Servo motor_2 = {0, &SDC3, 0UL};
-    const Servo motor_1 = {0, &SDC4, 0UL};
-    const Servo test_pin4 = {0, &PDC4, 0UL};
-    const Servo test_pin1 = {0, &PDC1, 0UL};
-    while (1) {
-        writeAngle(&test_pin4, 90);
-        writeAngle(&test_pin1, 90);
-    }
+    const Servo motor_1 = {0, &PDC1, 0UL};
+//    const Servo test_pin4 = {0, &PDC4, 0UL};
+//    const Servo test_pin1 = {0, &PDC1, 0UL};
+//    while (1) {
+//        writeAngle(&test_pin4, 90);
+//        writeAngle(&test_pin1, 90);
+//    }
     while (1) {
 //        printf("looping\n");
 //        writeAngle(&motor_4, 90);
@@ -83,25 +84,37 @@ int main(void) {
         SDC3 = 4208;
         SDC4 = 4208;*/
         writeAngle(&motor_4, 90);
+        __delay_ms(200);
         writeAngle(&motor_3, 45);
+        __delay_ms(200);
         writeAngle(&motor_2, 0);
+        __delay_ms(200);
         writeAngle(&motor_1, 180);
-        __delay_ms(500);
+        __delay_ms(200);
         writeAngle(&motor_4, 0);
+        __delay_ms(200);
         writeAngle(&motor_3, 180);
+        __delay_ms(200);
         writeAngle(&motor_2, 60);
+        __delay_ms(200);
         writeAngle(&motor_1, 30);
-        __delay_ms(500);
+        __delay_ms(200);
         writeAngle(&motor_4, 180);
+        __delay_ms(200);
         writeAngle(&motor_3, 90);
+        __delay_ms(200);
         writeAngle(&motor_2, 45);
+        __delay_ms(200);
         writeAngle(&motor_1, 0);
-        __delay_ms(500);
+        __delay_ms(200);
         writeAngle(&motor_4, 0);
+        __delay_ms(200);
         writeAngle(&motor_3, 30);
+        __delay_ms(200);
         writeAngle(&motor_2, 120);
+        __delay_ms(200);
         writeAngle(&motor_1, 90);
-        __delay_ms(500);
+        __delay_ms(200);
 //        writeAngle(&motor_1, 90);
     }
     return 0;

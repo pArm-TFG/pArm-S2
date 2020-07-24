@@ -78,9 +78,9 @@ void initPWM(void) {
     TRISBbits.TRISB11 = 0; // PWM3L
     TRISBbits.TRISB13 = 0; // PMW2L
     TRISBbits.TRISB15 = 0; // PWM1L
-    TRISBbits.TRISB14 = 0;
-    TRISAbits.TRISA7 = 0; // PMW4L
-    TRISAbits.TRISA10 = 0; // PWM4H
+    TRISBbits.TRISB14 = 0; // PWM1H
+//    TRISAbits.TRISA7 = 0; // PMW4L
+//    TRISAbits.TRISA10 = 0; // PWM4H
     
     PTCON2bits.PCLKDIV = 0b101;  // Prescaler 1:32
     
