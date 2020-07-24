@@ -17,16 +17,16 @@ void initBoard(void) {
     // Maximum speed is of 140 MHz as the maximum temperature
     // of 85 ºC implies 70 MIPS.
     //
-    // For working at ~40 MHz:
+    // For working at ~120 MHz:
     // F_osc = F_in * M / (N1 * N2)
     // F_cy = F_osc / 2
-    // F_osc ~= 80 MHz -> F_osc = 7.3728 * 217 / (5 * 4) = 79.9949 MHz
-    // F_cy = F_osc / 2 = 39.9974 MHz
+    // F_osc ~= 120 MHz -> F_osc = 7.3728 * 130 / (4 * 2) = 119.808 MHz
+    // F_cy = F_osc / 2 = 59.904 MHz
     //
     // Then, setup the PLL's prescaler, postcaler and divisor
-    PLLFBDbits.PLLDIV = 215;    // M = PLLDIV + 2 -> PLLDIV = 217 - 2 = 215
+    PLLFBDbits.PLLDIV = 130;    // M = PLLDIV + 2 -> PLLDIV = 217 - 2 = 215
     CLKDIVbits.PLLPOST = 1;     // N2 = 2 * (PLLPOST + 1) -> PLLPOST = (N2 / 2) - 1 = 1
-    CLKDIVbits.PLLPRE = 3;      // N1 = PLLPRE + 2; -> PLLPRE = N1 - 2 = 3
+    CLKDIVbits.PLLPRE = 2;      // N1 = PLLPRE + 2; -> PLLPRE = N1 - 2 = 3
     
     // Notify clock to use PLL
     // Start clock switching to primary
@@ -78,7 +78,9 @@ void initPWM(void) {
     TRISBbits.TRISB11 = 0; // PWM3L
     TRISBbits.TRISB13 = 0; // PMW2L
     TRISBbits.TRISB15 = 0; // PWM1L
+    TRISBbits.TRISB14 = 0;
     TRISAbits.TRISA7 = 0; // PMW4L
+    TRISAbits.TRISA10 = 0; // PWM4H
     
     PTCON2bits.PCLKDIV = 0b101;  // Prescaler 1:32
     
@@ -86,12 +88,12 @@ void initPWM(void) {
     // minimum time in between pulses of 20ms,
     // so the frequency must be of 50 Hz.
     //
-    // F_osc = 79.9949
+    // F_osc = 119.808 MHz
     // F_PWM = 50 Hz
-    // PWM_Prescaler = 32
-    // PTPER = F_osc / (F_PWM * PWM_Prescaler) --> PTPER = 79.9949 MHz / (50 Hz * 32)
-    // = 49996.8 ~= 49996 = PTPER --> F_PWM = 50.00080006... Hz
-    PTPER = 49996;
+    // PWM_Prescaler = 64
+    // PTPER = F_osc / (F_PWM * PWM_Prescaler) --> PTPER = 119.808 MHz / (50 Hz * 32)
+    // = 37440 = PTPER --> F_PWM = 50.000 Hz
+    PTPER = 37440;
     
     // Initialize intependent time base to zero.
     // As we are using PWMxL, we only use 
@@ -103,10 +105,12 @@ void initPWM(void) {
     SPHASE4 = 0;
     
     // By default, set no duty cycle of programmed signals
+    PDC4 = 0;
     SDC4 = 0;
     SDC3 = 0;
     SDC2 = 0;
     SDC1 = 0;
+    PDC1 = 0;
     
     // Disable Dead Time values
     ALTDTR4 = 0;
@@ -144,10 +148,10 @@ void initPWM(void) {
     IOCON2bits.PENL = 1;
     IOCON1bits.PENL = 1;
     // Disable high output as we are not using it
-    IOCON4bits.PENH = 0;
+    IOCON4bits.PENH = 1;
     IOCON3bits.PENH = 0;
     IOCON2bits.PENH = 0;
-    IOCON1bits.PENH = 0;
+    IOCON1bits.PENH = 1;
 
     // Set PWM configurations to zero by default
     PWMCON4 = 0;

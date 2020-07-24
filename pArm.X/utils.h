@@ -33,6 +33,7 @@
 
 #include <xc.h>
 #include <p33EP512GM604.h>
+#include <math.h>
 
 #define arrsize(array) (sizeof (array) / sizeof *(array))
 #define foreach(idxtype, item, array) \
@@ -40,8 +41,45 @@
     size_t size = arrsize(array); \
     for (item = array; item < (array + size); ++item)
 #define CLK_SPEED 7.3728
+#define FOSC 119808000UL
+//#define FCY 59904000UL
 
 typedef unsigned long time_t;
+
+/**
+ * Maps a value in between the output range by the given input range
+ * @param x the value to map.
+ * @param in_min the minimum acceptable value.
+ * @param in_max the maximum acceptable value.
+ * @param out_min the minimum output value.
+ * @param out_max the maximum output value.
+ * @return the mapped 'x' value in between [out_min, out_max]
+ * @see https://www.arduino.cc/reference/en/language/functions/math/map/
+ */
+inline long map(long x, long in_min, long in_max, long out_min, long out_max)
+{
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+/*inline double round(double d) {
+    return floor(d + 0.5);
+}*/
+
+inline double preciseMap(
+    double value,
+    double in_min,
+    double in_max,
+    double out_min,
+    double out_max)
+{
+    double slope = 1.0 * (out_max - out_min) / (in_max - in_min);
+    return out_min + floor((slope * (value - in_min)) + .5);
+}
+
+inline double mapf(double x, double in_min, double in_max, double out_min, double out_max)
+{
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 // TODO Insert appropriate #include <>
 

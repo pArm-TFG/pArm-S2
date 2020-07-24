@@ -15,7 +15,11 @@
             <sourceRootList/>
             <confList>
                 <confElem>
-                    <name>default</name>
+                    <name>recording</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>simulation</name>
                     <type>2</type>
                 </confElem>
             </confList>

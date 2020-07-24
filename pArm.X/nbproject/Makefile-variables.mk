@@ -4,10 +4,17 @@
 # NOCDDL
 #
 CND_BASEDIR=`pwd`
-# default configuration
-CND_ARTIFACT_DIR_default=dist/default/production
-CND_ARTIFACT_NAME_default=pArm.X.production.hex
-CND_ARTIFACT_PATH_default=dist/default/production/pArm.X.production.hex
-CND_PACKAGE_DIR_default=${CND_DISTDIR}/default/package
-CND_PACKAGE_NAME_default=parm.x.tar
-CND_PACKAGE_PATH_default=${CND_DISTDIR}/default/package/parm.x.tar
+# recording configuration
+CND_ARTIFACT_DIR_recording=dist/recording/production
+CND_ARTIFACT_NAME_recording=pArm.X.production.hex
+CND_ARTIFACT_PATH_recording=dist/recording/production/pArm.X.production.hex
+CND_PACKAGE_DIR_recording=${CND_DISTDIR}/recording/package
+CND_PACKAGE_NAME_recording=parm.x.tar
+CND_PACKAGE_PATH_recording=${CND_DISTDIR}/recording/package/parm.x.tar
+# simulation configuration
+CND_ARTIFACT_DIR_simulation=dist/simulation/production
+CND_ARTIFACT_NAME_simulation=pArm.X.production.hex
+CND_ARTIFACT_PATH_simulation=dist/simulation/production/pArm.X.production.hex
+CND_PACKAGE_DIR_simulation=${CND_DISTDIR}/simulation/package
+CND_PACKAGE_NAME_simulation=parm.x.tar
+CND_PACKAGE_PATH_simulation=${CND_DISTDIR}/simulation/package/parm.x.tar

@@ -28,26 +28,24 @@
 
 // This is a guard condition so that contents of this file are not included
 // more than once.  
-#ifndef PRAGMAS_H
-#define	PRAGMAS_H
+#ifndef SERVO_H
+#define	SERVO_H
 
-// Configurations for oscilator
-#pragma config POSCMD = XT      // Primary oscilator mode bits
-#pragma config OSCIOFNC = OFF   // OSC2 pin function bit (OSC2 as clock output)
-#pragma config IOL1WAY = OFF    // Peripheral pin select config (allows multiple reconfigurations)
-#pragma config FCKSM = CSECMD   // Clock switching mode bits
+#include <xc.h> // include processor files - each processor file is guarded.  
+#include "utils.h"
 
-// Configuration for oscilator selection
-#pragma config FNOSC = PRI      // Oscillator source selection
-#pragma config PWMLOCK = OFF    // PWM lock enable bit
-#pragma config IESO = ON        // Two-speed oscilator start-up enable bit
+typedef struct {
+    uint16_t *port;
+    uint16_t *dutyCycleRegister;
+    time_t position;
+} Servo;
 
-// Configuration for general segment
-#pragma config GWRP = OFF       // General segment write-protection bit
-#pragma config GCP = OFF        // General segment code-protection bit
+void writeAngle(Servo *servo, uint16_t angle);
+void writeMilliseconds(Servo *servo, double ms);
+void writeValue(Servo *servo, uint16_t dutyCycleValue);
 
-#define FOSC 119808000UL
-#define FCY 59904000UL
+//void write(uint8_t number, uint8_t angle);
+//void writeValue(uint8_t number, time_t dutyCycleValue);
 
-#endif	/* PRAGMAS_H */
+#endif	/* SERVO_H */
 

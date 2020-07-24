@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <executable name="dist/default/production/pArm.X.production.elf">
+  <executable name="dist/recording/production/pArm.X.production.elf">
     <memory name="data">
       <units>bytes</units>
       <length>49152</length>
@@ -11,8 +11,8 @@
     <memory name="program">
       <units>bytes</units>
       <length>524514</length>
-      <used>4032</used>
-      <free>520482</free>
+      <used>3678</used>
+      <free>520836</free>
     </memory>
   </executable>
 </project>
