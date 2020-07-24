@@ -34,6 +34,5 @@
 #define FCY         59904000UL
 #define CLK_SPEED   7.3728
 
-
 #endif	/* DEFS_H */
 

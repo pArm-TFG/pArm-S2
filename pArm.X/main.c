@@ -6,11 +6,12 @@
  */
 
 
+#include "utils/defs.h"
 #include "pragmas.h"
 #include <xc.h>
 #include "utils/utils.h"
 #include "init.h"
-#include "servo.h"
+#include "motor/servo.h"
 
 
 int main(void) {
@@ -56,10 +57,10 @@ int main(void) {
 //        __delay_ms(500);
 //        delay_ms(500);
     }*/
-    const Servo motor_4 = {0, &SDC1, 0UL};
-    const Servo motor_3 = {0, &SDC2, 0UL};
-    const Servo motor_2 = {0, &SDC3, 0UL};
-    const Servo motor_1 = {0, &PDC1, 0UL};
+    Servo motor_4 = {&SDC1};
+    Servo motor_3 = {&SDC2};
+    Servo motor_2 = {&SDC3};
+    Servo motor_1 = {&PDC1};
 //    const Servo test_pin4 = {0, &PDC4, 0UL};
 //    const Servo test_pin1 = {0, &PDC1, 0UL};
 //    while (1) {
