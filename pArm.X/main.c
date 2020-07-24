@@ -8,7 +8,7 @@
 
 #include "pragmas.h"
 #include <xc.h>
-#include "utils.h"
+#include "utils/utils.h"
 #include "init.h"
 #include "servo.h"
 

@@ -20,31 +20,20 @@
  */
 
 /* 
- * File: pragmas.h
+ * File: defs,h
  * Author: Javinator9889
- * Comments: A collection of configurations used in dsPIC33EP
+ * Comments: Includes common definitions that may be used in the entire project
  * Revision history: 1.0
  */
 
-// This is a guard condition so that contents of this file are not included
-// more than once.  
-#ifndef PRAGMAS_H
-#define	PRAGMAS_H
+#ifndef DEFS_H
+#define	DEFS_H
 
-// Configurations for oscilator
-#pragma config POSCMD = XT      // Primary oscilator mode bits
-#pragma config OSCIOFNC = OFF   // OSC2 pin function bit (OSC2 as clock output)
-#pragma config IOL1WAY = OFF    // Peripheral pin select config (allows multiple reconfigurations)
-#pragma config FCKSM = CSECMD   // Clock switching mode bits
+// CLK definitions
+#define FOSC        119808000UL
+#define FCY         59904000UL
+#define CLK_SPEED   7.3728
 
-// Configuration for oscilator selection
-#pragma config FNOSC = PRI      // Oscillator source selection
-#pragma config PWMLOCK = OFF    // PWM lock enable bit
-#pragma config IESO = ON        // Two-speed oscilator start-up enable bit
 
-// Configuration for general segment
-#pragma config GWRP = OFF       // General segment write-protection bit
-#pragma config GCP = OFF        // General segment code-protection bit
-
-#endif	/* PRAGMAS_H */
+#endif	/* DEFS_H */
 

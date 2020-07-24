@@ -20,31 +20,22 @@
  */
 
 /* 
- * File: pragmas.h
+ * File: types.h
  * Author: Javinator9889
- * Comments: A collection of configurations used in dsPIC33EP
+ * Comments: A header file that contains all custom data types used in this project.
  * Revision history: 1.0
  */
+  
+#ifndef TYPES_H
+#define	TYPES_H
 
-// This is a guard condition so that contents of this file are not included
-// more than once.  
-#ifndef PRAGMAS_H
-#define	PRAGMAS_H
+// Time definitions
+typedef unsigned long long time_t;
 
-// Configurations for oscilator
-#pragma config POSCMD = XT      // Primary oscilator mode bits
-#pragma config OSCIOFNC = OFF   // OSC2 pin function bit (OSC2 as clock output)
-#pragma config IOL1WAY = OFF    // Peripheral pin select config (allows multiple reconfigurations)
-#pragma config FCKSM = CSECMD   // Clock switching mode bits
+// Motors' definitions
+typedef struct {
+    uint16_t *dutyCycleRegister;
+} Servo;
 
-// Configuration for oscilator selection
-#pragma config FNOSC = PRI      // Oscillator source selection
-#pragma config PWMLOCK = OFF    // PWM lock enable bit
-#pragma config IESO = ON        // Two-speed oscilator start-up enable bit
-
-// Configuration for general segment
-#pragma config GWRP = OFF       // General segment write-protection bit
-#pragma config GCP = OFF        // General segment code-protection bit
-
-#endif	/* PRAGMAS_H */
+#endif	/* TYPES_H */
 

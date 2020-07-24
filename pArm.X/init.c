@@ -7,6 +7,7 @@
 
 #include <p33EP512GM604.h>
 #include "init.h"
+#include "utils/defs.h"
 
 
 void initBoard(void) {
@@ -79,8 +80,6 @@ void initPWM(void) {
     TRISBbits.TRISB13 = 0; // PMW2L
     TRISBbits.TRISB15 = 0; // PWM1L
     TRISBbits.TRISB14 = 0; // PWM1H
-//    TRISAbits.TRISA7 = 0; // PMW4L
-//    TRISAbits.TRISA10 = 0; // PWM4H
     
     PTCON2bits.PCLKDIV = 0b101;  // Prescaler 1:32
     
@@ -105,8 +104,6 @@ void initPWM(void) {
     SPHASE4 = 0;
     
     // By default, set no duty cycle of programmed signals
-    PDC4 = 0;
-    SDC4 = 0;
     SDC3 = 0;
     SDC2 = 0;
     SDC1 = 0;
@@ -147,11 +144,11 @@ void initPWM(void) {
     IOCON3bits.PENL = 1;
     IOCON2bits.PENL = 1;
     IOCON1bits.PENL = 1;
+    IOCON1bits.PENH = 1;
     // Disable high output as we are not using it
-    IOCON4bits.PENH = 1;
+    IOCON4bits.PENH = 0;
     IOCON3bits.PENH = 0;
     IOCON2bits.PENH = 0;
-    IOCON1bits.PENH = 1;
 
     // Set PWM configurations to zero by default
     PWMCON4 = 0;

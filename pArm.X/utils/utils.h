@@ -20,10 +20,10 @@
  */
 
 /* 
- * File:   
- * Author: 
- * Comments:
- * Revision history: 
+ * File: utils.h
+ * Author: Javinator9889
+ * Comments: Standard utils for using them along the project
+ * Revision history: 1.0
  */
 
 // This is a guard condition so that contents of this file are not included
@@ -40,11 +40,6 @@
     idxtype* item; \
     size_t size = arrsize(array); \
     for (item = array; item < (array + size); ++item)
-#define CLK_SPEED 7.3728
-#define FOSC 119808000UL
-//#define FCY 59904000UL
-
-typedef unsigned long time_t;
 
 /**
  * Maps a value in between the output range by the given input range
@@ -61,10 +56,6 @@ inline long map(long x, long in_min, long in_max, long out_min, long out_max)
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-/*inline double round(double d) {
-    return floor(d + 0.5);
-}*/
-
 inline double preciseMap(
     double value,
     double in_min,
@@ -80,36 +71,6 @@ inline double mapf(double x, double in_min, double in_max, double out_min, doubl
 {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
-
-// TODO Insert appropriate #include <>
-
-// TODO Insert C++ class definitions if appropriate
-
-// TODO Insert declarations
-
-// Comment a function and leverage automatic documentation with slash star star
-/**
-    <p><b>Function prototype:</b></p>
-  
-    <p><b>Summary:</b></p>
-
-    <p><b>Description:</b></p>
-
-    <p><b>Precondition:</b></p>
-
-    <p><b>Parameters:</b></p>
-
-    <p><b>Returns:</b></p>
-
-    <p><b>Example:</b></p>
-    <code>
- 
-    </code>
-
-    <p><b>Remarks:</b></p>
- */
-// TODO Insert declarations or function prototypes (right here) to leverage 
-// live documentation
 
 #endif	/* UTILS_H */
 

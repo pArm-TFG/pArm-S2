@@ -20,32 +20,20 @@
  */
 
 /* 
- * File:   
- * Author: 
- * Comments:
- * Revision history: 
+ * File: servo.h
+ * Author: Javinator9889
+ * Comments: Servo controller header file
+ * Revision history: 1.0
  */
 
-// This is a guard condition so that contents of this file are not included
-// more than once.  
 #ifndef SERVO_H
 #define	SERVO_H
 
-#include <xc.h> // include processor files - each processor file is guarded.  
-#include "utils.h"
-
-typedef struct {
-    uint16_t *port;
-    uint16_t *dutyCycleRegister;
-    time_t position;
-} Servo;
+#include "utils/types.h"
 
 void writeAngle(Servo *servo, uint16_t angle);
 void writeMilliseconds(Servo *servo, double ms);
 void writeValue(Servo *servo, uint16_t dutyCycleValue);
-
-//void write(uint8_t number, uint8_t angle);
-//void writeValue(uint8_t number, time_t dutyCycleValue);
 
 #endif	/* SERVO_H */
 

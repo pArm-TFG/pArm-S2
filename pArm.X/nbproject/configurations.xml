@@ -5,9 +5,11 @@
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>init.h</itemPath>
-      <itemPath>utils.h</itemPath>
       <itemPath>pragmas.h</itemPath>
       <itemPath>servo.h</itemPath>
+      <itemPath>utils/utils.h</itemPath>
+      <itemPath>utils/defs.h</itemPath>
+      <itemPath>utils/types.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -26,6 +28,9 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>utils</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="recording" type="2">
@@ -34,7 +39,7 @@
         <targetDevice>dsPIC33EP512GM604</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>PICkit3PlatformTool</platformTool>
+        <platformTool>noID</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.50</languageToolchainVersion>
         <platform>2</platform>
