@@ -29,6 +29,7 @@
 #ifndef MOTOR_H
 #define	MOTOR_H
 
+#include <stdint.h>
 #include "servo.h"
 #include "../utils/types.h"
 #include "../utils/utils.h"
@@ -38,15 +39,16 @@
 typedef struct {
     const Servo *servoHandler;
     volatile time_t ticks;
+    const uint8_t id;
 } Motor;
 
 
-static inline void handleInterrupt(void);
-inline void move(Motor *motor, uint8_t angle);
-inline void home(Motor motor[MAX_MOTORS]);
-inline void freeze(Motor *motor);
-inline time_t positionMs(Motor *motor);
-inline uint8_t position(Motor *motor);
+static void handleInterrupt(void);
+void move(Motor *motor, uint16_t angle);
+void home(Motor motor[MAX_MOTORS]);
+void freeze(Motor *motor);
+double positionMs(Motor *motor);
+double position(Motor *motor);
 
 #endif	/* MOTOR_H */
 

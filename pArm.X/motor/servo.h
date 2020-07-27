@@ -29,8 +29,9 @@
 #ifndef SERVO_H
 #define	SERVO_H
 
-#include <xc.h>
+#include <stdint.h>
 #include "../utils/defs.h"
+#include "../utils/types.h"
 
 #define usToTicks(_us)      ( (clockCyclesPerMicrosecond() * _us) / PRESCALE )
 #define ticksToUs(_ticks)   ( ((unsigned)_ticks * PRESCALE) / clockCyclesPerMicrosecond() )

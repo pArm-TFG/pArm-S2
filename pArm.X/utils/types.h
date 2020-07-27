@@ -29,10 +29,13 @@
 #ifndef TYPES_H
 #define	TYPES_H
 
-#include <xc.h>
+#include <stdint.h>
 
 // Time definitions
-typedef unsigned long long time_t;
+#ifndef time_t
+typedef uint64_t time_t;
+#define time_t time_t
+#endif
 
 #endif	/* TYPES_H */
 

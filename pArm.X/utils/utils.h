@@ -34,6 +34,7 @@
 #include <xc.h>
 #include <p33EP512GM604.h>
 #include <math.h>
+#include <stddef.h>
 #include "defs.h"
 
 #define arrsize(array) (sizeof (array) / sizeof *(array))
