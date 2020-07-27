@@ -34,12 +34,14 @@
 #include <xc.h>
 #include <p33EP512GM604.h>
 #include <math.h>
+#include "defs.h"
 
 #define arrsize(array) (sizeof (array) / sizeof *(array))
 #define foreach(idxtype, item, array) \
     idxtype* item; \
     size_t size = arrsize(array); \
     for (item = array; item < (array + size); ++item)
+#define clockCyclesPerMicrosecond() ( FCY / 1000000UL )
 
 /**
  * Maps a value in between the output range by the given input range

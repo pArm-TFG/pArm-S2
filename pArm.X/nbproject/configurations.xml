@@ -22,6 +22,7 @@
       <itemPath>main.c</itemPath>
       <itemPath>init.c</itemPath>
       <itemPath>motor/servo.c</itemPath>
+      <itemPath>motor/motor.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

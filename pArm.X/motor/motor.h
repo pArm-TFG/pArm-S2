@@ -31,11 +31,22 @@
 
 #include "servo.h"
 #include "../utils/types.h"
+#include "../utils/utils.h"
+
+#define MAX_MOTORS  4U
 
 typedef struct {
     const Servo *servoHandler;
-    time_t position;
+    volatile time_t ticks;
 } Motor;
+
+
+static inline void handleInterrupt(void);
+inline void move(Motor *motor, uint8_t angle);
+inline void home(Motor motor[MAX_MOTORS]);
+inline void freeze(Motor *motor);
+inline time_t positionMs(Motor *motor);
+inline uint8_t position(Motor *motor);
 
 #endif	/* MOTOR_H */
 

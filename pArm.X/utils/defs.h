@@ -28,11 +28,18 @@
 
 #ifndef DEFS_H
 #define	DEFS_H
+#include <stdint.h>
 
 // CLK definitions
 #define FOSC        119808000UL
 #define FCY         59904000UL
 #define CLK_SPEED   7.3728
+#define FCLK_SPEED  73728000UL
+#define PRESCALE    ((uint8_t) FOSC / FCLK_SPEED)
+
+// Servo definitions
+#define MIN_PULSE_MS    0.75
+#define MAX_PULSE_MS    2.25
 
 #endif	/* DEFS_H */
 

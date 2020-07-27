@@ -30,6 +30,12 @@
 #define	SERVO_H
 
 #include <xc.h>
+#include "../utils/defs.h"
+
+#define usToTicks(_us)      ( (clockCyclesPerMicrosecond() * _us) / PRESCALE )
+#define ticksToUs(_ticks)   ( ((unsigned)_ticks * PRESCALE) / clockCyclesPerMicrosecond() )
+#define MIN_PULSE_WIDTH     usToTicks(((unsigned long) MIN_PULSE_MS * 1000))
+#define MAX_PULSE_WIDTH     usToTicks(((unsigned long) MAX_PULSE_MS * 1000))
 
 // Servo definition
 typedef struct {
