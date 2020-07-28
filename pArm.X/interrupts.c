@@ -1,6 +1,9 @@
 #include "interrupts.h"
+#include "utils/time.h"
+
 
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
+    increment_us();
     // Clear Timer1 interrupt
     IFS0bits.T1IF = 0;
 }

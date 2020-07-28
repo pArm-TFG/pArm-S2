@@ -1,23 +1,27 @@
 #include "time.h"
+#include "types.h"
 
-static inline void updateMs(void) {
-    now_ms = (time_t) (now_us / 1000UL);
+volatile time_t _now_us = 0;
+volatile time_t _now_ms = 0;
+
+inline void _updateMs(void) {
+    _now_ms = (time_t) (_now_us / 1000ULL);
 }
 
 inline time_t now(void) {
-    return now_ms;
+    return _now_ms;
 }
 
-inline time_t nowUs(void) {
-    return now_us;
+inline time_t now_us(void) {
+    return _now_us;
 }
 
-inline void increment(void) {
-    ++now_us;
-    updateMs();
+inline void increment_us(void) {
+    _now_us += 1ULL;
+    _updateMs();
 }
 
-inline void set(time_t value_us) {
-    now_us = value_us;
-    updateMs();
+inline void set_time(time_t value_us) {
+    _now_us = value_us;
+    _updateMs();
 }

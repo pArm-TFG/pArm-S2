@@ -41,7 +41,7 @@ void initBoard(void) {
     while (OSCCONbits.LOCK != 1);
 }
 
-void initUART(int port, int baudrate) {
+void initUART(int baudrate) {
     // RX RPI44
     RPINR18bits.U1RXR = 0b0101100;
     TRISBbits.TRISB12 = 1;
@@ -63,8 +63,14 @@ void initUART(int port, int baudrate) {
     U1MODEbits.STSEL = 0;
 
     U1STAbits.URXISEL = 0;
-    U1BRG = (int) (((CLK_SPEED / 2) / (16 * baudrate)) - 1);
-
+    
+    // Calculate the baudrate using the following equation
+    // UxBRG = ((FCY / Desired Baud rate) / 16) - 1
+    // For 9600 bauds and FCY = 59.904E6, the obtained BRG is
+    // -> 389, and the obtained baudrate is: 9600, with an error
+    // of 0%
+    U1BRG = ((FCY / baudrate) >> 4) - 1;
+    
     IPC2bits.U1RXIP = 0;
     IFS0bits.U1RXIF = 0;
     IEC0bits.U1RXIE = 0;

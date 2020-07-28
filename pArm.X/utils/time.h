@@ -33,13 +33,14 @@
 
 #include "types.h"
 
-static volatile time_t now_ms;
-static volatile time_t now_us;
+extern volatile time_t _now_ms;
+extern volatile time_t _now_us;
 
+void _updateMs(void);
 time_t now(void);
-time_t nowUs(void);
-void increment(void);
-void set(time_t value_us);
+time_t now_us(void);
+void increment_us(void);
+void set_time(time_t value_us);
 
 #endif	/* TIME_H */
 

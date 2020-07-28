@@ -809,7 +809,7 @@
         <property key="enable-unroll-loops" value="true"/>
         <property key="extra-include-directories" value=""/>
         <property key="isolate-each-function" value="false"/>
-        <property key="keep-inline" value="false"/>
+        <property key="keep-inline" value="true"/>
         <property key="oXC16gcc-align-arr" value="true"/>
         <property key="oXC16gcc-cnsts-mauxflash" value="false"/>
         <property key="oXC16gcc-data-sects" value="false"/>
@@ -1010,7 +1010,7 @@
         <property key="codecoverage.outputfile" value=""/>
         <property key="oscillator.auxfrequency" value="120"/>
         <property key="oscillator.auxfrequencyunit" value="Mega"/>
-        <property key="oscillator.frequency" value="7.3728"/>
+        <property key="oscillator.frequency" value="119"/>
         <property key="oscillator.frequencyunit" value="Mega"/>
         <property key="oscillator.rcfrequency" value="250"/>
         <property key="oscillator.rcfrequencyunit" value="Kilo"/>
@@ -1037,7 +1037,7 @@
         <property key="uart0io.uartioenabled" value="false"/>
         <property key="uart1io.output" value="window"/>
         <property key="uart1io.outputfile" value=""/>
-        <property key="uart1io.uartioenabled" value="true"/>
+        <property key="uart1io.uartioenabled" value="false"/>
         <property key="uart2io.output" value="window"/>
         <property key="uart2io.outputfile" value=""/>
         <property key="uart2io.uartioenabled" value="false"/>

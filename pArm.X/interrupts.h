@@ -31,7 +31,7 @@
 #ifndef INTERRUPTS_H
 #define	INTERRUPTS_H
 
-#include <xc.h> // include processor files - each processor file is guarded.  
+#include <xc.h>
 
 // Define Timer interrupts
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void);

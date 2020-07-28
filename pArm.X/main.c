@@ -12,11 +12,16 @@
 #include "utils/utils.h"
 #include "init.h"
 #include "motor/servo.h"
+#include "interrupts.h"
+#include "utils/time.h"
 
 
 int main(void) {
     initBoard();
     initPWM();
+    initInterrupts();
+    initUART(9600);
+    set_time(0);
     /*while (1) {
         SDC1 = 18720;
         SDC2 = 18720;
