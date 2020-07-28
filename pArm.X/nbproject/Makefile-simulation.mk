@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=main.c init.c motor/servo.c motor/motor.c
+SOURCEFILES_QUOTED_IF_SPACED=main.c init.c motor/servo.c motor/motor.c interrupts.c utils/time.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/main.o ${OBJECTDIR}/init.o ${OBJECTDIR}/motor/servo.o ${OBJECTDIR}/motor/motor.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/main.o.d ${OBJECTDIR}/init.o.d ${OBJECTDIR}/motor/servo.o.d ${OBJECTDIR}/motor/motor.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/main.o ${OBJECTDIR}/init.o ${OBJECTDIR}/motor/servo.o ${OBJECTDIR}/motor/motor.o ${OBJECTDIR}/interrupts.o ${OBJECTDIR}/utils/time.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/main.o.d ${OBJECTDIR}/init.o.d ${OBJECTDIR}/motor/servo.o.d ${OBJECTDIR}/motor/motor.o.d ${OBJECTDIR}/interrupts.o.d ${OBJECTDIR}/utils/time.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/main.o ${OBJECTDIR}/init.o ${OBJECTDIR}/motor/servo.o ${OBJECTDIR}/motor/motor.o
+OBJECTFILES=${OBJECTDIR}/main.o ${OBJECTDIR}/init.o ${OBJECTDIR}/motor/servo.o ${OBJECTDIR}/motor/motor.o ${OBJECTDIR}/interrupts.o ${OBJECTDIR}/utils/time.o
 
 # Source Files
-SOURCEFILES=main.c init.c motor/servo.c motor/motor.c
+SOURCEFILES=main.c init.c motor/servo.c motor/motor.c interrupts.c utils/time.c
 
 
 
@@ -123,6 +123,20 @@ ${OBJECTDIR}/motor/motor.o: motor/motor.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  motor/motor.c  -o ${OBJECTDIR}/motor/motor.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/motor/motor.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1  -mno-eds-warn  -omf=elf -fast-math -DXPRJ_simulation=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -std=gnu99 -fno-short-double -O2 -funroll-loops -falign-arrays -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	@${FIXDEPS} "${OBJECTDIR}/motor/motor.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/interrupts.o: interrupts.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/interrupts.o.d 
+	@${RM} ${OBJECTDIR}/interrupts.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  interrupts.c  -o ${OBJECTDIR}/interrupts.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/interrupts.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1  -mno-eds-warn  -omf=elf -fast-math -DXPRJ_simulation=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -std=gnu99 -fno-short-double -O2 -funroll-loops -falign-arrays -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	@${FIXDEPS} "${OBJECTDIR}/interrupts.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/utils/time.o: utils/time.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/utils" 
+	@${RM} ${OBJECTDIR}/utils/time.o.d 
+	@${RM} ${OBJECTDIR}/utils/time.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  utils/time.c  -o ${OBJECTDIR}/utils/time.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/utils/time.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1  -mno-eds-warn  -omf=elf -fast-math -DXPRJ_simulation=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -std=gnu99 -fno-short-double -O2 -funroll-loops -falign-arrays -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	@${FIXDEPS} "${OBJECTDIR}/utils/time.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 else
 ${OBJECTDIR}/main.o: main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -151,6 +165,20 @@ ${OBJECTDIR}/motor/motor.o: motor/motor.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/motor/motor.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  motor/motor.c  -o ${OBJECTDIR}/motor/motor.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/motor/motor.o.d"      -mno-eds-warn  -g -omf=elf -fast-math -DXPRJ_simulation=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -std=gnu99 -fno-short-double -O2 -funroll-loops -falign-arrays -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	@${FIXDEPS} "${OBJECTDIR}/motor/motor.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/interrupts.o: interrupts.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/interrupts.o.d 
+	@${RM} ${OBJECTDIR}/interrupts.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  interrupts.c  -o ${OBJECTDIR}/interrupts.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/interrupts.o.d"      -mno-eds-warn  -g -omf=elf -fast-math -DXPRJ_simulation=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -std=gnu99 -fno-short-double -O2 -funroll-loops -falign-arrays -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	@${FIXDEPS} "${OBJECTDIR}/interrupts.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/utils/time.o: utils/time.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/utils" 
+	@${RM} ${OBJECTDIR}/utils/time.o.d 
+	@${RM} ${OBJECTDIR}/utils/time.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  utils/time.c  -o ${OBJECTDIR}/utils/time.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/utils/time.o.d"      -mno-eds-warn  -g -omf=elf -fast-math -DXPRJ_simulation=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -std=gnu99 -fno-short-double -O2 -funroll-loops -falign-arrays -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	@${FIXDEPS} "${OBJECTDIR}/utils/time.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
 

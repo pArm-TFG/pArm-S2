@@ -20,25 +20,26 @@
  */
 
 /* 
- * File:   
- * Author: 
- * Comments:
- * Revision history: 
+ * File: time.h
+ * Author: Javinator9889
+ * Comments: the time management library
+ * Revision history: 1.0
  */
 
 // This is a guard condition so that contents of this file are not included
 // more than once.  
-#ifndef INIT_H
-#define	INIT_H
+#ifndef TIME_H
+#define	TIME_H
 
-#include <xc.h> // include processor files - each processor file is guarded. 
-#include <libpic30.h>
+#include "types.h"
 
-void initBoard(void);
-void initUART(int port, int baudrate);
-void initPWM(void);
-void initInterrupts(void);
-void initUnusedIOPorts(void);
+static volatile time_t now_ms;
+static volatile time_t now_us;
 
-#endif	/* INIT_H */
+time_t now(void);
+time_t nowUs(void);
+void increment(void);
+void set(time_t value_us);
+
+#endif	/* TIME_H */
 

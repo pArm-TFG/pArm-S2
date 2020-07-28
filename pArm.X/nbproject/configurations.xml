@@ -11,6 +11,8 @@
       <itemPath>utils/types.h</itemPath>
       <itemPath>motor/servo.h</itemPath>
       <itemPath>motor/motor.h</itemPath>
+      <itemPath>interrupts.h</itemPath>
+      <itemPath>utils/time.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -23,6 +25,8 @@
       <itemPath>init.c</itemPath>
       <itemPath>motor/servo.c</itemPath>
       <itemPath>motor/motor.c</itemPath>
+      <itemPath>interrupts.c</itemPath>
+      <itemPath>utils/time.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -1006,7 +1010,7 @@
         <property key="codecoverage.outputfile" value=""/>
         <property key="oscillator.auxfrequency" value="120"/>
         <property key="oscillator.auxfrequencyunit" value="Mega"/>
-        <property key="oscillator.frequency" value="59.904"/>
+        <property key="oscillator.frequency" value="7.3728"/>
         <property key="oscillator.frequencyunit" value="Mega"/>
         <property key="oscillator.rcfrequency" value="250"/>
         <property key="oscillator.rcfrequencyunit" value="Kilo"/>

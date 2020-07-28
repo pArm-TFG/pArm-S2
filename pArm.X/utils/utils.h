@@ -31,8 +31,6 @@
 #ifndef UTILS_H
 #define	UTILS_H
 
-#include <xc.h>
-#include <p33EP512GM604.h>
 #include <math.h>
 #include <stddef.h>
 #include "defs.h"
@@ -59,6 +57,10 @@ inline long map(long x, long in_min, long in_max, long out_min, long out_max)
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+inline double roundp(double value) {
+    return floor(value + .5);
+}
+
 inline double preciseMap(
     double value,
     double in_min,
@@ -67,7 +69,7 @@ inline double preciseMap(
     double out_max)
 {
     double slope = 1.0 * (out_max - out_min) / (in_max - in_min);
-    return out_min + floor((slope * (value - in_min)) + .5);
+    return out_min + roundp(slope * (value - in_min));
 }
 
 inline double mapf(double x, double in_min, double in_max, double out_min, double out_max)

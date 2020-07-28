@@ -20,25 +20,22 @@
  */
 
 /* 
- * File:   
- * Author: 
- * Comments:
- * Revision history: 
+ * File: interrupts.h
+ * Author: Javinator9889
+ * Comments: base interrupts handler with different handlers
+ * Revision history: 1.0
  */
 
 // This is a guard condition so that contents of this file are not included
 // more than once.  
-#ifndef INIT_H
-#define	INIT_H
+#ifndef INTERRUPTS_H
+#define	INTERRUPTS_H
 
-#include <xc.h> // include processor files - each processor file is guarded. 
-#include <libpic30.h>
+#include <xc.h> // include processor files - each processor file is guarded.  
 
-void initBoard(void);
-void initUART(int port, int baudrate);
-void initPWM(void);
-void initInterrupts(void);
-void initUnusedIOPorts(void);
+// Define Timer interrupts
+void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void);
 
-#endif	/* INIT_H */
+#endif	/* INTERRUPTS_H */
 
