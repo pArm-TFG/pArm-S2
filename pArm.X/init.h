@@ -35,7 +35,7 @@
 #include <libpic30.h>
 
 void initBoard(void);
-void initUART(int baudrate);
+void initUART(void);
 void initPWM(void);
 void initInterrupts(void);
 void initUnusedIOPorts(void);

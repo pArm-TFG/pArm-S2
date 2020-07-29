@@ -10,7 +10,6 @@
 #include "utils/utils.h"
 #include "utils/defs.h"
 
-
 void initBoard(void) {
     // Disable watchdog timer
     RCONbits.SWDTEN = 0;
@@ -42,9 +41,9 @@ void initBoard(void) {
     while (OSCCONbits.LOCK != 1);
 }
 
-void initUART(int baudrate) {
+void initUART(void) {
     // RX RP55
-    RPINR18bits.U1RXR = 0b0110110;
+    RPINR18bits.U1RXR = 0b0110111;
     TRISCbits.TRISC7 = 1;
 
     // TX RP54
@@ -52,34 +51,69 @@ void initUART(int baudrate) {
     TRISCbits.TRISC6 = 0;
 
     // Setup UART
-    U1MODEbits.USIDL = 1;
-    U1MODEbits.IREN = 0;
-    U1MODEbits.UEN = 0;
-    U1MODEbits.WAKE = 0;
-    U1MODEbits.LPBACK = 0;
-    U1MODEbits.ABAUD = 0;
-    U1MODEbits.URXINV = 0;
-    U1MODEbits.BRGH = 0;
-    U1MODEbits.PDSEL = 0;
     U1MODEbits.STSEL = 0;
-
-    U1STAbits.URXISEL = 0;
+    U1MODEbits.PDSEL = 0;
+    U1MODEbits.ABAUD = 0;
+    U1MODEbits.BRGH = 1;
     
     // Calculate the baudrate using the following equation
-    // UxBRG = ((FCY / Desired Baud rate) / 16) - 1
-    // For 9600 bauds and FCY = 59.904E6, the obtained BRG is
-    // -> 389, and the obtained baudrate is: 9600, with an error
+    // UxBRG = ((FOSC / Desired Baud rate) / 16) - 1
+    // For 9600 bauds and FCY = 119.808E6, the obtained BRG is
+    // -> 779, and the obtained baudrate is: 9600, with an error
     // of 0%
-    U1BRG = ((FCY / baudrate) >> 4) - 1;
+    U1BRG = 779;
+
+    U1STAbits.URXISEL0 = 0;
+    U1STAbits.URXISEL1 = 0;
     
-    IPC2bits.U1RXIP = 0;
+    IEC0bits.U1TXIE = 1;
+    
+    U1MODEbits.UARTEN = 1;
+    U1STAbits.UTXEN = 1;
+
+/*    IPC2bits.U1RXIP = 0;
     IFS0bits.U1RXIF = 0;
     IEC0bits.U1RXIE = 0;
+    IEC0bits.U1TXIE = 1;
 
     U1MODEbits.UARTEN = 1;
     U1STAbits.UTXEN = 1;
 
-    __delay32((int) ((1 / baudrate) * 1E6));
+    // U2
+    // RX RPI57
+    RPINR19bits.U2RXR = 0b0111001;
+    TRISCbits.TRISC9 = 1;
+
+    // TX RP56
+    RPOR7bits.RP56R = 0b000011;
+    TRISCbits.TRISC8 = 0;
+
+    U2MODEbits.USIDL = 1;
+    U2MODEbits.IREN = 0;
+    U2MODEbits.UEN = 0;
+    U2MODEbits.WAKE = 0;
+    U2MODEbits.LPBACK = 0;
+    U2MODEbits.ABAUD = 0;
+    U2MODEbits.URXINV = 0;
+    U2MODEbits.BRGH = 0;
+    U2MODEbits.PDSEL = 0;
+    U2MODEbits.STSEL = 0;
+
+    U2STAbits.URXISEL = 0;
+    
+    U2BRG = (uint16_t) (((FCY / baudrate) >> 4) - 1);
+
+    U2MODEbits.UARTEN = 1;
+    U2STAbits.UTXEN = 1;
+
+    IPC7bits.U2RXIP = 0;
+    IFS1bits.U2RXIF = 0;
+    IEC1bits.U2RXIE = 1;*/
+
+//    __delay32((int) ((1 / 9600) * 1E6));
+    DELAY_105uS;
+    
+//    U1TXREG = 'a';
 }
 
 void initPWM(void) {
@@ -174,7 +208,7 @@ void initPWM(void) {
 }
 
 void initInterrupts(void) {
-    // Setup TIMER1 to interrupt each microsecond
+    /*// Setup TIMER1 to interrupt each microsecond
 
     // Stop timer and clear control register
     // and set prescaler to 1:1
@@ -188,5 +222,7 @@ void initInterrupts(void) {
     // and enable interrupt
     IEC0bits.T1IE = 1;
     // Start timer
-    T1CONbits.TON = 1;
+    T1CONbits.TON = 1;*/
+    // Enable UART TX Interrupt
+    IEC0bits.U1TXIE = 1;
 }
