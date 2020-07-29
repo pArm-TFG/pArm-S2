@@ -44,5 +44,8 @@
 // UART delay
 #define DELAY_105uS asm volatile ("REPEAT, #4201"); Nop(); // 105uS delay
 
+// Support for external printf implementation
+#define USE_CUSTOM_PRINTF
+
 #endif	/* DEFS_H */
 

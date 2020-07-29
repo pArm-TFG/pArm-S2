@@ -9,21 +9,14 @@
 #include "utils/defs.h"
 #include "pragmas.h"
 #include <xc.h>
-//#include "utils/utils.h"
+#ifdef USE_CUSTOM_PRINTF
+#include "printf/printf.h"
+#else
+#include "utils/uart.h"
+#endif
 #include "init.h"
 #include "motor/servo.h"
 #include "interrupts.h"
-//#include "utils/time.h"
-#include "utils/uart.h"
-
-void __attribute__((__interrupt__)) _U1TXInterrupt(void) {
-    IFS0bits.U1TXIF = 0; // Clear TX Interrupt flag
-}
-
-void __attribute__((__interrupt__)) _U2TXInterrupt(void) {
-    IFS1bits.U2TXIF = 0;
-//    IFS0bits.U1TXIF = 0; // Clear TX Interrupt flag
-}
 
 int main(void) {
     initBoard();

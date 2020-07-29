@@ -15,6 +15,7 @@
             <sourceRootList>
                 <sourceRootElem>utils</sourceRootElem>
                 <sourceRootElem>motor</sourceRootElem>
+                <sourceRootElem>printf</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

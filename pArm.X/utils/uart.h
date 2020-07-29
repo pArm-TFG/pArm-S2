@@ -35,6 +35,7 @@
 
 #define _putchar putch
 void putch(char data);
+
 #define _getchar getch
 uint8_t getch(void);
 

@@ -166,7 +166,7 @@ void initPWM(void) {
 }
 
 void initInterrupts(void) {
-    /*// Setup TIMER1 to interrupt each microsecond
+    // Setup TIMER1 to interrupt each microsecond
 
     // Stop timer and clear control register
     // and set prescaler to 1:1
@@ -174,13 +174,23 @@ void initInterrupts(void) {
     // Clear timer register
     TMR1 = 0x0; 
     // Setup period register to approximately 1 ms.
-    PR1 = roundp(FOSC / 1E6);
+    // PR1 = 120;
+    PR1 = (int) roundp(FOSC / 1E6);
+    // Stop on idle mode
+    T1CONbits.TSIDL = 1;
+    T1CONbits.TGATE = 0;
+    T1CONbits.TCS = 0;
+    T1CONbits.TCKPS = 3;
+    T1CONbits.TSYNC = 0;
+    
+    // Set to maximum priority
+    IPC0bits.T1IP = 7;
     // Clear interrupt flags
     IFS0bits.T1IF = 0;
     // and enable interrupt
     IEC0bits.T1IE = 1;
     // Start timer
-    T1CONbits.TON = 1;*/
+    T1CONbits.TON = 1;
     // Enable UART TX Interrupt
     IEC0bits.U1TXIE = 1;
 }
