@@ -20,23 +20,23 @@
  */
 
 /* 
- * File: interrupts.h
+ * File: uart.h
  * Author: Javinator9889
- * Comments: base interrupts handler with different handlers
+ * Comments: UART general I/O file handler
  * Revision history: 1.0
  */
 
 // This is a guard condition so that contents of this file are not included
 // more than once.  
-#ifndef INTERRUPTS_H
-#define	INTERRUPTS_H
+#ifndef UART_H
+#define	UART_H
 
-#include <xc.h>
+#include <stdint.h>
 
-// Define Timer interrupts
-void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void);
-void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void);
-void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void);
+#define _putchar putch
+void putch(char data);
+#define _getchar getch
+uint8_t getch(void);
 
-#endif	/* INTERRUPTS_H */
+#endif	/* UART_H */
 

@@ -14,6 +14,7 @@
 #include "motor/servo.h"
 #include "interrupts.h"
 #include "utils/time.h"
+#include "utils/uart.h"
 
 
 int main(void) {
@@ -21,7 +22,7 @@ int main(void) {
     initPWM();
     initInterrupts();
     initUART(9600);
-    set_time(0);
+//    set_time(0);
     /*while (1) {
         SDC1 = 18720;
         SDC2 = 18720;
@@ -66,6 +67,11 @@ int main(void) {
     Servo motor_3 = {&SDC2};
     Servo motor_2 = {&SDC3};
     Servo motor_1 = {&PDC1};
+//    const char *message = "Hello world!\n";
+//    foreach(char, character, message) {
+//        U1TXREG = character;
+//    }
+//    printf("Hello world!\n");
 //    const Servo test_pin4 = {0, &PDC4, 0UL};
 //    const Servo test_pin1 = {0, &PDC1, 0UL};
 //    while (1) {

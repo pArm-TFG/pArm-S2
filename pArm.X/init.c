@@ -10,6 +10,7 @@
 #include "utils/utils.h"
 #include "utils/defs.h"
 
+
 void initBoard(void) {
     // Disable watchdog timer
     RCONbits.SWDTEN = 0;
@@ -42,13 +43,13 @@ void initBoard(void) {
 }
 
 void initUART(int baudrate) {
-    // RX RPI44
-    RPINR18bits.U1RXR = 0b0101100;
-    TRISBbits.TRISB12 = 1;
+    // RX RP55
+    RPINR18bits.U1RXR = 0b0110110;
+    TRISCbits.TRISC7 = 1;
 
-    // TX RP43
-    RPOR4bits.RP43R = 0b000001;
-    TRISBbits.TRISB11 = 0;
+    // TX RP54
+    RPOR6bits.RP54R = 0b000001;
+    TRISCbits.TRISC6 = 0;
 
     // Setup UART
     U1MODEbits.USIDL = 1;

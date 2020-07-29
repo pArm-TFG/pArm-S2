@@ -27,7 +27,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 PROJECTNAME=pArm.X
 
 # Active Configuration
-DEFAULTCONF=simulation
+DEFAULTCONF=recording
 CONF=${DEFAULTCONF}
 
 # All Configurations

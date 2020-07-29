@@ -13,6 +13,7 @@
       <itemPath>motor/motor.h</itemPath>
       <itemPath>interrupts.h</itemPath>
       <itemPath>utils/time.h</itemPath>
+      <itemPath>utils/uart.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -27,6 +28,7 @@
       <itemPath>motor/motor.c</itemPath>
       <itemPath>interrupts.c</itemPath>
       <itemPath>utils/time.c</itemPath>
+      <itemPath>utils/uart.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -46,7 +48,7 @@
         <targetDevice>dsPIC33EP512GM604</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool></platformTool>
+        <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.50</languageToolchainVersion>
         <platform>2</platform>
