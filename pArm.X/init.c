@@ -71,49 +71,7 @@ void initUART(void) {
     U1MODEbits.UARTEN = 1;
     U1STAbits.UTXEN = 1;
 
-/*    IPC2bits.U1RXIP = 0;
-    IFS0bits.U1RXIF = 0;
-    IEC0bits.U1RXIE = 0;
-    IEC0bits.U1TXIE = 1;
-
-    U1MODEbits.UARTEN = 1;
-    U1STAbits.UTXEN = 1;
-
-    // U2
-    // RX RPI57
-    RPINR19bits.U2RXR = 0b0111001;
-    TRISCbits.TRISC9 = 1;
-
-    // TX RP56
-    RPOR7bits.RP56R = 0b000011;
-    TRISCbits.TRISC8 = 0;
-
-    U2MODEbits.USIDL = 1;
-    U2MODEbits.IREN = 0;
-    U2MODEbits.UEN = 0;
-    U2MODEbits.WAKE = 0;
-    U2MODEbits.LPBACK = 0;
-    U2MODEbits.ABAUD = 0;
-    U2MODEbits.URXINV = 0;
-    U2MODEbits.BRGH = 0;
-    U2MODEbits.PDSEL = 0;
-    U2MODEbits.STSEL = 0;
-
-    U2STAbits.URXISEL = 0;
-    
-    U2BRG = (uint16_t) (((FCY / baudrate) >> 4) - 1);
-
-    U2MODEbits.UARTEN = 1;
-    U2STAbits.UTXEN = 1;
-
-    IPC7bits.U2RXIP = 0;
-    IFS1bits.U2RXIF = 0;
-    IEC1bits.U2RXIE = 1;*/
-
-//    __delay32((int) ((1 / 9600) * 1E6));
     DELAY_105uS;
-    
-//    U1TXREG = 'a';
 }
 
 void initPWM(void) {
