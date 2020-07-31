@@ -22,10 +22,24 @@ int main(void) {
     initBoard();
     initUART();
     initPWM();
-    initInterrupts();
+    //initInterrupts();
+    initDigitalPorts();
+    
+    while(1)
+    {
+        if(PORTBbits.RB1 == 1)
+        {
+            PORTBbits.RB7 = 1;
+        }
+        else
+        {
+            PORTBbits.RB7 = 0;
+        }
+    }
+    
 //    U1TXREG = 'a';
 //    printf("UART\n");
-    while (1) {
+    /*while (1) {
         printf("Hello world!\n\r");
         __delay_ms(1000);
     }
@@ -39,7 +53,7 @@ int main(void) {
         PDC2 = 4280;
         SDC2 = 4208;
         SDC3 = 4208;
-        SDC4 = 4208;*/
+        SDC4 = 4208;
         writeAngle(&motor_4, 90);
         __delay_ms(200);
         writeAngle(&motor_3, 45);
@@ -72,7 +86,7 @@ int main(void) {
         __delay_ms(200);
         writeAngle(&motor_1, 90);
         __delay_ms(200);
-//        writeAngle(&motor_1, 90);
-    }
+       writeAngle(&motor_1, 90);
+    }*/
     return 0;
 }
