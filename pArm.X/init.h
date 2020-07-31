@@ -39,6 +39,7 @@ void initUART(void);
 void initPWM(void);
 void initInterrupts(void);
 void initUnusedIOPorts(void);
+void initDigitalPorts(void);
 
 #endif	/* INIT_H */
 
