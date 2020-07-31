@@ -18,10 +18,15 @@
 #include "motor/servo.h"
 #include "interrupts.h"
 
+//void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
+//    IFS0bits.U1TXIF = 0; // Clear TX Interrupt flag
+//}
+
 int main(void) {
     initBoard();
     initUART();
     initPWM();
+
     //initInterrupts();
     initDigitalPorts();
     

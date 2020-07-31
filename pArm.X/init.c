@@ -70,6 +70,9 @@ void initUART(void) {
     
     U1MODEbits.UARTEN = 1;
     U1STAbits.UTXEN = 1;
+    
+    // Enable UART TX Interrupt
+    IEC0bits.U1TXIE = 1;
 
     DELAY_105uS;
 }
