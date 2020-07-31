@@ -16,19 +16,23 @@
 #endif
 #include "init.h"
 #include "motor/servo.h"
-#include "interrupts.h"
+//#include "interrupts.h"
+
+void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
+    IFS0bits.U1TXIF = 0; // Clear TX Interrupt flag
+}
 
 int main(void) {
     initBoard();
     initUART();
     initPWM();
-    initInterrupts();
+//    initInterrupts();
 //    U1TXREG = 'a';
 //    printf("UART\n");
-    while (1) {
+//    while (1) {
         printf("Hello world!\n\r");
-        __delay_ms(1000);
-    }
+//        __delay_ms(1000);
+//    }
     __delay_ms(1000);
     Servo motor_4 = {&SDC1};
     Servo motor_3 = {&SDC2};
