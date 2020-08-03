@@ -32,24 +32,21 @@ int main(void) {
     TMR2_Initialize();
     initDigitalPorts();
     
-    while (1) {      
-        /* Check for receive errors */
+    /*while (1) {      
         if (U1STAbits.FERR == 1) {
             continue;
         }
-        /* Must clear the overrun error to keep UART receiving */
         if (U1STAbits.OERR == 1) {
             U1STAbits.OERR = 0;
             continue;
         }
-        /* Get the data */
         if (U1STAbits.URXDA == 1) {
             printf("%c", U1RXREG);
 //            ReceivedChar = U1RXREG;
         }
-    }
+    }*/
     
-    time_t next = now();
+    /*time_t next = now();
     uint16_t count = 0U;
     uint16_t next_c = count + 20U;
     while (1) {
@@ -111,25 +108,16 @@ int main(void) {
         {
             PORTBbits.RB5 = 0;
         }
-    }
+    }*/
     
 //    U1TXREG = 'a';
 //    printf("UART\n");
-    /*while (1) {
-        printf("Hello world!\n\r");
-        __delay_ms(1000);
-    }
     __delay_ms(1000);
     Servo motor_4 = {&SDC1};
     Servo motor_3 = {&SDC2};
     Servo motor_2 = {&SDC3};
     Servo motor_1 = {&PDC1};
     while (1) {
-        /*SDC1 = 4208;
-        PDC2 = 4280;
-        SDC2 = 4208;
-        SDC3 = 4208;
-        SDC4 = 4208;
         writeAngle(&motor_4, 90);
         __delay_ms(200);
         writeAngle(&motor_3, 45);
@@ -163,6 +151,6 @@ int main(void) {
         writeAngle(&motor_1, 90);
         __delay_ms(200);
        writeAngle(&motor_1, 90);
-    }*/
+    }
     return 0;
 }
