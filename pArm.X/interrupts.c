@@ -1,7 +1,6 @@
 #include "interrupts.h"
 #include "utils/time.h"
 
-
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
     _now_us += 1ULL;
     // Clear Timer1 interrupt
@@ -16,4 +15,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void) {
 
 void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
     IFS0bits.U1TXIF = 0; // Clear TX Interrupt flag
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
+//    if (U1STAbits.URXDA == 1) printf("%c", U1RXREG);
+    printf("RX message!\n");
+    IFS0bits.U1RXIF = 0;
 }

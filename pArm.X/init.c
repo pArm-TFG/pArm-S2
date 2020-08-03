@@ -68,12 +68,14 @@ void initUART(void) {
     
     IEC0bits.U1TXIE = 1;
     
-    U1MODEbits.UARTEN = 1;
     U1STAbits.UTXEN = 1;
     
     // Enable UART TX Interrupt
     IEC0bits.U1TXIE = 1;
+    IEC0bits.U1RXIE = 1;
 
+    U1MODEbits.UARTEN = 1;
+    
     DELAY_105uS;
 }
 

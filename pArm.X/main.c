@@ -32,6 +32,23 @@ int main(void) {
     TMR2_Initialize();
     initDigitalPorts();
     
+    while (1) {      
+        /* Check for receive errors */
+        if (U1STAbits.FERR == 1) {
+            continue;
+        }
+        /* Must clear the overrun error to keep UART receiving */
+        if (U1STAbits.OERR == 1) {
+            U1STAbits.OERR = 0;
+            continue;
+        }
+        /* Get the data */
+        if (U1STAbits.URXDA == 1) {
+            printf("%c", U1RXREG);
+//            ReceivedChar = U1RXREG;
+        }
+    }
+    
     time_t next = now();
     uint16_t count = 0U;
     uint16_t next_c = count + 20U;
