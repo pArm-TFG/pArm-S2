@@ -17,6 +17,7 @@
 #include "init.h"
 #include "motor/servo.h"
 #include "interrupts.h"
+#include "utils/time.h"
 
 //void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
 //    IFS0bits.U1TXIF = 0; // Clear TX Interrupt flag
@@ -27,8 +28,31 @@ int main(void) {
     initUART();
     initPWM();
 
-    //initInterrupts();
+    TMR1_Initialize();
+    TMR2_Initialize();
     initDigitalPorts();
+    
+    time_t next = now();
+    uint16_t count = 0U;
+    uint16_t next_c = count + 20U;
+    while (1) {
+//        printf("%lu\n", now());
+//        printf("main\n");
+//        __delay_ms(150);
+        if (now() >= next) {
+            printf("!\n");
+            next += 1000ULL;
+            ++count;
+            if (count >= next_c) {
+                printf("uS: %llu\n", now_us());
+                next_c += 20;
+            }
+//            printf("Time: %ld\n", count);
+//            next = now() + 1000ULL;
+//            ++count;
+//            __delay_ms(1000);
+        }
+    }
     
     while(1)
     {
