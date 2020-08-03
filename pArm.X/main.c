@@ -73,6 +73,7 @@ int main(void) {
     
     while(1)
     {
+        
         if(PORTBbits.RB1 == 1)
         {
             PORTBbits.RB7 = 1;
@@ -80,6 +81,35 @@ int main(void) {
         else
         {
             PORTBbits.RB7 = 0;
+        }
+        
+        if(PORTBbits.RB0 == 1)
+        {
+            PORTBbits.RB6 = 1;
+        }
+        else
+        {
+            PORTBbits.RB6 = 0;
+        }
+        
+        if(PORTAbits.RA1 == 1)
+        {
+            PORTBbits.RB5 = 1;
+        }
+        else
+        {
+            PORTBbits.RB5 = 0;
+        }
+        
+        if(PORTAbits.RA0 == 1)
+        {
+            PORTBbits.RB5 = 1;
+            PORTBbits.RB6 = 1;
+            PORTBbits.RB7 = 1;
+        }
+        else
+        {
+            PORTBbits.RB5 = 0;
         }
     }
     

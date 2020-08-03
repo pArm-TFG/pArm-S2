@@ -1,24 +1,168 @@
+/*
+ * File:   main.c
+ * Author: javinator9889
+ *
+ * Created on 11 de junio de 2020, 11:16
+ */
+
+
+#include "utils/defs.h"
+#include "pragmas.h"
+#include <xc.h>
+#ifdef USE_CUSTOM_PRINTF
+#include "printf/printf.h"
+#else
+#include "utils/uart.h"
+#endif
+#include "init.h"
+#include "motor/servo.h"
 #include "interrupts.h"
 #include "utils/time.h"
 
-void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
-    _now_us += 1ULL;
-    // Clear Timer1 interrupt
-    IFS0bits.T1IF = 0;
-}
+//void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
+//    IFS0bits.U1TXIF = 0; // Clear TX Interrupt flag
+//}
 
-void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void) {
-    _now_ms += 1ULL;
-    // Clear Timer2 interrupt
-    IFS0bits.T2IF = 0;
-}
+int main(void) {
+    initBoard();
+    initUART();
+    initPWM();
 
-void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
-    IFS0bits.U1TXIF = 0; // Clear TX Interrupt flag
-}
-
-void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
-//    if (U1STAbits.URXDA == 1) printf("%c", U1RXREG);
-    printf("RX message!\n");
-    IFS0bits.U1RXIF = 0;
+    TMR1_Initialize();
+    TMR2_Initialize();
+    initDigitalPorts();
+    
+    while (1) {      
+        /* Check for receive errors */
+        if (U1STAbits.FERR == 1) {
+            continue;
+        }
+        /* Must clear the overrun error to keep UART receiving */
+        if (U1STAbits.OERR == 1) {
+            U1STAbits.OERR = 0;
+            continue;
+        }
+        /* Get the data */
+        if (U1STAbits.URXDA == 1) {
+            printf("%c", U1RXREG);
+//            ReceivedChar = U1RXREG;
+        }
+    }
+    
+    time_t next = now();
+    uint16_t count = 0U;
+    uint16_t next_c = count + 20U;
+    while (1) {
+//        printf("%lu\n", now());
+//        printf("main\n");
+//        __delay_ms(150);
+        if (now() >= next) {
+            printf("!\n");
+            next += 1000ULL;
+            ++count;
+            if (count >= next_c) {
+                printf("uS: %llu\n", now_us());
+                next_c += 20;
+            }
+//            printf("Time: %ld\n", count);
+//            next = now() + 1000ULL;
+//            ++count;
+//            __delay_ms(1000);
+        }
+    }
+    
+    while(1)
+    {
+        
+        if(PORTBbits.RB1 == 1)
+        {
+            PORTBbits.RB7 = 1;
+        }
+        else
+        {
+            PORTBbits.RB7 = 0;
+        }
+        
+        if(PORTBbits.RB0 == 1)
+        {
+            PORTBbits.RB6 = 1;
+        }
+        else
+        {
+            PORTBbits.RB6 = 0;
+        }
+        
+        if(PORTAbits.RA1 == 1)
+        {
+            PORTBbits.RB5 = 1;
+        }
+        else
+        {
+            PORTBbits.RB5 = 0;
+        }
+        
+        if(PORTAbits.RA0 == 1)
+        {
+            PORTBbits.RB5 = 1;
+            PORTBbits.RB6 = 1;
+            PORTBbits.RB7 = 1;
+        }
+        else
+        {
+            PORTBbits.RB5 = 0;
+        }
+    }
+    
+//    U1TXREG = 'a';
+//    printf("UART\n");
+    /*while (1) {
+        printf("Hello world!\n\r");
+        __delay_ms(1000);
+    }
+    __delay_ms(1000);
+    Servo motor_4 = {&SDC1};
+    Servo motor_3 = {&SDC2};
+    Servo motor_2 = {&SDC3};
+    Servo motor_1 = {&PDC1};
+    while (1) {
+        /*SDC1 = 4208;
+        PDC2 = 4280;
+        SDC2 = 4208;
+        SDC3 = 4208;
+        SDC4 = 4208;
+        writeAngle(&motor_4, 90);
+        __delay_ms(200);
+        writeAngle(&motor_3, 45);
+        __delay_ms(200);
+        writeAngle(&motor_2, 0);
+        __delay_ms(200);
+        writeAngle(&motor_1, 180);
+        __delay_ms(200);
+        writeAngle(&motor_4, 0);
+        __delay_ms(200);
+        writeAngle(&motor_3, 180);
+        __delay_ms(200);
+        writeAngle(&motor_2, 60);
+        __delay_ms(200);
+        writeAngle(&motor_1, 30);
+        __delay_ms(200);
+        writeAngle(&motor_4, 180);
+        __delay_ms(200);
+        writeAngle(&motor_3, 90);
+        __delay_ms(200);
+        writeAngle(&motor_2, 45);
+        __delay_ms(200);
+        writeAngle(&motor_1, 0);
+        __delay_ms(200);
+        writeAngle(&motor_4, 0);
+        __delay_ms(200);
+        writeAngle(&motor_3, 30);
+        __delay_ms(200);
+        writeAngle(&motor_2, 120);
+        __delay_ms(200);
+        writeAngle(&motor_1, 90);
+        __delay_ms(200);
+       writeAngle(&motor_1, 90);
+    }*/
+    return 0;
 }

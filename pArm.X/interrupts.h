@@ -38,6 +38,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void);
 void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void);
 void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void);
 void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void);
 
 #endif	/* INTERRUPTS_H */
 

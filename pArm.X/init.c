@@ -205,14 +205,23 @@ void initDigitalPorts(void)
     TRISBbits.TRISB0 = 1;
     TRISBbits.TRISB1 = 1;
     
+    //Input Change Notification Interrupt configuration
+    CNENBbits.CNIEB1 = 1;
+    _CNIP=7;       // priority (7 = highest)
+    _CNIE = 1; // Enable CN interrupts
+    _CNIF = 0; //
+    
     //Digital Ports for LED lights, set as output.
     TRISBbits.TRISB5 = 0;
     TRISBbits.TRISB6 = 0;
     TRISBbits.TRISB7 = 0;
+    TRISBbits.TRISB8 = 0;
     
     //Set I/O ports to digital, clear the analogic enable bit.
     ANSELAbits.ANSA0 = 0;
     ANSELAbits.ANSA1 = 0;
+    ANSELBbits.ANSB0 = 0;
     ANSELBbits.ANSB1 = 0;
     ANSELBbits.ANSB7 = 0;
+    ANSELBbits.ANSB8 = 0;
 }
