@@ -37,7 +37,8 @@
 void initBoard(void);
 void initUART(void);
 void initPWM(void);
-void initInterrupts(void);
+void TMR1_Initialize(void);
+void TMR2_Initialize(void);
 void initUnusedIOPorts(void);
 void initDigitalPorts(void);
 

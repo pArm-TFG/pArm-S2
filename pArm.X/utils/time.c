@@ -1,8 +1,8 @@
 #include "time.h"
 #include "types.h"
 
-volatile time_t _now_us = 0;
-volatile time_t _now_ms = 0;
+volatile time_t _now_us = 0ULL;
+volatile time_t _now_ms = 0ULL;
 
 inline void _updateMs(void) {
     _now_ms = (time_t) (_now_us / 1000ULL);

@@ -21,13 +21,13 @@ void initBoard(void) {
     // For working at ~120 MHz:
     // F_osc = F_in * M / (N1 * N2)
     // F_cy = F_osc / 2
-    // F_osc ~= 120 MHz -> F_osc = 7.3728 * 130 / (4 * 2) = 119.808 MHz
+    // F_osc ~= 120 MHz -> F_osc = 7.3728 * 65 / (2 * 2) = 119.808 MHz
     // F_cy = F_osc / 2 = 59.904 MHz
     //
     // Then, setup the PLL's prescaler, postcaler and divisor
-    PLLFBDbits.PLLDIV = 130; // M = PLLDIV + 2 -> PLLDIV = 217 - 2 = 215
-    CLKDIVbits.PLLPOST = 1; // N2 = 2 * (PLLPOST + 1) -> PLLPOST = (N2 / 2) - 1 = 1
-    CLKDIVbits.PLLPRE = 2; // N1 = PLLPRE + 2; -> PLLPRE = N1 - 2 = 3
+    PLLFBDbits.PLLDIV = 63; // M = PLLDIV + 2 -> PLLDIV = 65 - 2 = 63
+    CLKDIVbits.PLLPOST = 0; // N2 = 2 * (PLLPOST + 1) -> PLLPOST = (N2 / 2) - 1 = 0
+    CLKDIVbits.PLLPRE = 0; // N1 = PLLPRE + 2; -> PLLPRE = N1 - 2 = 0
 
     // Notify clock to use PLL
     // Start clock switching to primary
@@ -54,14 +54,14 @@ void initUART(void) {
     U1MODEbits.STSEL = 0;
     U1MODEbits.PDSEL = 0;
     U1MODEbits.ABAUD = 0;
-    U1MODEbits.BRGH = 1;
+    U1MODEbits.BRGH = 0;
     
     // Calculate the baudrate using the following equation
-    // UxBRG = ((FOSC / Desired Baud rate) / 16) - 1
-    // For 9600 bauds and FCY = 119.808E6, the obtained BRG is
-    // -> 779, and the obtained baudrate is: 9600, with an error
+    // UxBRG = ((FCY / Desired Baud rate) / 16) - 1
+    // For 9600 bauds and FCY = 59.904E6, the obtained BRG is
+    // -> 389, and the obtained baudrate is: 9600, with an error
     // of 0%
-    U1BRG = 779;
+    U1BRG = 389;
 
     U1STAbits.URXISEL0 = 0;
     U1STAbits.URXISEL1 = 0;
@@ -168,34 +168,31 @@ void initPWM(void) {
     PTCONbits.PTEN = 1;
 }
 
-void initInterrupts(void) {
-    // Setup TIMER1 to interrupt each microsecond
-
-    // Stop timer and clear control register
-    // and set prescaler to 1:1
-    T1CON = 0x0;
-    // Clear timer register
-    TMR1 = 0x0; 
-    // Setup period register to approximately 1 ms.
-    // PR1 = 120;
-    PR1 = (int) roundp(FOSC / 1E6);
-    // Stop on idle mode
-    T1CONbits.TSIDL = 1;
-    T1CONbits.TGATE = 0;
+void TMR1_Initialize(void) {
+    T1CON = 0;
     T1CONbits.TCS = 0;
-    T1CONbits.TCKPS = 3;
-    T1CONbits.TSYNC = 0;
-    
-    // Set to maximum priority
-    IPC0bits.T1IP = 7;
-    // Clear interrupt flags
+    T1CONbits.TCKPS0 = 0;
+    T1CONbits.TCKPS1 = 0b00; // 1:64
+    T1CONbits.TGATE = 0;
     IFS0bits.T1IF = 0;
-    // and enable interrupt
+    IPC0bits.T1IP = 6;
     IEC0bits.T1IE = 1;
-    // Start timer
+    // Setup PR1 for interrupting each 1 us
+    // PR1 = (FCY / PRESCALER) * 1E-6 -> 59 == 0x3B
+    PR1 = 0x3B;
     T1CONbits.TON = 1;
-    // Enable UART TX Interrupt
-    IEC0bits.U1TXIE = 1;
+}
+
+void TMR2_Initialize(void) {
+    //TMR2 0; 
+    TMR2 = 0x00;
+    //Period = 0.001 s; Frequency = 59904000 Hz; PR2 59903; 
+    PR2 = 0xE9FF;
+    //TCKPS 1:1; T32 16 Bit; TON enabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
+    T2CON = 0x8000;
+
+    IFS0bits.T2IF = 0;
+    IEC0bits.T2IE = 1;
 }
 
 void initDigitalPorts(void)
@@ -225,7 +222,4 @@ void initDigitalPorts(void)
     ANSELBbits.ANSB1 = 0;
     ANSELBbits.ANSB7 = 0;
     ANSELBbits.ANSB8 = 0;
-    
-    
-   
 }

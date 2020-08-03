@@ -46,5 +46,12 @@
 #pragma config GWRP = OFF       // General segment write-protection bit
 #pragma config GCP = OFF        // General segment code-protection bit
 
+/*
+// Device configuration values
+_FOSCSEL(FNOSC_FRC & IESO_ON);
+_FOSC(FCKSM_CSECME & OSCIOFNC_OFF & POSCMD_NONE & IOL1WAY_ON);
+_FWDT(FWDTEN_OFF);
+_FPOR(FPWRT_PWR128);
+*/
 #endif	/* PRAGMAS_H */
 
