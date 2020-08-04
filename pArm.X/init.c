@@ -86,7 +86,7 @@ void initPWM(void) {
     TRISBbits.TRISB15 = 0; // PWM1L
     TRISBbits.TRISB14 = 0; // PWM1H
 
-    PTCON2bits.PCLKDIV = 0b101; // Prescaler 1:32
+    PTCON2bits.PCLKDIV = 0b110; // Prescaler 1:32
 
     // Setup PWM period - the motors have a
     // minimum time in between pulses of 20ms,
