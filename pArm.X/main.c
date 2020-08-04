@@ -19,7 +19,6 @@
 #include "interrupts.h"
 #include "utils/time.h"
 
-
 int main(void) {
     initBoard();
     initUART();
@@ -28,15 +27,16 @@ int main(void) {
     TMR1_Initialize();
     TMR2_Initialize();
     initDigitalPorts();
-    
 
-           
-while (1) {      
-      
-        if(__ICNFLAG == 1)
-        {
-            printf("JAJASIES");
+
+
+    while (1) {
+
+        if (__ICNFLAG == 1) {
+            printf('PIN INTERRUPTION');
             __ICNFLAG = 0;
+        }
+    }
 
     /*while (1) {      
         if (U1STAbits.FERR == 1) {
@@ -51,7 +51,7 @@ while (1) {
 //            ReceivedChar = U1RXREG;
         }
     }*/
-    
+
     /*time_t next = now();
     uint16_t count = 0U;
     uint16_t next_c = count + 20U;
@@ -115,9 +115,9 @@ while (1) {
             PORTBbits.RB5 = 0;
         }
     }*/
-    
-//    U1TXREG = 'a';
-//    printf("UART\n");
+
+    //    U1TXREG = 'a';
+    //    printf("UART\n");
     __delay_ms(1000);
     Servo motor_4 = {&SDC1};
     Servo motor_3 = {&SDC2};
@@ -156,7 +156,7 @@ while (1) {
         __delay_ms(200);
         writeAngle(&motor_1, 90);
         __delay_ms(200);
-       writeAngle(&motor_1, 90);
+        writeAngle(&motor_1, 90);
     }
     return 0;
 }
