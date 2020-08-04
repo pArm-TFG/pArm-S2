@@ -1,7 +1,7 @@
 #include "interrupts.h"
 #include "utils/time.h"
 
- volatile int __ICNFLAG = 0;
+ volatile int _ICNFLAG = 0; // Auxiliar Flag defined in interrupts.h
 
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
     _now_us += 1ULL;
@@ -27,7 +27,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 
 void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void)
 {
-    __ICNFLAG = 1;
-     _CNIF = 0; 
+    _ICNFLAG = 1; // Notify the input change using the auxiliar flag
+     _CNIF = 0; // Clear the interruption flag
      
 }  

@@ -33,11 +33,12 @@ int main(void) {
            
 while (1) {      
       
-        if(__ICNFLAG == 1)
+        if(_ICNFLAG == 1)
         {
             printf("JAJASIES");
-            __ICNFLAG = 0;
-
+            _ICNFLAG = 0;
+        }
+}   
     /*while (1) {      
         if (U1STAbits.FERR == 1) {
             continue;
