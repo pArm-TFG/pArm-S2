@@ -16,6 +16,7 @@
       <itemPath>utils/uart.h</itemPath>
       <itemPath>printf/printf.h</itemPath>
       <itemPath>printf/printf_config.h</itemPath>
+      <itemPath>utils/strings.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -32,6 +33,7 @@
       <itemPath>utils/uart.c</itemPath>
       <itemPath>printf/printf.c</itemPath>
       <itemPath>interrupts.c</itemPath>
+      <itemPath>utils/strings.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
