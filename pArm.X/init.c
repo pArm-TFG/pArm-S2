@@ -10,6 +10,7 @@
 #include "utils/utils.h"
 #include "utils/defs.h"
 
+
 void initBoard(void) {
     // Disable watchdog timer
     RCONbits.SWDTEN = 0;

@@ -19,9 +19,6 @@
 #include "interrupts.h"
 #include "utils/time.h"
 
-//void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
-//    IFS0bits.U1TXIF = 0; // Clear TX Interrupt flag
-//}
 
 int main(void) {
     initBoard();
@@ -33,19 +30,12 @@ int main(void) {
     initDigitalPorts();
     
     while (1) {      
-        /* Check for receive errors */
-        if (U1STAbits.FERR == 1) {
-            continue;
-        }
-        /* Must clear the overrun error to keep UART receiving */
-        if (U1STAbits.OERR == 1) {
-            U1STAbits.OERR = 0;
-            continue;
-        }
-        /* Get the data */
-        if (U1STAbits.URXDA == 1) {
-            printf("%c", U1RXREG);
-//            ReceivedChar = U1RXREG;
+      
+        if(__ICNFLAG == 1)
+        {
+            printf("JAJASIES");
+            __ICNFLAG = 0;
+            
         }
     }
     

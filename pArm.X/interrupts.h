@@ -33,6 +33,9 @@
 
 #include <xc.h>
 
+// Global variable used to notify Input Change on I/O Ports
+extern volatile int __ICNFLAG;
+
 // Define Timer interrupts
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void);
 void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void);

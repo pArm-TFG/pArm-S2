@@ -1,6 +1,8 @@
 #include "interrupts.h"
 #include "utils/time.h"
 
+ volatile int __ICNFLAG = 0;
+
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
     _now_us += 1ULL;
     // Clear Timer1 interrupt
@@ -22,3 +24,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
     printf("RX message!\n");
     IFS0bits.U1RXIF = 0;
 }
+
+void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void)
+{
+    __ICNFLAG = 1;
+     _CNIF = 0; 
+     
+}  
