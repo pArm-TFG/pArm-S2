@@ -207,10 +207,14 @@ void initDigitalPorts(void)
     TRISBbits.TRISB1 = 1;
     
     //Input Change Notification Interrupt configuration
-    CNENBbits.CNIEB1 = 1;
     _CNIP=7;       // priority (7 = highest)
     _CNIE = 1; // Enable CN interrupts
-    _CNIF = 0; //
+    _CNIF = 0; // Interrupt flag cleared
+    CNENBbits.CNIEB0 = 1;
+    CNENBbits.CNIEB1 = 1;
+    CNENAbits.CNIEA0 = 1;
+    CNENAbits.CNIEA1 = 1;
+
     
     //Digital Ports for LED lights, set as output.
     TRISBbits.TRISB5 = 0;

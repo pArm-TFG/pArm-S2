@@ -28,6 +28,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void)
 {
     _ICNFLAG = 1; // Notify the input change using the auxiliar flag
-     _CNIF = 0; // Clear the interruption flag
+    _CNIF = 0; // Clear the interruption flag
      
 }  
