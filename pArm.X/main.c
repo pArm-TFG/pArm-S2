@@ -34,9 +34,9 @@ while (1) {
 
     while (1) {
 
-        if (__ICNFLAG == 1) {
+        if (_ICNFLAG == 1) {
             printf('PIN INTERRUPTION');
-            __ICNFLAG = 0;
+            _ICNFLAG = 0;
         }
     }
 
@@ -161,5 +161,6 @@ while (1) {
         __delay_ms(200);
         writeAngle(&motor_1, 90);
     }
+  }    
     return 0;
 }
