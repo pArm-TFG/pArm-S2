@@ -43,13 +43,17 @@ void initBoard(void) {
 }
 
 void initUART(void) {
+    __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
+    
     // RX RP55
     RPINR18bits.U1RXR = 0b0110111;
     TRISCbits.TRISC7 = 1;
-
+    
     // TX RP54
     RPOR6bits.RP54R = 0b000001;
     TRISCbits.TRISC6 = 0;
+
+    __builtin_write_OSCCONL(OSCCON | 0x40); // lock PPS
 
     // Setup UART
     U1MODEbits.STSEL = 0;
@@ -62,20 +66,16 @@ void initUART(void) {
     // For 9600 bauds and FCY = 59.904E6, the obtained BRG is
     // -> 389, and the obtained baudrate is: 9600, with an error
     // of 0%
-    U1BRG = 389;
-
-    U1STAbits.URXISEL0 = 0;
-    U1STAbits.URXISEL1 = 0;
-    
-    IEC0bits.U1TXIE = 1;
-    
-    U1STAbits.UTXEN = 1;
+    U1BRG = 389; 
     
     // Enable UART TX Interrupt
     IEC0bits.U1TXIE = 1;
     IEC0bits.U1RXIE = 1;
+    IPC2bits.U1RXIP = 0b110;
 
-    U1MODEbits.UARTEN = 1;
+    U1MODEbits.UARTEN = 1; // enabling UART ON bit
+    U1STAbits.UTXEN = 1;
+    U1STAbits.URXISEL = 0; // Interrupt after one RX character is received;
     
     DELAY_105uS;
 }

@@ -6,6 +6,8 @@
  */
 
 
+volatile char receivedValue = 0;
+
 #include "utils/defs.h"
 #include "pragmas.h"
 #include <xc.h>
@@ -28,15 +30,13 @@ int main(void) {
     TMR2_Initialize();
     initDigitalPorts();
 
-
-
-    while (1) {
-
-        if (__ICNFLAG == 1) {
-            printf('PIN INTERRUPTION');
-            __ICNFLAG = 0;
+    
+    /*while (1) {
+        if (receivedValue) {
+            printf("%c\n", receivedValue);
+            receivedValue = 0;
         }
-    }
+    }*/
 
     /*while (1) {      
         if (U1STAbits.FERR == 1) {
@@ -52,27 +52,29 @@ int main(void) {
         }
     }*/
 
-    /*time_t next = now();
+    time_t next = now();
     uint16_t count = 0U;
-    uint16_t next_c = count + 20U;
     while (1) {
 //        printf("%lu\n", now());
 //        printf("main\n");
 //        __delay_ms(150);
         if (now() >= next) {
-            printf("!\n");
+            /*printf("!\n");
             next += 1000ULL;
             ++count;
             if (count >= next_c) {
                 printf("uS: %llu\n", now_us());
                 next_c += 20;
-            }
-//            printf("Time: %ld\n", count);
-//            next = now() + 1000ULL;
-//            ++count;
-//            __delay_ms(1000);
+            }*/
+            printf("Time: %us\n", count);
+            next = now() + 1000ULL;
+            count += 1U;
         }
+        /*if (receivedValue != 0) {
+            printf("%c", receivedValue);
+        }*/
     }
+    /*
     
     while(1)
     {

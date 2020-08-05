@@ -4,6 +4,8 @@
 void putch(char data) {
     while (!IFS0bits.U1TXIF);
     U1TXREG = data;
+//    while (!IFS1bits.U2TXIF);
+//    U2TXREG = data;
 }
 
 uint8_t getch(void) {
