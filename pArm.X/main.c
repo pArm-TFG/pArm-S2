@@ -30,7 +30,7 @@ int main(void) {
     TMR2_Initialize();
     initDigitalPorts();
 
-    
+
     /*while (1) {
         if (receivedValue) {
             printf("%c\n", receivedValue);
@@ -65,9 +65,9 @@ int main(void) {
     time_t next = now();
     uint16_t count = 0U;
     while (1) {
-//        printf("%lu\n", now());
-//        printf("main\n");
-//        __delay_ms(150);
+        //        printf("%lu\n", now());
+        //        printf("main\n");
+        //        __delay_ms(150);
         if (now() >= next) {
             /*printf("!\n");
             next += 1000ULL;
@@ -170,6 +170,5 @@ int main(void) {
         __delay_ms(200);
         writeAngle(&motor_1, 90);
     }
-  }    
     return 0;
 }

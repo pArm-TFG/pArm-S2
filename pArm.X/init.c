@@ -43,23 +43,50 @@ void initBoard(void) {
 }
 
 void initUART(void) {
-    __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
+    // Unlock the Peripheral Pin Selector (PPS)
+    // for allowing changes on TRIS ports without
+    // affecting expected device behavior.
+    // 0xBF is a shortcut for ~(1 << 6) == 191
+    __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock PPS
     
-    // RX RP55
+    // UART1 RX at RP55 (pin RC7)
     RPINR18bits.U1RXR = 0b0110111;
     TRISCbits.TRISC7 = 1;
     
-    // TX RP54
+    // UART1 TX at RP54 (pin RC6)
     RPOR6bits.RP54R = 0b000001;
     TRISCbits.TRISC6 = 0;
 
+    // Lock again the PPS as we are done
+    // configuring the remappable ports.
+    // 0x40 is a shortcut for (1 << 6) == 64
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock PPS
 
     // Setup UART
-    U1MODEbits.STSEL = 0;
-    U1MODEbits.PDSEL = 0;
+    // Stop on idle
+    U1MODEbits.USIDL = 1;
+    // Disable IrDA
+    U1MODEbits.IREN = 0;
+    // Use only TX and RX pins
+    // ignoring CTS, RTS and BCLK
+    U1MODEbits.UEN = 0;
+    // Do not wake-up with UART
+    U1MODEbits.WAKE = 0;
+    // Disable loopback mode
+    U1MODEbits.LPBACK = 0;
+    // Do not use automatic baudrate when receiving
     U1MODEbits.ABAUD = 0;
+    // Disable polarity inversion. Idle state is '1'
+    U1MODEbits.URXINV = 0;
+    // Do not use high speed baudrate
     U1MODEbits.BRGH = 0;
+    // 8 data bits without parity
+    U1MODEbits.PDSEL = 0;
+    // One stop bit
+    U1MODEbits.STSEL = 0;
+    
+    // Interrupt after one RX character is received;
+    U1STAbits.URXISEL = 0;
     
     // Calculate the baudrate using the following equation
     // UxBRG = ((FCY / Desired Baud rate) / 16) - 1
@@ -71,12 +98,16 @@ void initUART(void) {
     // Enable UART TX Interrupt
     IEC0bits.U1TXIE = 1;
     IEC0bits.U1RXIE = 1;
+    IFS0bits.U1RXIF = 0;
+    IFS0bits.U1TXIF = 0;
     IPC2bits.U1RXIP = 0b110;
 
     U1MODEbits.UARTEN = 1; // enabling UART ON bit
     U1STAbits.UTXEN = 1;
-    U1STAbits.URXISEL = 0; // Interrupt after one RX character is received;
     
+    // Wait 105 uS (when baudrate is 9600) for a first
+    // transmission bit to be sent and detected, so then
+    // the UART can be used
     DELAY_105uS;
 }
 
@@ -172,29 +203,73 @@ void initPWM(void) {
 }
 
 void TMR1_Initialize(void) {
-    T1CON = 0;
-    T1CONbits.TCS = 0;
-    T1CONbits.TCKPS0 = 0;
-    T1CONbits.TCKPS1 = 0b00; // 1:64
-    T1CONbits.TGATE = 0;
-    IFS0bits.T1IF = 0;
-    IPC0bits.T1IP = 6;
-    IEC0bits.T1IE = 1;
-    // Setup PR1 for interrupting each 1 us
-    // PR1 = (FCY / PRESCALER) * 1E-6 -> 59 == 0x3B
+    TMR1 = 0x00;
+    // Period = 1 us;
+    // Frequency = 59904000 Hz;
+    // PR1 = 59 == an interrupt ~= 1.0016 us
     PR1 = 0x3B;
-    T1CONbits.TON = 1;
+    
+    // TON enabled; ->      1
+    // Empty bit ->         0
+    // TSIDL disabled; ->   0
+
+    // Empty bit ->         0
+    // Empty bit ->         0
+    // Empty bit ->         0
+    // Empty bit ->         0
+
+    // Empty bit ->         0
+    // Empty bit ->         0
+    // TGATE disabled; ->   0
+    // TCKPS 1:1; ->        0
+
+    // Empty bit ->         0
+    // TSYNC enabled ->     0
+    // TCS FOSC/2; ->       0
+    // Empty bit ->         0
+    // 1000 0000 0000 0000 == 0x8000
+    T1CON = 0x8000;
+
+    // Clear interrupt flag,
+    IFS0bits.T1IF = 0;
+    // set priority to maximum
+    IPC0bits.T1IP = 6;
+    // and enable interrupts
+    IEC0bits.T1IE = 1;
 }
 
 void TMR2_Initialize(void) {
-    //TMR2 0; 
+    // Reset TMR2 to zero
     TMR2 = 0x00;
-    //Period = 0.001 s; Frequency = 59904000 Hz; PR2 59903; 
+    
+    // Period = 1 ms; 
+    // Frequency = 59904000 Hz; 
+    // PR2 59903 == an interrupt each millisecond.
     PR2 = 0xE9FF;
-    //TCKPS 1:1; T32 16 Bit; TON enabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
+    // TON enabled; ->      1
+    // Empty bit ->         0
+    // TSIDL disabled; ->   0
+    
+    // Empty bit ->         0
+    // Empty bit ->         0
+    // Empty bit ->         0
+    // Empty bit ->         0
+    
+    // Empty bit ->         0
+    // Empty bit ->         0
+    // TGATE disabled; ->   0
+    // TCKPS 1:1; ->        0
+    
+    // T32 16 Bit; ->       0
+    // Empty bit ->         0
+    // TCS FOSC/2; ->       0
+    // Empty bit ->         0
+    // 1000 0000 0000 0000 == 0x8000
     T2CON = 0x8000;
 
+    // Clear interrupt flag...
     IFS0bits.T2IF = 0;
+    // and enable TMR2 interruptions
     IEC0bits.T2IE = 1;
 }
 
@@ -207,7 +282,7 @@ void initDigitalPorts(void)
     TRISBbits.TRISB1 = 1;
     
     //Input Change Notification Interrupt configuration
-    _CNIP=7;       // priority (7 = highest)
+    _CNIP=5;       // priority (7 = highest)
     _CNIE = 1; // Enable CN interrupts
     _CNIF = 0; // Interrupt flag cleared
     CNENBbits.CNIEB0 = 1;
