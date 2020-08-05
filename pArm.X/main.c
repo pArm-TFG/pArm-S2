@@ -36,7 +36,17 @@ int main(void) {
             printf("%c\n", receivedValue);
             receivedValue = 0;
         }
+    }
+ 
+
+    while (1) {
+
+        if (_ICNFLAG == 1) {
+            printf('PIN INTERRUPTION');
+            _ICNFLAG = 0;
+        }
     }*/
+
 
     /*while (1) {      
         if (U1STAbits.FERR == 1) {
@@ -160,5 +170,6 @@ int main(void) {
         __delay_ms(200);
         writeAngle(&motor_1, 90);
     }
+  }    
     return 0;
 }
