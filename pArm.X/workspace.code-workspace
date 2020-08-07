@@ -14,6 +14,15 @@
 			"/opt/microchip/mplabx/v5.40/packs/Microchip/dsPIC33E-GM-GP-MC-GU-MU_DFP/1.2.58/xc16/support/generic/h",
 			"/opt/microchip/xc16/v1.50/include"
 		],
-		"C_Cpp.default.compilerPath": "/opt/microchip/xc16/v1.50/bin/xc16-gcc"
+		"C_Cpp.default.compilerPath": "/opt/microchip/xc16/v1.50/bin/xc16-gcc",
+		"spellright.language": [
+			"en_US"
+		],
+		"spellright.documentTypes": [
+			"markdown",
+			"latex",
+			"plaintext",
+			"python"
+		]
 	}
 }

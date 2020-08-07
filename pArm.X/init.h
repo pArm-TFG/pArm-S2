@@ -32,8 +32,7 @@
 #define	INIT_H
 
 #include <xc.h> // include processor files - each processor file is guarded. 
-#include <libpic30.h>
-
+#include "system_types.h"
 
 void initBoard(void);
 void initUART(void);
@@ -42,6 +41,57 @@ void TMR1_Initialize(void);
 void TMR2_Initialize(void);
 void initUnusedIOPorts(void);
 void initDigitalPorts(void);
+
+void init_pins(void);
+void init_clock(void);
+void init_interrupts(void);
+
+/**
+  @Summary
+    Enables global interrupts of the dsPIC33EP512GM604
+
+  @Description
+    This routine enables the global interrupt bit for the dsPIC33EP512GM604
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    void SYSTEM_Initialize(void)
+    {
+        // Other initializers are called from this function
+        INTERRUPT_GlobalEnable ();
+    }
+    </code>
+
+ */
+inline static void INTERRUPT_GlobalEnable(void)
+{
+    __builtin_enable_interrupts();
+}
+
+/**
+ * Sets the CPU core control register operating mode to a value that is decided by the
+ * SYSTEM_CORCON_MODES argument.
+ * @param modeValue SYSTEM_CORCON_MODES initialization mode specifier
+ * @example
+ * <code>
+ * SYSTEM_CORCONModeOperatingSet(CORCON_MODE_ENABLEALLSATNORMAL_ROUNDUNBIASED);
+ * </code>
+ */
+inline static void SYSTEM_CORCONModeOperatingSet(SYSTEM_CORCON_MODES modeValue)
+{
+    CORCON = (CORCON & 0x00F2) | modeValue;
+}
+
+void system_initialize(void);
 
 #endif	/* INIT_H */
 

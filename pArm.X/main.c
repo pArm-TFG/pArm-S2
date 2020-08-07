@@ -22,13 +22,14 @@ volatile char receivedValue = 0;
 #include "utils/time.h"
 
 int main(void) {
-    initBoard();
+    system_initialize();
+    /*initBoard();
     initUART();
     initPWM();
 
     TMR1_Initialize();
     TMR2_Initialize();
-    initDigitalPorts();
+    initDigitalPorts();*/
 
 
     /*while (1) {

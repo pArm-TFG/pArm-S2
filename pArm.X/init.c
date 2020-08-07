@@ -9,6 +9,65 @@
 #include "init.h"
 #include "utils/utils.h"
 #include "utils/defs.h"
+#include "system_types.h"
+
+
+void init_pins(void) {
+    /****************************************************************************
+     * Setting the Output Latch SFR(s)
+     ***************************************************************************/
+//    LATA = 0x0000;
+//    LATB = 0x0000;
+//    LATC = 0x0000;
+
+    /****************************************************************************
+     * Setting the GPIO Direction SFR(s)
+     ***************************************************************************/
+//    TRISA = 0x0797;
+//    TRISB = 0xFFFF;
+//    TRISC = 0x03BF;
+
+    /****************************************************************************
+     * Setting the Weak Pull Up and Weak Pull Down SFR(s)
+     ***************************************************************************/
+//    CNPDA = 0x0000;
+//    CNPDB = 0x0000;
+//    CNPDC = 0x0000;
+//    CNPUA = 0x0000;
+//    CNPUB = 0x0000;
+//    CNPUC = 0x0000;
+
+    /****************************************************************************
+     * Setting the Open Drain SFR(s)
+     ***************************************************************************/
+//    ODCA = 0x0000;
+//    ODCB = 0x0000;
+//    ODCC = 0x0000;
+
+    /****************************************************************************
+     * Setting the Analog/Digital Configuration SFR(s)
+     ***************************************************************************/
+//    ANSELA = 0x0217;
+//    ANSELB = 0x0383;
+//    ANSELC = 0x003F;
+
+    // Unlock the Peripheral Pin Selector (PPS)
+    // for allowing changes on TRIS ports without
+    // affecting expected device behavior.
+    // 0xBF is a shortcut for ~(1 << 6) == 191
+    __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock PPS
+
+    RPOR6bits.RP54R = 0x0001; //RC6->UART1:U1TX
+    RPINR18bits.U1RXR = 0x0037; //RC7->UART1:U1RX
+    
+    TRISCbits.TRISC7 = 1;
+    TRISCbits.TRISC6 = 0;
+
+    // Lock again the PPS as we are done
+    // configuring the remappable ports.
+    // 0x40 is a shortcut for (1 << 6) == 64
+    __builtin_write_OSCCONL(OSCCON | 0x40); // lock PPS
+}
 
 
 void initBoard(void) {
@@ -42,26 +101,74 @@ void initBoard(void) {
     while (OSCCONbits.LOCK != 1);
 }
 
+void init_clock(void) {
+    // FRCDIV FRC/1; PLLPRE 2; DOZE 1:8; PLLPOST 1:2; DOZEN disabled; ROI disabled; 
+    CLKDIV = 0x3000;
+    // TUN Center frequency; 
+    OSCTUN = 0x00;
+    // ROON disabled; ROSEL FOSC; RODIV 0; ROSSLP disabled; 
+    REFOCON = 0x00;
+    // Setup de PLL for reaching 40 MHz with a 7.3728 clock.
+    // Maximum speed is of 140 MHz as the maximum temperature
+    // of 85 ºC implies 70 MIPS.
+    //
+    // For working at ~120 MHz:
+    // F_osc = F_in * M / (N1 * N2)
+    // F_cy = F_osc / 2
+    // F_osc ~= 120 MHz -> F_osc = 7.3728 * 65 / (2 * 2) = 119.808 MHz
+    // F_cy = F_osc / 2 = 59.904 MHz
+    //
+    // Then, setup the PLL's prescaler, postcaler and divisor
+    PLLFBDbits.PLLDIV = 63; // M = PLLDIV + 2 -> PLLDIV = 65 - 2 = 63
+    CLKDIVbits.PLLPOST = 0; // N2 = 2 * (PLLPOST + 1) -> PLLPOST = (N2 / 2) - 1 = 0
+    CLKDIVbits.PLLPRE = 0; // N1 = PLLPRE + 2; -> PLLPRE = N1 - 2 = 0
+    // AD1MD enabled; PWMMD enabled; T3MD enabled; T4MD enabled; T1MD enabled; U2MD enabled; T2MD enabled; U1MD enabled; QEI1MD enabled; SPI2MD enabled; SPI1MD enabled; C2MD enabled; C1MD enabled; DCIMD enabled; T5MD enabled; I2C1MD enabled; 
+    PMD1 = 0x00;
+    // OC5MD enabled; OC6MD enabled; OC7MD enabled; OC8MD enabled; OC1MD enabled; IC2MD enabled; OC2MD enabled; IC1MD enabled; OC3MD enabled; OC4MD enabled; IC6MD enabled; IC7MD enabled; IC5MD enabled; IC8MD enabled; IC4MD enabled; IC3MD enabled; 
+    PMD2 = 0x00;
+    // ADC2MD enabled; PMPMD enabled; U3MD enabled; QEI2MD enabled; RTCCMD enabled; CMPMD enabled; T9MD enabled; T8MD enabled; CRCMD enabled; T7MD enabled; I2C2MD enabled; T6MD enabled; 
+    PMD3 = 0x00;
+    // U4MD enabled; CTMUMD enabled; REFOMD enabled; 
+    PMD4 = 0x00;
+    // PWM2MD enabled; PWM1MD enabled; PWM4MD enabled; SPI3MD enabled; PWM3MD enabled; PWM6MD enabled; PWM5MD enabled; 
+    PMD6 = 0x00;
+    // PTGMD enabled; DMA0MD enabled; 
+    PMD7 = 0x00;
+    // CF no clock failure; NOSC FRCPLL; CLKLOCK unlocked; OSWEN Switch is Complete; IOLOCK not-active; 
+    __builtin_write_OSCCONH((uint8_t) (0x01));
+    __builtin_write_OSCCONL((uint8_t) (0x01));
+    
+    // Wait for Clock switch to occur
+    while (OSCCONbits.OSWEN != 0);
+    // And wait for clock switching to happen
+    // First, wait for clock switch to occur
+    // and thenm wait the PLL to lock
+    while (OSCCONbits.COSC != 0b011);
+    while (OSCCONbits.LOCK != 1);
+}
+
+void init_interrupts(void) {
+    //    TI: Timer 2
+    //    Priority: 1
+    IPC1bits.T2IP = 1;
+    //    UERI: UART1 Error
+    //    Priority: 1
+    IPC16bits.U1EIP = 1;
+    //    UTXI: UART1 Transmitter
+    //    Priority: 1
+    IPC3bits.U1TXIP = 1;
+    //    URXI: UART1 Receiver
+    //    Priority: 1
+    IPC2bits.U1RXIP = 1;
+    //    TI: Timer 1
+    //    Priority: 1
+    IPC0bits.T1IP = 1;
+}
+
 void initUART(void) {
-    // Unlock the Peripheral Pin Selector (PPS)
-    // for allowing changes on TRIS ports without
-    // affecting expected device behavior.
-    // 0xBF is a shortcut for ~(1 << 6) == 191
-    __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock PPS
+    IEC0bits.U1TXIE = 0;
+    IEC0bits.U1RXIE = 0;
     
-    // UART1 RX at RP55 (pin RC7)
-    RPINR18bits.U1RXR = 0b0110111;
-    TRISCbits.TRISC7 = 1;
-    
-    // UART1 TX at RP54 (pin RC6)
-    RPOR6bits.RP54R = 0b000001;
-    TRISCbits.TRISC6 = 0;
-
-    // Lock again the PPS as we are done
-    // configuring the remappable ports.
-    // 0x40 is a shortcut for (1 << 6) == 64
-    __builtin_write_OSCCONL(OSCCON | 0x40); // lock PPS
-
     // Setup UART
     // Stop on idle
     U1MODEbits.USIDL = 1;
@@ -86,7 +193,8 @@ void initUART(void) {
     U1MODEbits.STSEL = 0;
     
     // Interrupt after one RX character is received;
-    U1STAbits.URXISEL = 0;
+    U1STA = 0x00;
+//    U1STAbits.URXISEL = 0;
     
     // Calculate the baudrate using the following equation
     // UxBRG = ((FCY / Desired Baud rate) / 16) - 1
@@ -102,6 +210,7 @@ void initUART(void) {
     IFS0bits.U1TXIF = 0;
     IPC2bits.U1RXIP = 0b110;
 
+    //Make sure to set LAT bit corresponding to TxPin as high before UART initialization
     U1MODEbits.UARTEN = 1; // enabling UART ON bit
     U1STAbits.UTXEN = 1;
     
@@ -137,7 +246,7 @@ void initPWM(void) {
     SPHASE3 = 0;
     SPHASE2 = 0;
     SPHASE1 = 0;
-    SPHASE4 = 0;
+    PHASE1 = 0;
 
     // By default, set no duty cycle of programmed signals
     SDC3 = 0;
@@ -304,4 +413,16 @@ void initDigitalPorts(void)
     ANSELBbits.ANSB1 = 0;
     ANSELBbits.ANSB7 = 0;
     ANSELBbits.ANSB8 = 0;
+}
+
+inline void system_initialize(void) {
+    init_pins();
+    init_clock();
+    init_interrupts();
+    initUART();
+    TMR1_Initialize();
+    TMR2_Initialize();
+    initPWM();
+    INTERRUPT_GlobalEnable();
+    SYSTEM_CORCONModeOperatingSet(CORCON_MODE_PORVALUES);
 }
