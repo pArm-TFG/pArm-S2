@@ -23,12 +23,8 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
 void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
     IFS0bits.U1RXIF = 0;
     printf("!\n");
-    if (U1STAbits.FERR == 1 )
+    if (U1STAbits.FERR == 1)
         return;
-    if (U1STAbits.OERR == 1) {
-        U1STAbits.OERR = 0;
-        return;
-    }
     if (U1STAbits.URXDA == 1) {
         receivedValue = U1RXREG;
     }
@@ -45,8 +41,15 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
     IFS1bits.U2RXIF = 0;
 }*/
 
-void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void)
-{
+void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void) {
     _ICNFLAG = 1; // Notify the input change using the auxiliar flag
     _CNIF = 0; // Clear the interruption flag
-}  
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _U1ErrInterrupt(void) {
+    if ((U1STAbits.OERR == 1)) {
+        U1STAbits.OERR = 0;
+    }
+
+    IFS4bits.U1EIF = 0;
+}

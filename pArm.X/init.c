@@ -151,18 +151,12 @@ void init_interrupts(void) {
     //    TI: Timer 2
     //    Priority: 1
     IPC1bits.T2IP = 1;
-    //    UERI: UART1 Error
-    //    Priority: 1
-    IPC16bits.U1EIP = 1;
-    //    UTXI: UART1 Transmitter
-    //    Priority: 1
-    IPC3bits.U1TXIP = 1;
-    //    URXI: UART1 Receiver
-    //    Priority: 1
-    IPC2bits.U1RXIP = 1;
     //    TI: Timer 1
     //    Priority: 1
     IPC0bits.T1IP = 1;
+    //    UERI: UART1 Error
+    //    Priority: 1
+    IPC16bits.U1EIP = 1;
 }
 
 void initUART(void) {
@@ -193,8 +187,8 @@ void initUART(void) {
     U1MODEbits.STSEL = 0;
     
     // Interrupt after one RX character is received;
-    U1STA = 0x00;
-//    U1STAbits.URXISEL = 0;
+    // UTXISEL0 TX_ONE_CHAR; UTXINV disabled; OERR NO_ERROR_cleared; URXISEL RX_ONE_CHAR; UTXBRK COMPLETED; UTXEN enabled; ADDEN disabled; 
+    U1STA = 0x400;
     
     // Calculate the baudrate using the following equation
     // UxBRG = ((FCY / Desired Baud rate) / 16) - 1

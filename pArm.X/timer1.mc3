@@ -13,12 +13,12 @@
          <string>class com.microchip.mcc.mcu16.pinManager.PinManager</string>
       </entry>
       <entry>
-         <string>ICD</string>
-         <string>class com.microchip.mcc.mcu16.systemManager.icd.Icd</string>
-      </entry>
-      <entry>
          <string>RESET</string>
          <string>class com.microchip.mcc.mcu16.systemManager.reset.RESET</string>
+      </entry>
+      <entry>
+         <string>ICD</string>
+         <string>class com.microchip.mcc.mcu16.systemManager.icd.Icd</string>
       </entry>
       <entry>
          <string>Interrupt Module</string>
@@ -459,7 +459,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="UART1" name="BaudRateError"/>
-         <value>0</value>
+         <value>0.000</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="CNPDB" settingAlias="CNPDB15"/>
@@ -1727,7 +1727,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="UART1" name="BaudRate"/>
-         <value>2400.000</value>
+         <value>9600</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="Pin Module" name="Custom Name RA9"/>
@@ -3039,7 +3039,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="UART1" registerAlias="USTA"/>
-         <value>0</value>
+         <value>1024</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="Pin Module" registerAlias="CNPUA" settingAlias="CNPUA10" alias="disabled"/>
@@ -3207,7 +3207,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="UART1" registerAlias="USTA" settingAlias="UTXEN"/>
-         <value>disabled</value>
+         <value>enabled</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="TMR2" registerAlias="TCON" settingAlias="TGATE" alias="disabled"/>
@@ -4143,7 +4143,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="UART1" name="RedirectPrintf"/>
-         <value>enabled</value>
+         <value>disabled</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="Pin Module" registerAlias="CNPUB" settingAlias="CNPUB7"/>
@@ -7111,7 +7111,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.CustomKey" moduleName="UART1" name="inputmode"/>
-         <value>register</value>
+         <value>easysetup</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="UART1" registerAlias="UTXI" settingAlias="priority"/>
@@ -7171,7 +7171,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.RegisterKey" moduleName="UART1" registerAlias="UMODE"/>
-         <value>32768</value>
+         <value>32776</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="UART1" registerAlias="USTA" settingAlias="URXISEL" alias="RX_3_4_BUF_FULL"/>
@@ -7243,7 +7243,7 @@
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.SettingKey" moduleName="UART1" registerAlias="UMODE" settingAlias="BRGH"/>
-         <value>disabled</value>
+         <value>enabled</value>
       </entry>
       <entry>
          <key class="com.microchip.mcc.core.tokenManager.OptionKey" moduleName="Pin Module" registerAlias="TRISB" settingAlias="TRISB0" alias="output"/>
@@ -7544,28 +7544,28 @@
          <hash>4c1a0541a73946a79985095eb954b710c945f46de71038bf420a14da440c5830</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/uart1.h</file>
-         <hash>d8c0b3f6e5e61e20e94e6581fd4cabf500100fb15e63f178c7e9c1ef4df39477</hash>
+         <file>mcc_generated_files/tmr1.c</file>
+         <hash>5e9098e31d4325cfafcee460d426cd7157693e6c4bb416e1b49a0aa761a50582</hash>
       </entry>
       <entry>
          <file>mcc_generated_files/reset.c</file>
          <hash>2e6f34f22423776d0289cf65983026e6cf1b77086115ab90dcb88a2e5aa8e23e</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/tmr1.c</file>
-         <hash>5e9098e31d4325cfafcee460d426cd7157693e6c4bb416e1b49a0aa761a50582</hash>
+         <file>mcc_generated_files/uart1.h</file>
+         <hash>d8c0b3f6e5e61e20e94e6581fd4cabf500100fb15e63f178c7e9c1ef4df39477</hash>
       </entry>
       <entry>
          <file>mcc_generated_files/system.c</file>
-         <hash>8aa894122fd8317e78332f1c4b548fe13a358fccba819bb982385d54f6b29f92</hash>
-      </entry>
-      <entry>
-         <file>main.c</file>
-         <hash>ac8d0975cf7689e55b5c09b8bbfbd61b2f0b852da78673e0eb142310b226e279</hash>
+         <hash>15e42351c68568d4d278e70171a5d7ab7e0b13c55605736992d9f0cd91b728c7</hash>
       </entry>
       <entry>
          <file>mcc_generated_files/reset.h</file>
          <hash>3e40b8c33aa3a83a377ef47ecdf7517ae5a3973baf138a3acd4c5e853fb19056</hash>
+      </entry>
+      <entry>
+         <file>main.c</file>
+         <hash>ac8d0975cf7689e55b5c09b8bbfbd61b2f0b852da78673e0eb142310b226e279</hash>
       </entry>
       <entry>
          <file>mcc_generated_files/tmr1.h</file>
@@ -7605,7 +7605,7 @@
       </entry>
       <entry>
          <file>mcc_generated_files/mcc.h</file>
-         <hash>a68e330eccc00de1fe18672ed704ca0b7d9385e30c55e7772a3b1f1adce6dde0</hash>
+         <hash>1dea558df71d49f007a7f1fe79c3c73967663a11b7bfa506fac94e7b75c4da0b</hash>
       </entry>
       <entry>
          <file>mcc_generated_files/system.h</file>
@@ -7616,12 +7616,12 @@
          <hash>1d3d2e8673d4ac6aed5c300b0255e2e712223055fc2883a8c6abb4f4087a38f5</hash>
       </entry>
       <entry>
-         <file>mcc_generated_files/uart1.c</file>
-         <hash>38452bfa51f9c7aaf43c52028583b4d5c82d4775c4901dc143eaec3a9de307f1</hash>
-      </entry>
-      <entry>
          <file>mcc_generated_files/mcc.c</file>
          <hash>29b68f0482182a64b26c7238397fe572fce121cb6d3c5aaa6bc2a64cc0de586f</hash>
+      </entry>
+      <entry>
+         <file>mcc_generated_files/uart1.c</file>
+         <hash>3cb21195cf6e7ba09f80f3bac5b523a767519e6a8ac490423e517c46a06c55a9</hash>
       </entry>
       <entry>
          <file>mcc_generated_files/pin_manager.c</file>
