@@ -5,7 +5,6 @@
  * Created on 3 de julio de 2020, 13:07
  */
 
-#include <p33EP512GM604.h>
 #include "init.h"
 #include "utils/utils.h"
 #include "utils/defs.h"
@@ -13,49 +12,13 @@
 
 
 void init_pins(void) {
-    /****************************************************************************
-     * Setting the Output Latch SFR(s)
-     ***************************************************************************/
-//    LATA = 0x0000;
-//    LATB = 0x0000;
-//    LATC = 0x0000;
-
-    /****************************************************************************
-     * Setting the GPIO Direction SFR(s)
-     ***************************************************************************/
-//    TRISA = 0x0797;
-//    TRISB = 0xFFFF;
-//    TRISC = 0x03BF;
-
-    /****************************************************************************
-     * Setting the Weak Pull Up and Weak Pull Down SFR(s)
-     ***************************************************************************/
-//    CNPDA = 0x0000;
-//    CNPDB = 0x0000;
-//    CNPDC = 0x0000;
-//    CNPUA = 0x0000;
-//    CNPUB = 0x0000;
-//    CNPUC = 0x0000;
-
-    /****************************************************************************
-     * Setting the Open Drain SFR(s)
-     ***************************************************************************/
-//    ODCA = 0x0000;
-//    ODCB = 0x0000;
-//    ODCC = 0x0000;
-
-    /****************************************************************************
-     * Setting the Analog/Digital Configuration SFR(s)
-     ***************************************************************************/
-//    ANSELA = 0x0217;
-//    ANSELB = 0x0383;
-//    ANSELC = 0x003F;
-
     // Unlock the Peripheral Pin Selector (PPS)
     // for allowing changes on TRIS ports without
     // affecting expected device behavior.
     // 0xBF is a shortcut for ~(1 << 6) == 191
+#ifndef CONFIG_SIMULATOR
     __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock PPS
+#endif
 
     RPOR6bits.RP54R = 0x0001; //RC6->UART1:U1TX
     RPINR18bits.U1RXR = 0x0037; //RC7->UART1:U1RX
@@ -66,7 +29,9 @@ void init_pins(void) {
     // Lock again the PPS as we are done
     // configuring the remappable ports.
     // 0x40 is a shortcut for (1 << 6) == 64
+#ifndef CONFIG_SIMULATOR
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock PPS
+#endif
 }
 
 
@@ -74,6 +39,7 @@ void initBoard(void) {
     // Disable watchdog timer
     RCONbits.SWDTEN = 0;
 
+#ifndef CONFIG_SIMULATOR
     // Setup de PLL for reaching 40 MHz with a 7.3728 clock.
     // Maximum speed is of 140 MHz as the maximum temperature
     // of 85 ºC implies 70 MIPS.
@@ -99,9 +65,11 @@ void initBoard(void) {
     // and thenm wait the PLL to lock
     while (OSCCONbits.COSC != 0b011);
     while (OSCCONbits.LOCK != 1);
+#endif
 }
 
 void init_clock(void) {
+#ifndef CONFIG_SIMULATOR
     // FRCDIV FRC/1; PLLPRE 2; DOZE 1:8; PLLPOST 1:2; DOZEN disabled; ROI disabled; 
     CLKDIV = 0x3000;
     // TUN Center frequency; 
@@ -145,6 +113,7 @@ void init_clock(void) {
     // and thenm wait the PLL to lock
     while (OSCCONbits.COSC != 0b011);
     while (OSCCONbits.LOCK != 1);
+#endif
 }
 
 void init_interrupts(void) {
@@ -186,16 +155,16 @@ void initUART(void) {
     // One stop bit
     U1MODEbits.STSEL = 0;
     
-    // Interrupt after one RX character is received;
-    // UTXISEL0 TX_ONE_CHAR; UTXINV disabled; OERR NO_ERROR_cleared; URXISEL RX_ONE_CHAR; UTXBRK COMPLETED; UTXEN enabled; ADDEN disabled; 
-    U1STA = 0x400;
-    
     // Calculate the baudrate using the following equation
     // UxBRG = ((FCY / Desired Baud rate) / 16) - 1
     // For 9600 bauds and FCY = 59.904E6, the obtained BRG is
     // -> 389, and the obtained baudrate is: 9600, with an error
     // of 0%
     U1BRG = 389; 
+
+    // Interrupt after one RX character is received;
+    // UTXISEL0 TX_ONE_CHAR; UTXINV disabled; OERR NO_ERROR_cleared; URXISEL RX_ONE_CHAR; UTXBRK COMPLETED; UTXEN enabled; ADDEN disabled; 
+    U1STA = 0x400;
     
     // Enable UART TX Interrupt
     IEC0bits.U1TXIE = 1;
@@ -385,7 +354,7 @@ void initDigitalPorts(void)
     TRISBbits.TRISB1 = 1;
     
     //Input Change Notification Interrupt configuration
-    _CNIP=5;       // priority (7 = highest)
+    _CNIP = 5;       // priority (7 = highest)
     _CNIE = 1; // Enable CN interrupts
     _CNIF = 0; // Interrupt flag cleared
     CNENBbits.CNIEB0 = 1;
@@ -412,11 +381,12 @@ void initDigitalPorts(void)
 inline void system_initialize(void) {
     init_pins();
     init_clock();
-    init_interrupts();
     initUART();
     TMR1_Initialize();
     TMR2_Initialize();
     initPWM();
     INTERRUPT_GlobalEnable();
     SYSTEM_CORCONModeOperatingSet(CORCON_MODE_PORVALUES);
+    // Init interrupts only after the hole initialization process is finished
+    init_interrupts();
 }

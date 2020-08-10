@@ -31,20 +31,7 @@
 #ifndef PRAGMAS_H
 #define	PRAGMAS_H
 
-/*// Configurations for oscilator
-#pragma config POSCMD = XT      // Primary oscilator mode bits
-#pragma config OSCIOFNC = OFF   // OSC2 pin function bit (OSC2 as clock output)
-#pragma config IOL1WAY = OFF    // Peripheral pin select config (allows multiple reconfigurations)
-#pragma config FCKSM = CSECMD   // Clock switching mode bits
-
-// Configuration for oscilator selection
-#pragma config FNOSC = PRI      // Oscillator source selection
-#pragma config PWMLOCK = OFF    // PWM lock enable bit
-#pragma config IESO = ON        // Two-speed oscilator start-up enable bit
-
-// Configuration for general segment
-#pragma config GWRP = OFF       // General segment write-protection bit
-#pragma config GCP = OFF        // General segment code-protection bit*/
+#ifndef CONFIG_SIMULATOR
 
 // FICD
 #pragma config ICS = PGD1    //ICD Communication Channel Select bits->Communicate on PGEC1 and PGED1
@@ -77,6 +64,8 @@
 // FGS
 #pragma config GWRP = OFF    //General Segment Write-Protect bit->General Segment may be written
 #pragma config GCP = OFF    //General Segment Code-Protect bit->General Segment Code protect is Disabled
+
+#endif /* CONFIG_SIMULATOR */
 
 #endif	/* PRAGMAS_H */
 
