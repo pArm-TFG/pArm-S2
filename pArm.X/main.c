@@ -13,9 +13,8 @@ volatile char receivedValue = 0;
 #include <xc.h>
 #ifdef USE_CUSTOM_PRINTF
 #include "printf/printf.h"
-#else
-#include "utils/uart.h"
 #endif
+#include "utils/uart.h"
 #include "init.h"
 #include "motor/servo.h"
 #include "interrupts.h"

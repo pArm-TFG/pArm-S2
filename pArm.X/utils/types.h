@@ -37,5 +37,15 @@ typedef uint64_t time_t;
 #define time_t time_t
 #endif
 
+// Position definitions
+#ifndef point_t
+typedef struct {
+    float x;
+    float y;
+    float z;
+} point_t;
+#define point_t point_t
+#endif
+
 #endif	/* TYPES_H */
 

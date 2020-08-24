@@ -34,40 +34,6 @@ void init_pins(void) {
 #endif
 }
 
-
-void initBoard(void) {
-    // Disable watchdog timer
-    RCONbits.SWDTEN = 0;
-
-#ifndef CONFIG_SIMULATOR
-    // Setup de PLL for reaching 40 MHz with a 7.3728 clock.
-    // Maximum speed is of 140 MHz as the maximum temperature
-    // of 85 ºC implies 70 MIPS.
-    //
-    // For working at ~120 MHz:
-    // F_osc = F_in * M / (N1 * N2)
-    // F_cy = F_osc / 2
-    // F_osc ~= 120 MHz -> F_osc = 7.3728 * 65 / (2 * 2) = 119.808 MHz
-    // F_cy = F_osc / 2 = 59.904 MHz
-    //
-    // Then, setup the PLL's prescaler, postcaler and divisor
-    PLLFBDbits.PLLDIV = 63; // M = PLLDIV + 2 -> PLLDIV = 65 - 2 = 63
-    CLKDIVbits.PLLPOST = 0; // N2 = 2 * (PLLPOST + 1) -> PLLPOST = (N2 / 2) - 1 = 0
-    CLKDIVbits.PLLPRE = 0; // N1 = PLLPRE + 2; -> PLLPRE = N1 - 2 = 0
-
-    // Notify clock to use PLL
-    // Start clock switching to primary
-    __builtin_write_OSCCONH(0x03);
-    __builtin_write_OSCCONL(0x01);
-
-    // And wait for clock switching to happen
-    // First, wait for clock switch to occur
-    // and thenm wait the PLL to lock
-    while (OSCCONbits.COSC != 0b011);
-    while (OSCCONbits.LOCK != 1);
-#endif
-}
-
 void init_clock(void) {
 #ifndef CONFIG_SIMULATOR
     // FRCDIV FRC/1; PLLPRE 2; DOZE 1:8; PLLPOST 1:2; DOZEN disabled; ROI disabled; 
@@ -380,6 +346,7 @@ void initDigitalPorts(void)
 
 inline void system_initialize(void) {
     init_pins();
+    initDigitalPorts();
     init_clock();
     initUART();
     TMR1_Initialize();

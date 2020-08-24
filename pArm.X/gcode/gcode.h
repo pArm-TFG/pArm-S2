@@ -20,23 +20,27 @@
  */
 
 /* 
- * File: uart.h
+ * File: gcode.h
  * Author: Javinator9889
- * Comments: UART general I/O file handler
- * Revision history: 1.0
+ * Comments: GCode interpreter
+ * Revision history: v1.0
  */
 
-// This is a guard condition so that contents of this file are not included
-// more than once.  
-#ifndef UART_H
-#define	UART_H
+#ifndef GCODE_H
+#define	GCODE_H
+#define MAX_BUFFER_LENGTH 64
 
 #include <stdint.h>
+#include "../utils/types.h"
 
-void putch(char data);
-void _putchar(char character);
+extern char BUFFER[MAX_BUFFER_LENGTH];
+extern uint16_t cLength;
 
-uint8_t getch(void);
+void move_to(point_t position);
+point_t get_position(void);
+//#pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
+float parse_number(char code, float val);
+void process_command(const char* command);
 
-#endif	/* UART_H */
+#endif	/* GCODE_H */
 
