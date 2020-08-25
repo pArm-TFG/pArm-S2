@@ -20,35 +20,24 @@
  */
 
 /* 
- * File: motor.h
- * Author: Javinator9889
- * Comments: The motor handler header file definition
- * Revision history: 1.0
+ * File:   
+ * Author: 
+ * Comments:
+ * Revision history: 
  */
 
-#ifndef MOTOR_H
-#define	MOTOR_H
+// This is a guard condition so that contents of this file are not included
+// more than once.  
+#ifndef TIMER3_H
+#define	TIMER3_H
 
-#include <stdint.h>
-#include "servo.h"
-#include "../utils/types.h"
-#include "../utils/utils.h"
+#include "../motor/motor.h"
 
-#define MAX_MOTORS  4U
+extern Motor_t *tmr3_motor;
 
-typedef struct {
-    const Servo *servoHandler;
-    volatile time_t ticks;
-    const uint8_t id;
-} Motor_t;
+void TMR3_Initialize(Motor_t *motor);
+void __attribute__ ((interrupt, no_auto_psv)) _T3Interrupt(void);
+void TMR3_Start(void);
+void TMR3_Stop(void);
 
-
-static void handleInterrupt(void);
-void move(Motor_t *motor, uint16_t angle);
-void home(Motor_t motor[MAX_MOTORS]);
-void freeze(Motor_t *motor);
-double positionMs(Motor_t *motor);
-double position(Motor_t *motor);
-
-#endif	/* MOTOR_H */
-
+#endif	/* TIMER3_H */

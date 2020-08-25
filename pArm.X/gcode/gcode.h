@@ -38,9 +38,10 @@ extern uint16_t cLength;
 
 void move_to(point_t position);
 point_t get_position(void);
-//#pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
+#pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
 float parse_number(char code, float val);
 void process_command(const char* command);
+void pause(void);
 
 #endif	/* GCODE_H */
 

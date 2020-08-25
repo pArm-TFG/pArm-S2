@@ -21,6 +21,10 @@ point_t get_position(void) {
     return position;
 }
 
+void pause(void) {
+    return;
+}
+
 float parse_number(char code, float val) {
     char *ptr = BUFFER;
     while ((long) ptr > 1 && (*ptr) && (long) ptr < (long) BUFFER + cLength) {
@@ -67,7 +71,7 @@ void process_command(const char* command) {
     cmd = parse_number('M', -1);
     switch (cmd) {
         case 18:
-            // TODO - disable motors (stop movement)
+            pause();
             break;
         case 114:
         {
