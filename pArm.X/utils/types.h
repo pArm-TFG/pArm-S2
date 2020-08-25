@@ -45,6 +45,7 @@ typedef struct {
     float z;
 } point_t;
 #define point_t point_t
+#endif
 
 // Angle definitions
 #ifndef angle_t
