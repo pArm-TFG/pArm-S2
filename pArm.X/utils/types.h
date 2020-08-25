@@ -45,6 +45,15 @@ typedef struct {
     float z;
 } point_t;
 #define point_t point_t
+
+// Angle definitions
+#ifndef angle_t
+typedef struct {
+    float theta0;
+    float theta1;
+    float theta2;
+} angle_t;
+#define angle_t angle_t
 #endif
 
 #endif	/* TYPES_H */

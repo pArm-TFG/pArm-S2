@@ -41,6 +41,7 @@
     size_t size = arrsize(array); \
     for (item = array; item < (array + size); ++item)
 #define clockCyclesPerMicrosecond() ( FCY / 1000000UL )
+#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
 /**
  * Maps a value in between the output range by the given input range
@@ -57,7 +58,8 @@ inline long map(long x, long in_min, long in_max, long out_min, long out_max)
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-inline double roundp(double value) {
+inline double roundp(double value)
+{
     return floor(value + .5);
 }
 
@@ -75,6 +77,11 @@ inline double preciseMap(
 inline double mapf(double x, double in_min, double in_max, double out_min, double out_max)
 {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+inline uint8_t isnan(float value)
+{
+    return ((*((unsigned*) &value + 1) & 0x7f80u) == 0x7f80u);
 }
 
 #endif	/* UTILS_H */
