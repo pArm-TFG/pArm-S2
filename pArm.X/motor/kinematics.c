@@ -6,9 +6,11 @@
  */
 
 #include <math.h>
+#include <dsp.h>
 #include "kinematics.h"
 #include "../utils/types.h"
 #include "../utils/utils.h"
+#include "../arm_config.h"
 
 float get_radius_from_height(float height) {
     float radius = .0f;
@@ -28,6 +30,39 @@ float get_radius_from_height(float height) {
     return radius;
 }
 
+double **forward_kinematics_matrix(
+        const angle_t angle,
+        const float a1,
+        const float a2,
+        const float a3,
+        const float d1,
+        const float Tx,
+        const float Tz
+        ) {
+    double fk_matrix[][] = {
+        {
+            cos(angle.theta0) * cos(angle.theta1 - angle.theta2),
+            sin(angle.theta1 - angle.theta2) * cos(angle.theta0),
+            -sin(angle.theta0),
+            (a2 * cos(angle.theta1) + a3 * cos(angle.theta1 - angle.theta2) + d1) * cos(angle.theta0) + Tx
+        },
+        {
+            sin(angle.theta0) * cos(angle.theta1 - angle.theta2),
+            sin(angle.theta1 - angle.theta2) * sin(angle.theta0),
+            cos(angle.theta0),
+            (a2 * cos(angle.theta1) + a3 * cos(angle.theta1 - angle.theta2) + d1) * sin(angle.theta0)
+        },
+        {
+            sin(angle.theta1 - angle.theta2),
+            -cos(angle.theta1 - angle.theta2),
+            0,
+            a1 + a2 * sin(angle.theta1) + a3 * sin(angle.theta1 - angle.theta2) - Tz
+        },
+        {0, 0, 0, 1}
+    };
+    return fk_matrix;
+}
+
 char inverse_kinematics(const point_t in_cartesian, angle_t angle) {
     float xIn = .0f;
     float zIn = .0f;
@@ -44,7 +79,7 @@ char inverse_kinematics(const point_t in_cartesian, angle_t angle) {
 
     point.z += height_offset;
 
-    zIn = (point.z - MATH_L1) / MATH_LOWER_ARM;
+    zIn = (point.z - ARM_BASE_HEIGHT) / ARM_LOWER_ARM;
 
     float xy_length = sqrt(point.x * point.x + point.y * point.y);
     float radius = get_radius_from_height(point.z);
@@ -64,19 +99,19 @@ char inverse_kinematics(const point_t in_cartesian, angle_t angle) {
                 180.F - atan2(point.x, point.y) * MATH_TRANS;
     }
 
-    xIn = (point.x / sin(angleRot / MATH_TRANS) - MATH_L2 - front_end_offset)
-            / MATH_LOWER_ARM;
+    xIn = (point.x / sin(angleRot / MATH_TRANS) - ARM_BASE_DEVIATION - front_end_offset)
+            / ARM_LOWER_ARM;
 
     phi = atan2(zIn, xIn) * MATH_TRANS;
     sqrtXZ = sqrt(zIn * zIn + xIn * xIn);
 
     // Cosine law
-    rightAll = (sqrtXZ * sqrtXZ + MATH_UPPER_LOWER * MATH_UPPER_LOWER - 1) /
-            (2 * MATH_UPPER_LOWER * sqrtXZ);
+    rightAll = (sqrtXZ * sqrtXZ + ARM_UPPER_LOWER * ARM_UPPER_LOWER - 1) /
+            (2 * ARM_UPPER_LOWER * sqrtXZ);
     angleRight = acos(rightAll) * MATH_TRANS;
 
     // Calculate the value of theta 2
-    rightAll = (sqrtXZ * sqrtXZ + 1 - MATH_UPPER_LOWER * MATH_UPPER_LOWER) /
+    rightAll = (sqrtXZ * sqrtXZ + 1 - ARM_UPPER_LOWER * ARM_UPPER_LOWER) /
             (2 * sqrtXZ);
     angleLeft = acos(rightAll) * MATH_TRANS;
 
@@ -97,7 +132,7 @@ char inverse_kinematics(const point_t in_cartesian, angle_t angle) {
     } else if (angleRight < UPPER_ARM_MIN_ANGLE) {
         return -1;
     }
-    
+
     if (angleLeft + angleRight > (180 - LOWER_UPPER_MIN_ANGLE)) {
         //angleLeft = 180  - LOWER_UPPER_MIN_ANGLE - angleRight;
         return -1;
@@ -119,4 +154,8 @@ char inverse_kinematics(const point_t in_cartesian, angle_t angle) {
     angle.theta2 = angleRight;
 
     return 0;
+}
+
+char forward_kinematics(const angle_t in_angle, point_t position) {
+
 }
