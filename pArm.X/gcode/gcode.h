@@ -37,7 +37,7 @@ extern char BUFFER[MAX_BUFFER_LENGTH];
 extern uint16_t cLength;
 
 void move_to(point_t position);
-point_t get_position(void);
+point_t GCODE_get_position(void);
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
 float parse_number(char code, float val);
 void process_command(const char* command);

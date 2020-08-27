@@ -16,7 +16,7 @@ void move_to(point_t position) {
     return;
 }
 
-point_t get_position(void) {
+point_t GCODE_get_position(void) {
     point_t position = {.0f, .0f, .0f};
     return position;
 }
@@ -76,7 +76,7 @@ void process_command(const char* command) {
         case 114:
         {
             // TODO - manage position
-            point_t current_position = get_position();
+            point_t current_position = GCODE_get_position();
             break;
         }
         default:

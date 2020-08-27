@@ -130,11 +130,11 @@ int main(void) {
 
     //    U1TXREG = 'a';
     //    printf("UART\n");
-    __delay_ms(1000);
-    Servo motor_4 = {&SDC1};
-    Servo motor_3 = {&SDC2};
-    Servo motor_2 = {&SDC3};
-    Servo motor_1 = {&PDC1};
+    /*__delay_ms(1000);
+    servo_t motor_4 = {&SDC1};
+    servo_t motor_3 = {&SDC2};
+    servo_t motor_2 = {&SDC3};
+    servo_t motor_1 = {&PDC1};
     while (1) {
         writeAngle(&motor_4, 90);
         __delay_ms(200);
@@ -169,6 +169,6 @@ int main(void) {
         writeAngle(&motor_1, 90);
         __delay_ms(200);
         writeAngle(&motor_1, 90);
-    }
+    }*/
     return 0;
 }

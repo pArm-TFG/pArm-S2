@@ -33,9 +33,9 @@
 
 #include "../motor/motor.h"
 
-extern Motor_t *tmr3_motor;
+extern motor_t *tmr3_motor;
 
-void TMR3_Initialize(Motor_t *motor);
+void TMR3_Initialize(motor_t *motor);
 void __attribute__ ((interrupt, no_auto_psv)) _T3Interrupt(void);
 void TMR3_Start(void);
 void TMR3_Stop(void);

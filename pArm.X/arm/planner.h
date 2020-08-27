@@ -20,35 +20,36 @@
  */
 
 /* 
- * File: motor.h
+ * File: planner.h 
  * Author: Javinator9889
- * Comments: The motor handler header file definition
- * Revision history: 1.0
+ * Comments: The planner that controls how the arm moves
+ * Revision history: v1.0
  */
 
-#ifndef MOTOR_H
-#define	MOTOR_H
+// This is a guard condition so that contents of this file are not included
+// more than once.  
+#ifndef PLANNER_H
+#define	PLANNER_H
 
-#include <stdint.h>
-#include "servo.h"
+#include "../motor/motor.h"
 #include "../utils/types.h"
-#include "../utils/utils.h"
-
-#define MAX_MOTORS  4U
 
 typedef struct {
-    servo_t *servoHandler;
-    volatile time_t ticks;
-    const uint8_t id;
-} motor_t;
+    motor_t *base_motor;
+    motor_t *lower_arm;
+    motor_t *upper_arm;
+    motor_t *end_effector_arm;
+} motors_t;
 
+extern motors_t motors;
 
-static void handleInterrupt(void);
-void move(motor_t *motor, uint16_t angle);
-void home(motor_t motor[MAX_MOTORS]);
-void freeze(motor_t *motor);
-double position_ms(motor_t *motor);
-double position(motor_t *motor);
+void go_home(void);
+void move_xyz(point_t xyz);
+void move_angle(angle_t angle);
+void move_waiting(angle_t angle);
+void stop_moving(void);
+point_t get_position(void);
+angle_t get_angles(void);
 
-#endif	/* MOTOR_H */
+#endif	/* PLANNER_H */
 

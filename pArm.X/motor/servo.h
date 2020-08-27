@@ -41,11 +41,14 @@
 // Servo definition
 typedef struct {
     uint16_t *dutyCycleRegister;
-} Servo;
+    double home;
+    double min_angle;
+    double max_angle;
+} servo_t;
 
-void writeAngle(const Servo *servo, uint16_t angle);
-void writeMilliseconds(const Servo *servo, double ms);
-void writeValue(const Servo *servo, uint16_t dutyCycleValue);
+void writeAngle(const servo_t *servo, uint16_t angle);
+void writeMilliseconds(const servo_t *servo, double ms);
+void writeValue(const servo_t *servo, uint16_t dutyCycleValue);
 
 #endif	/* SERVO_H */
 

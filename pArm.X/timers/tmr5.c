@@ -10,9 +10,9 @@
 #include "tmr5.h"
 #include "../motor/motor.h"
 
-Motor_t *tmr5_motor;
+motor_t *tmr5_motor;
 
-void TMR5_Initialize(Motor_t *motor) {
+void TMR5_Initialize(motor_t *motor) {
     tmr5_motor = motor;
     
     //TMR5 0; 
