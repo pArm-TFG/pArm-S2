@@ -23,6 +23,7 @@
       <itemPath>timers/tmr5.h</itemPath>
       <itemPath>motor/kinematics.h</itemPath>
       <itemPath>arm_config.h</itemPath>
+      <itemPath>arm/planner.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

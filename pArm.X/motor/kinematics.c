@@ -63,10 +63,10 @@ inline double **forward_kinematics_matrix(
     });
 }
 
-inline char check_constraints(const angle_t angle) {
-    angle.theta0 = constrain(angle.theta0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE);
-    angle.theta1 = constrain(angle.theta1, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE);
-    angle.theta2 = constrain(angle.theta2, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE);
+inline char check_angle_constraints(angle_t angle) {
+    angle.theta0 = constraint(angle.theta0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE);
+    angle.theta1 = constraint(angle.theta1, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE);
+    angle.theta2 = constraint(angle.theta2, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE);
 }
 
 char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
@@ -150,9 +150,9 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
     }
 
 
-    angleRot = constrain(angleRot, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE);
-    angleLeft = constrain(angleLeft, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE);
-    angleRight = constrain(angleRight, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE);
+    angleRot = constraint(angleRot, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE);
+    angleLeft = constraint(angleLeft, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE);
+    angleRight = constraint(angleRight, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE);
 
 
     angle->theta0 = angleRot;
@@ -163,9 +163,11 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
 }
 
 char forward_kinematics(const angle_t in_angle, point_t *position) {
-    check_constraints(in_angle);
+    angle_t angle = in_angle;
+    check_angle_constraints(angle);
+    
     const double **fk_matrix = forward_kinematics_matrix(
-            in_angle,
+            angle,
             ARM_BASE_HEIGHT,
             ARM_LOWER_ARM,
             ARM_UPPER_ARM,
