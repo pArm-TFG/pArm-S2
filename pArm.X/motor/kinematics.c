@@ -150,9 +150,9 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
     }
 
 
-    angleRot = constrain(angleRot, 0.00f, 180.00f);
-    angleLeft = constrain(angleLeft, 0.00f, 180.00f);
-    angleRight = constrain(angleRight, 0.00f, 180.00f);
+    angleRot = constrain(angleRot, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE);
+    angleLeft = constrain(angleLeft, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE);
+    angleRight = constrain(angleRight, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE);
 
 
     angle->theta0 = angleRot;
