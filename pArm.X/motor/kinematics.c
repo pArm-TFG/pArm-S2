@@ -30,7 +30,7 @@ float get_radius_from_height(float height) {
     return radius;
 }
 
-double **forward_kinematics_matrix(
+inline double **forward_kinematics_matrix(
         const angle_t angle,
         const float a1,
         const float a2,
@@ -39,7 +39,8 @@ double **forward_kinematics_matrix(
         const float Tx,
         const float Tz
         ) {
-    double fk_matrix[][] = {
+
+    return ((double[4][4]) {
         {
             cos(angle.theta0) * cos(angle.theta1 - angle.theta2),
             sin(angle.theta1 - angle.theta2) * cos(angle.theta0),
@@ -59,11 +60,10 @@ double **forward_kinematics_matrix(
             a1 + a2 * sin(angle.theta1) + a3 * sin(angle.theta1 - angle.theta2) - Tz
         },
         {0, 0, 0, 1}
-    };
-    return fk_matrix;
+    });
 }
 
-char inverse_kinematics(const point_t in_cartesian, angle_t angle) {
+char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
     float xIn = .0f;
     float zIn = .0f;
     float rightAll = .0f;
@@ -149,13 +149,26 @@ char inverse_kinematics(const point_t in_cartesian, angle_t angle) {
     angleRight = constrain(angleRight, 0.00f, 180.00f);
 
 
-    angle.theta0 = angleRot;
-    angle.theta1 = angleLeft;
-    angle.theta2 = angleRight;
+    angle->theta0 = angleRot;
+    angle->theta1 = angleLeft;
+    angle->theta2 = angleRight;
 
     return 0;
 }
 
-char forward_kinematics(const angle_t in_angle, point_t position) {
-
+char forward_kinematics(const angle_t in_angle, point_t *position) {
+    const double **fk_matrix = forward_kinematics_matrix(
+            in_angle,
+            ARM_BASE_HEIGHT,
+            ARM_LOWER_ARM,
+            ARM_UPPER_ARM,
+            ARM_BASE_DEVIATION,
+            front_end_offset,
+            -ARM_BASE_DEVIATION
+            );
+    position->x = fk_matrix[0][3];
+    position->y = fk_matrix[1][3];
+    position->z = fk_matrix[2][3];
+    
+    return 1;
 }
