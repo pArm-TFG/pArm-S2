@@ -19,6 +19,7 @@ volatile char receivedValue = 0;
 #include "motor/servo.h"
 #include "interrupts.h"
 #include "utils/time.h"
+#include "rsa/rsa.h"
 
 int main(void) {
     system_initialize();
@@ -62,6 +63,13 @@ int main(void) {
         }
     }*/
 
+    uint64_t res[20] = {0};
+    uint64_t data[150] = {0};
+    uint64_t expo[18] = {0};
+    uint64_t key[150] = {0};
+    
+    rsa1024(res, data, expo, key);
+    
     time_t next = TIME_now();
     uint16_t count = 0U;
     while (1) {

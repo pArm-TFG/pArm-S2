@@ -16,6 +16,9 @@
                 <sourceRootElem>utils</sourceRootElem>
                 <sourceRootElem>motor</sourceRootElem>
                 <sourceRootElem>printf</sourceRootElem>
+                <sourceRootElem>aes</sourceRootElem>
+                <sourceRootElem>rsa_embedded</sourceRootElem>
+                <sourceRootElem>rsa</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
