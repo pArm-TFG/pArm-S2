@@ -46,9 +46,9 @@ typedef struct {
     double max_angle;
 } servo_t;
 
-void writeAngle(const servo_t *servo, uint16_t angle);
-void writeMilliseconds(const servo_t *servo, double ms);
-void writeValue(const servo_t *servo, uint16_t dutyCycleValue);
+void SERVO_write_angle(const servo_t *servo, uint16_t angle);
+void SERVO_write_milliseconds(const servo_t *servo, double ms);
+void SERVO_write_value(const servo_t *servo, uint16_t dtc_value);
 
 #endif	/* SERVO_H */
 

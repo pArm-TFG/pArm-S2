@@ -43,13 +43,13 @@ typedef struct {
 
 extern motors_t motors;
 
-void go_home(void);
-void move_xyz(point_t xyz);
-void move_angle(angle_t angle);
-void move_waiting(angle_t angle);
-void stop_moving(void);
-point_t get_position(void);
-angle_t get_angles(void);
+void PLANNER_go_home(void);
+void PLANNER_move_xyz(point_t xyz);
+void PLANNER_move_angle(angle_t angle);
+void PLANNER_move_waiting(angle_t angle);
+void PLANNER_stop_moving(void);
+point_t PLANNER_get_position(void);
+angle_t PLANNER_get_angles(void);
 
 #endif	/* PLANNER_H */
 

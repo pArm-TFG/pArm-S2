@@ -29,17 +29,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
     }
 }
 
-/*void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void) {
-    printf("RXI2 received");
-    if (U2STAbits.FERR == 1);
-    if (U2STAbits.OERR == 1)
-        U2STAbits.OERR = 0;
-    if (U2STAbits.URXDA == 1) {
-        receivedValue = U2RXREG;
-    }
-    IFS1bits.U2RXIF = 0;
-}*/
-
 void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void) {
     _ICNFLAG = 1; // Notify the input change using the auxiliar flag
     _CNIF = 0; // Clear the interruption flag

@@ -33,15 +33,14 @@
 #include <stdint.h>
 #include "../utils/types.h"
 
-extern char BUFFER[MAX_BUFFER_LENGTH];
-extern uint16_t cLength;
+extern char GCODE_BUFFER[MAX_BUFFER_LENGTH];
 
-void move_to(point_t position);
+void GCODE_move_to(point_t position);
 point_t GCODE_get_position(void);
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
-float parse_number(char code, float val);
-void process_command(const char* command);
-void pause(void);
+float GCODE_parse_number(char code, float val);
+void GCODE_process_command(const char* command);
+void GCODE_pause(void);
 
 #endif	/* GCODE_H */
 

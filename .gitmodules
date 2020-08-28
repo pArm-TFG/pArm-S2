@@ -1,3 +1,6 @@
 [submodule "pArm.X/printf"]
 	path = pArm.X/printf
 	url = https://github.com/pArm-TFG/printf.git
+[submodule "pArm.X/grbl"]
+	path = pArm.X/grbl
+	url = https://github.com/gnea/grbl.git

@@ -6,12 +6,12 @@ static inline void handleInterrupt(void) {
     // TODO
 }
 
-inline void move(motor_t *motor, uint16_t angle) {
-    writeAngle(motor->servoHandler, angle);
+inline void MOTOR_move(motor_t *motor, uint16_t angle) {
+    SERVO_write_angle(motor->servoHandler, angle);
     // TODO - setup expected ticks and actual ticks
 }
 
-inline void home(motor_t motors[MAX_MOTORS]) {
+inline void MOTOR_home(motor_t motors[MAX_MOTORS]) {
     foreach(motor_t, motor, motors) {
         // TODO - Define "home" position for each motor
         switch (motor->id) {
@@ -28,19 +28,19 @@ inline void home(motor_t motors[MAX_MOTORS]) {
     // And setup interruptors for detecting the end
 }
 
-inline void freeze(motor_t *motor) {
+inline void MOTOR_freeze(motor_t *motor) {
     // TODO - Disable motor {id} interrupts / ticks so stop counting
     const volatile time_t ticks = motor->ticks;
     const double motorActualMillis = (double) (ticksToUs(ticks) * 1000);
-    writeMilliseconds(motor->servoHandler, motorActualMillis);
+    SERVO_write_milliseconds(motor->servoHandler, motorActualMillis);
 }
 
-inline double position_ms(motor_t *motor) {
+inline double MOTOR_position_ms(motor_t *motor) {
     const time_t ticks = motor->ticks;
     return (double) (ticksToUs(ticks) * 1000);
 }
 
-inline double position(motor_t *motor) {
+inline double MOTOR_position(motor_t *motor) {
     const time_t ticks = motor->ticks;
     const double timeMillis = (double) (ticksToUs(ticks) * 1000);
     return mapf(timeMillis, MIN_PULSE_MS, MAX_PULSE_MS, .0, 180.);

@@ -62,13 +62,13 @@ int main(void) {
         }
     }*/
 
-    time_t next = now();
+    time_t next = TIME_now();
     uint16_t count = 0U;
     while (1) {
         //        printf("%lu\n", now());
         //        printf("main\n");
         //        __delay_ms(150);
-        if (now() >= next) {
+        if (TIME_now() >= next) {
             /*printf("!\n");
             next += 1000ULL;
             ++count;
@@ -77,7 +77,7 @@ int main(void) {
                 next_c += 20;
             }*/
             printf("Time: %us\n", count);
-            next = now() + 1000ULL;
+            next = TIME_now() + 1000ULL;
             count += 1U;
         }
         /*if (receivedValue != 0) {

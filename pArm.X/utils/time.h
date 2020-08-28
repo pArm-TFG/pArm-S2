@@ -36,11 +36,11 @@
 extern volatile time_t _now_ms;
 extern volatile time_t _now_us;
 
-void _updateMs(void);
-time_t now(void);
-time_t now_us(void);
-void increment_us(void);
-void set_time(time_t value_us);
+void TIME_updateMs(void);
+time_t TIME_now(void);
+time_t TIME_now_us(void);
+void TIME_increment_us(void);
+void TIME_set_time(time_t value_us);
 
 #endif	/* TIME_H */
 

@@ -4,24 +4,24 @@
 volatile time_t _now_us = 0ULL;
 volatile time_t _now_ms = 0ULL;
 
-inline void _updateMs(void) {
+inline void TIME_updateMs(void) {
     _now_ms = (time_t) (_now_us / 1000ULL);
 }
 
-inline time_t now(void) {
+inline time_t TIME_now(void) {
     return _now_ms;
 }
 
-inline time_t now_us(void) {
+inline time_t TIME_now_us(void) {
     return _now_us;
 }
 
-inline void increment_us(void) {
+inline void TIME_increment_us(void) {
     _now_us += 1ULL;
-    _updateMs();
+    TIME_updateMs();
 }
 
-inline void set_time(time_t value_us) {
+inline void TIME_set_time(time_t value_us) {
     _now_us = value_us;
-    _updateMs();
+    TIME_updateMs();
 }
