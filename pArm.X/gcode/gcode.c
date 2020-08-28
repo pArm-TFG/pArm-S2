@@ -6,6 +6,7 @@
  */
 
 #include "gcode.h"
+#include "../arm/planner.h"
 #include "../utils/utils.h"
 #include "../utils/types.h"
 
@@ -24,6 +25,13 @@ point_t GCODE_get_position(void) {
 void GCODE_pause(void) {
     return;
 }
+
+/*float GCODE_parser_instruction(char code) {
+    char *ptr = GCODE_BUFFER;
+    while ((long) ptr > 1 && (*ptr) && (long) ptr < (long) GCODE_BUFFER + cLength) {
+        
+    }
+}*/
 
 float GCODE_parse_number(char code, float val) {
     char *ptr = GCODE_BUFFER;
@@ -64,6 +72,28 @@ void GCODE_process_command(const char* command) {
         case 4:
             // TODO - PAUSE
             break;
+        case 28:
+        {
+            // TODO - Home
+            point_t position = {
+                GCODE_parse_number('X', -1),
+                GCODE_parse_number('Y', -1),
+                GCODE_parse_number('Z', -1)
+            };
+            if ((position.x == 0 && position.y == 0 && position.z == 0) ||
+                    ((position.x == -1 && position.y == -1 && position.z == -1)))
+                PLANNER_go_home();
+            if (position.x == 0) {
+                MOTOR_home(motors.lower_arm);
+            }
+            if (position.y == 0) {
+                MOTOR_home(motors.base_motor);
+            }
+            if (position.z == 0) {
+                MOTOR_home(motors.upper_arm);
+            }
+            break;
+        }
         default:
             break;
     }
@@ -79,6 +109,14 @@ void GCODE_process_command(const char* command) {
             point_t current_position = GCODE_get_position();
             break;
         }
+        default:
+            break;
+    }
+    
+    cmd = GCODE_parse_number('I', -1);
+    switch (cmd) {
+        case -1:
+            break;
         default:
             break;
     }

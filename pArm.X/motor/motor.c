@@ -11,20 +11,8 @@ inline void MOTOR_move(motor_t *motor, uint16_t angle) {
     // TODO - setup expected ticks and actual ticks
 }
 
-inline void MOTOR_home(motor_t motors[MAX_MOTORS]) {
-    foreach(motor_t, motor, motors) {
-        // TODO - Define "home" position for each motor
-        switch (motor->id) {
-            case 0:
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-        }
-    }
+inline void MOTOR_home(motor_t *motor) {
+    MOTOR_move(motor, motor->servoHandler->home);
     // And setup interruptors for detecting the end
 }
 
