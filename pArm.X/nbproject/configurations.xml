@@ -50,6 +50,7 @@
       <itemPath>arm/planner.c</itemPath>
       <itemPath>rsa/rsa.c</itemPath>
       <itemPath>utils/rand.c</itemPath>
+      <itemPath>rsa/rsa2.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
