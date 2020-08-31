@@ -25,6 +25,7 @@
       <itemPath>arm_config.h</itemPath>
       <itemPath>arm/planner.h</itemPath>
       <itemPath>rsa/rsa.h</itemPath>
+      <itemPath>utils/rand.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -48,6 +49,7 @@
       <itemPath>motor/kinematics.c</itemPath>
       <itemPath>arm/planner.c</itemPath>
       <itemPath>rsa/rsa.c</itemPath>
+      <itemPath>utils/rand.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
