@@ -20,11 +20,11 @@ void init_pins(void) {
     __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock PPS
 #endif
 
-    RPOR6bits.RP54R = 0x0001; //RC6->UART1:U1TX
-    RPINR18bits.U1RXR = 0x0037; //RC7->UART1:U1RX
-    
     TRISCbits.TRISC7 = 1;
     TRISCbits.TRISC6 = 0;
+
+    RPOR6bits.RP54R = 0x0001; //RC6->UART1:U1TX
+    RPINR18bits.U1RXR = 0x0037; //RC7->UART1:U1RX
 
     // Lock again the PPS as we are done
     // configuring the remappable ports.
