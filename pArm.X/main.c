@@ -68,8 +68,6 @@ int main(void) {
     uint64_t expo[18] = {0};
     uint64_t key[150] = {0};
     
-    rsa1024(res, data, expo, key);
-    
     time_t next = TIME_now();
     uint16_t count = 0U;
     while (1) {
