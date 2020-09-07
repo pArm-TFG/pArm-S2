@@ -36,7 +36,8 @@
 void RAND_init(void);
 void RAND_init_seed(void);
 void RAND_stop(void);
-uint64_t RAND(uint64_t min, uint64_t max);
+int_fast64_t RAND(int_fast64_t min, int_fast64_t max);
+int RAND_random(void);
 void __attribute__ ((interrupt, no_auto_psv)) _T6Interrupt();
 
 #endif	/* RAND_H */

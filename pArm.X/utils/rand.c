@@ -38,11 +38,17 @@ void RAND_stop(void) {
     _rand_init = false;
 }
 
-uint64_t RAND(uint64_t min, uint64_t max) {
+int_fast64_t RAND(int_fast64_t min, int_fast64_t max) {
+    if (!_rand_init)
+        return 0ULL;
+    return (int_fast64_t) (min + ((int_fast64_t) rand()) /
+            (((int_fast64_t) RAND_MAX) / (max - min + 1LL) + 1LL));
+}
+
+inline int RAND_random(void) {
     if (!_rand_init)
         return 0;
-    return (uint64_t) (min + ((uint64_t) rand()) /
-            (((uint64_t) RAND_MAX) / (max - min + 1ULL) + 1ULL));
+    return rand();
 }
 
 void __attribute__((interrupt, no_auto_psv)) _T6Interrupt() {
