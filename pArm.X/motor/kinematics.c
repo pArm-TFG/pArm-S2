@@ -63,10 +63,10 @@ inline double **forward_kinematics_matrix(
     });
 }
 
-inline char check_angle_constraints(angle_t angle) {
-    angle.theta0 = constraint(angle.theta0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE);
-    angle.theta1 = constraint(angle.theta1, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE);
-    angle.theta2 = constraint(angle.theta2, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE);
+inline void check_angle_constraints(angle_t *angle) {
+    angle->theta0 = constraint(angle.theta0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE);
+    angle->theta1 = constraint(angle.theta1, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE);
+    angle->theta2 = constraint(angle.theta2, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE);
 }
 
 char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
@@ -97,9 +97,9 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
         point.x = .01f;
 
     // Calculate value of theta 1 (rotation angle)
-    if (point.y == 0)
+    if (point.y == 0) {
         angleRot = 90.0f;
-    else {
+    } else {
         angleRot = (point.y < 0) ?
                 -atan2(point.x, point.y) * MATH_TRANS :
                 180.F - atan2(point.x, point.y) * MATH_TRANS;
@@ -164,7 +164,7 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
 
 char forward_kinematics(const angle_t in_angle, point_t *position) {
     angle_t angle = in_angle;
-    check_angle_constraints(angle);
+    check_angle_constraints(&angle);
     
     const double **fk_matrix = forward_kinematics_matrix(
             angle,

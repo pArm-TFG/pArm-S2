@@ -66,12 +66,18 @@
 #define front_end_offset DEFAULT_NORMAL_FRONT
 #endif
 
-#define LOWER_ARM_MAX_ANGLE      135.6
-#define LOWER_ARM_MIN_ANGLE      0.0
-#define UPPER_ARM_MAX_ANGLE      119.9
-#define UPPER_ARM_MIN_ANGLE      0.0
-#define LOWER_UPPER_MAX_ANGLE    151.0
-#define LOWER_UPPER_MIN_ANGLE    10.0
+#define LOWER_ARM_MAX_ANGLE     135.6
+#define LOWER_ARM_MIN_ANGLE     0.0
+#define UPPER_ARM_MAX_ANGLE     119.9
+#define UPPER_ARM_MIN_ANGLE     0.0
+#define LOWER_UPPER_MAX_ANGLE   151.0
+#define LOWER_UPPER_MIN_ANGLE   10.0
+
+// https://github.com/UPM-Robotics/uarm/blob/master/docs/robot-information/
+#define ARM_MAX_X_LENGTH        346F
+#define ARM_MAX_Z_HEIGHT        360.6F
+#define ARM_MIN_X_LENGTH        87F
+#define ARM_MIN_Z_HEIGHT        ARM_BASE_HEIGHT
 
 #endif	/* ARM_CONFIG_H */
 
