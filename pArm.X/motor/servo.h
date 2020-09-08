@@ -49,6 +49,7 @@ typedef struct {
 void SERVO_write_angle(const servo_t *servo, uint16_t angle);
 void SERVO_write_milliseconds(const servo_t *servo, double ms);
 void SERVO_write_value(const servo_t *servo, uint16_t dtc_value);
+double SERVO_from_angle_to_ms(uint16_t angle);
 
 #endif	/* SERVO_H */
 

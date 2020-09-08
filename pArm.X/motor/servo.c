@@ -4,7 +4,7 @@
 
 
 void SERVO_write_angle(const servo_t *servo, uint16_t angle) {
-    double time = mapf(angle * 1.0, .0, 180.0, .75, 2.25);
+    double time = SERVO_from_angle_to_ms(angle);
     SERVO_write_milliseconds(servo, time);
 }
 
@@ -14,4 +14,8 @@ inline void SERVO_write_milliseconds(const servo_t *servo, double ms) {
 
 inline void SERVO_write_value(const servo_t *servo, uint16_t dutyCycleValue) {
     *servo->dutyCycleRegister = dutyCycleValue;
+}
+
+inline double SERVO_from_angle_to_ms(uint16_t angle) {
+    return mapf(angle * 1.0, .0, 180.0, .75, 2.25);
 }
