@@ -6,8 +6,8 @@
  */
 
 #include <math.h>
-#include <dsp.h>
 #include "kinematics.h"
+#include "../utils/defs.h"
 #include "../utils/types.h"
 #include "../utils/utils.h"
 #include "../arm_config.h"
@@ -64,9 +64,9 @@ inline double **forward_kinematics_matrix(
 }
 
 inline void check_angle_constraints(angle_t *angle) {
-    angle->theta0 = constraint(angle.theta0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE);
-    angle->theta1 = constraint(angle.theta1, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE);
-    angle->theta2 = constraint(angle.theta2, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE);
+    angle->theta0 = constraint(angle->theta0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE);
+    angle->theta1 = constraint(angle->theta1, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE);
+    angle->theta2 = constraint(angle->theta2, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE);
 }
 
 char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
