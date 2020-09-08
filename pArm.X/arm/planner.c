@@ -12,11 +12,12 @@
 #include "../utils/types.h"
 #include "../utils/utils.h"
 #include "../motor/kinematics.h"
+#include "../arm_config.h"
 
-servo_t base_servo = {&SDC1, .0, .0, .0};
-servo_t lower_arm_servo = {&SDC2, .0, .0, .0};
-servo_t upper_arm_servo = {&SDC3, .0, .0, .0};
-servo_t end_effector_servo = {&PDC1, .0, .0, .0};
+servo_t base_servo = {&SDC1, .0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
+servo_t lower_arm_servo = {&SDC2, .0, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE};
+servo_t upper_arm_servo = {&SDC3, .0, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE};
+servo_t end_effector_servo = {&PDC1, .0, .0, 180.};
 
 motor_t base_motor = {&base_servo, 0ULL, 0};
 motor_t lower_arm_motor = {&lower_arm_servo, 0ULL, 1};
