@@ -44,5 +44,9 @@
 // UART delay
 #define DELAY_105uS asm volatile ("REPEAT, #4201"); Nop(); // 105uS delay
 
+// Mathematical constants
+#define MATH_PI         3.141592653589793238463
+#define MATH_TRANS      57.29577951308232087679
+
 #endif	/* DEFS_H */
 

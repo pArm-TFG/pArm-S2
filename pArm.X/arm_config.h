@@ -43,9 +43,6 @@
 #define DEFAULT_PEN_HEIGHT      74.43
 #define DEFAULT_PEN_FRONT       69.5
 
-#define MATH_PI                 3.141592653589793238463
-#define MATH_TRANS              57.295779513
-
 #define ARM_BASE_HEIGHT         106.6
 #define ARM_BASE_DEVIATION      13.2
 #define ARM_LOWER_ARM           142.07
