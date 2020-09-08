@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "motor.h"
 #include "../utils/utils.h"
 #include "../utils/defs.h"
@@ -8,6 +9,11 @@ static inline void handleInterrupt(void) {
 
 inline void MOTOR_move(motor_t *motor, uint16_t angle) {
     SERVO_write_angle(motor->servoHandler, angle);
+    long double current_angle = motor->ticks;
+    long double expected_time_us = MOTOR_elapsed_time_us(fabsl(angle - current_angle));
+    //    long double total_time_secs = SECS_PER_DEGREE * angle;
+    motor->movement_duration = expected_time_us;
+    motor->movement_finished = false;
     // TODO - setup expected ticks and actual ticks
 }
 

@@ -30,16 +30,22 @@
 #define	MOTOR_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "servo.h"
 #include "../utils/types.h"
 #include "../utils/utils.h"
+#include "../utils/defs.h"
 
-#define MAX_MOTORS  4U
+#define MAX_MOTORS                      4U
+#define US_PER_DEGREE                   5245.275704F
+#define MOTOR_elapsed_time_us(radians)  ((US_PER_DEGREE * radians) / (MATH_PI / 180.F))
 
 typedef struct {
     servo_t *servoHandler;
     volatile time_t ticks;
     const uint8_t id;
+    long double movement_duration;
+    bool movement_finished;
 } motor_t;
 
 
