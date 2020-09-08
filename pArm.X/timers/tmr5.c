@@ -17,8 +17,8 @@ void TMR5_Initialize(motor_t *motor) {
     
     //TMR5 0; 
     TMR5 = 0x00;
-    //Period = 0.001 s; Frequency = 59904000 Hz; PR5 59903; 
-    PR5 = 0xE9FF;
+    //Period = 1 us; Frequency = 59904000 Hz; PR5 59903; 
+    PR5 = 0x3B;
     //TCKPS 1:1; TON enabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
     T5CON = 0x0;
 

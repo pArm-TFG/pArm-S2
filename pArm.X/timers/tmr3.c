@@ -17,8 +17,8 @@ void TMR3_Initialize(motor_t *motor) {
     
     //TMR3 0; 
     TMR3 = 0x00;
-    //Period = 0.001 s; Frequency = 59904000 Hz; PR3 59903; 
-    PR3 = 0xE9FF;
+    //Period = 1 us; Frequency = 59904000 Hz; PR3 59903; 
+    PR3 = 0x3B;
     //TCKPS 1:1; TON disabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
     T3CON = 0x0;
 

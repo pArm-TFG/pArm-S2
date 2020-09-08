@@ -17,8 +17,8 @@ void TMR4_Initialize(motor_t *motor) {
 
     //TMR4 0; 
     TMR4 = 0x00;
-    //Period = 0.001 s; Frequency = 59904000 Hz; PR4 59903; 
-    PR4 = 0xE9FF;
+    //Period = 1 us; Frequency = 59904000 Hz; PR4 59903;
+    PR4 = 0x3B;
     //TCKPS 1:1; T32 16 Bit; TON enabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
     T4CON = 0x0;
 
