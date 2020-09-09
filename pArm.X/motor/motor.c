@@ -8,6 +8,14 @@ static inline void handleInterrupt(void) {
     // TODO
 }
 
+static inline double64_t us_to_deg(motor_t *motor) {
+    return (motor->angle_us / US_PER_DEGREE);
+}
+
+static inline double64_t us_to_rad(motor_t *motor) {
+    return ((motor->angle_us * (MATH_PI / 180.0F)) / US_PER_DEGREE);
+}
+
 inline void MOTOR_move(motor_t *motor, double64_t angle) {
     SERVO_write_angle(motor->servoHandler, angle);
     double64_t current_angle = motor->angle_us;
@@ -30,13 +38,14 @@ inline void MOTOR_freeze(motor_t *motor) {
     SERVO_write_milliseconds(motor->servoHandler, motorActualMillis);
 }
 
-inline double MOTOR_position_ms(motor_t *motor) {
-    const time_t ticks = motor->angle_us;
-    return (double) (ticksToUs(ticks) * 1000);
+inline double MOTOR_position_us(motor_t *motor) {
+    return motor->angle_us;
 }
 
-inline double MOTOR_position(motor_t *motor) {
-    const time_t ticks = motor->angle_us;
-    const double timeMillis = (double) (ticksToUs(ticks) * 1000);
-    return mapf(timeMillis, MIN_PULSE_MS, MAX_PULSE_MS, .0, 180.);
+inline double MOTOR_position_rad(motor_t *motor) {
+    return us_to_rad(motor);
+}
+
+inline double MOTOR_position_deg(motor_t *motor) {
+    return us_to_deg(motor);
 }

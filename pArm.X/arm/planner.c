@@ -28,14 +28,6 @@ motor_t end_effetor_motor = {&end_effector_servo, 0ULL, 3};
 
 motors_t motors = {&base_motor, &lower_arm_motor, &upper_arm_motor, &end_effetor_motor};
 
-static inline double64_t us_to_deg(motor_t *motor) {
-    return (motor->angle_us / US_PER_DEGREE);
-}
-
-static inline double64_t us_to_rad(motor_t *motor) {
-    return ((motor->angle_us * (MATH_PI / 180.0F)) / US_PER_DEGREE);
-}
-
 void PLANNER_go_home(void) {
     MOTOR_move(motors.base_motor, motors.base_motor->servoHandler->home);
     MOTOR_move(motors.lower_arm, motors.lower_arm->servoHandler->home);
@@ -56,26 +48,41 @@ void PLANNER_move_angle(const angle_t angle) {
 }
 
 void PLANNER_move_waiting(const angle_t angle) {
-    PLANNER_move_angle(angle);
     double64_t max_angle = LDBL_MIN;
-    double64_t diff_base = fabsl(angle.theta0 - us_to_rad(&motors.base_motor));
-    double64_t diff_lower_arm = fabsl(angle.theta1 - us_to_rad(&motors.lower_arm));
-    double64_t diff_upper_arm = fabsl(angle.theta2 - us_to_rad(&motors.upper_arm));
+    double64_t diff_base = fabsl(angle.theta0 - MOTOR_position_rad(motors.base_motor));
+    double64_t diff_lower_arm = fabsl(angle.theta1 - MOTOR_position_rad(motors.lower_arm));
+    double64_t diff_upper_arm = fabsl(angle.theta2 - MOTOR_position_rad(motors.upper_arm));
     max_angle = max(diff_base, max_angle);
     max_angle = max(diff_lower_arm, max_angle);
     max_angle = max(diff_upper_arm, max_angle);
     
     double64_t expected_time = MOTOR_elapsed_time_us(max_angle);
+    PLANNER_move_angle(angle);
+    delay_us(expected_time);
 }
 
 void PLANNER_stop_moving(void) {
-    
+    MOTOR_freeze(&motors.base_motor);
+    MOTOR_freeze(&motors.lower_arm);
+    MOTOR_freeze(&motors.upper_arm);
 }
 
-point_t PLANNER_get_position(void) {
-    
+point_t *PLANNER_get_position(void) {
+    point_t *position = (point_t *) malloc(sizeof(point_t));
+    angle_t angles = {
+        MOTOR_position_rad(motors.base_motor),
+        MOTOR_position_rad(motors.lower_arm),
+        MOTOR_position_rad(motors.upper_arm)
+    };
+    forward_kinematics(angles, position);
+    return position;
 }
 
-angle_t PLANNER_get_angles(void) {
+angle_t *PLANNER_get_angles(void) {
+    angle_t *angles = (angle_t *) malloc(sizeof(angle_t));
+    angles->theta0 = MOTOR_position_rad(motors.base_motor);
+    angles->theta1 = MOTOR_position_rad(motors.lower_arm);
+    angles->theta2 = MOTOR_position_rad(motors.upper_arm);
     
+    return angles;
 }

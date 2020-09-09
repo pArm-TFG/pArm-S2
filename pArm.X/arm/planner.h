@@ -48,8 +48,8 @@ void PLANNER_move_xyz(point_t xyz);
 void PLANNER_move_angle(angle_t angle);
 void PLANNER_move_waiting(angle_t angle);
 void PLANNER_stop_moving(void);
-point_t PLANNER_get_position(void);
-angle_t PLANNER_get_angles(void);
+point_t *PLANNER_get_position(void);
+angle_t *PLANNER_get_angles(void);
 
 #endif	/* PLANNER_H */
 
