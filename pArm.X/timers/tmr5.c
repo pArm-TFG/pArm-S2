@@ -28,6 +28,10 @@ void TMR5_Initialize(motor_t *motor) {
 
 void __attribute__((interrupt, no_auto_psv)) _T5Interrupt(void) {
     tmr5_motor->angle_us += 1.0016F;
+    if (tmr5_motor->angle_us >= tmr5_motor->movement_duration) {
+        tmr5_motor->movement_finished = true;
+        TMR5_Stop();
+    }
     IFS1bits.T5IF = 0;
 }
 

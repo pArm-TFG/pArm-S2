@@ -43,9 +43,11 @@
 typedef struct {
     servo_t *servoHandler;
     const uint8_t id;
-    double64_t movement_duration;
+    volatile double64_t movement_duration;
     volatile double64_t angle_us;
-    bool movement_finished;
+    volatile bool movement_finished;
+    TMR_func TMR_Start;
+    TMR_func TMR_Stop;
 } motor_t;
 
 

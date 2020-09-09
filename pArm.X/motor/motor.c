@@ -17,13 +17,12 @@ static inline double64_t us_to_rad(motor_t *motor) {
 }
 
 inline void MOTOR_move(motor_t *motor, double64_t angle) {
-    SERVO_write_angle(motor->servoHandler, angle);
     double64_t current_angle = motor->angle_us;
     double64_t expected_time_us = MOTOR_elapsed_time_us(fabsl(angle - current_angle));
-    //    long double total_time_secs = SECS_PER_DEGREE * angle;
     motor->movement_duration = expected_time_us;
     motor->movement_finished = false;
-    // TODO - setup expected ticks and actual ticks
+    SERVO_write_angle(motor->servoHandler, angle);
+    motor->TMR_Start();
 }
 
 inline void MOTOR_home(motor_t *motor) {

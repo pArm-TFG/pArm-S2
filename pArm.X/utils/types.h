@@ -69,5 +69,11 @@ typedef struct {
 #define angle_t angle_t
 #endif
 
+#ifndef TMR_func
+
+typedef void (*TMR_func)(void);
+#define TMR_func TMR_func
+#endif
+
 #endif	/* TYPES_H */
 

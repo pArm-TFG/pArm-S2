@@ -28,6 +28,10 @@ void TMR4_Initialize(motor_t *motor) {
 
 void __attribute__((interrupt, no_auto_psv)) _T4Interrupt(void) {
     tmr4_motor->angle_us += 1.0016F;
+    if (tmr4_motor->angle_us >= tmr4_motor->movement_duration) {
+        tmr4_motor->movement_finished = true;
+        TMR4_Stop();
+    }
     IFS1bits.T4IF = 0;
 }
 

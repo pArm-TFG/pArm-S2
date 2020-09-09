@@ -16,16 +16,19 @@
 #include "../utils/utils.h"
 #include "../motor/kinematics.h"
 #include "../arm_config.h"
+#include "../timers/tmr3.h"
+#include "../timers/tmr4.h"
+#include "../timers/tmr5.h"
 
 servo_t base_servo = {&SDC1, .0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
 servo_t lower_arm_servo = {&SDC2, .0, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE};
 servo_t upper_arm_servo = {&SDC3, .0, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE};
 servo_t end_effector_servo = {&PDC1, .0, .0, 180.};
 
-motor_t base_motor = {&base_servo, 0ULL, 0};
-motor_t lower_arm_motor = {&lower_arm_servo, 0ULL, 1};
-motor_t upper_arm_motor = {&upper_arm_servo, 0ULL, 2};
-motor_t end_effetor_motor = {&end_effector_servo, 0ULL, 3};
+motor_t base_motor = {&base_servo, 0ULL, .0F, .0F, false, TMR3_Start, TMR3_Stop};
+motor_t lower_arm_motor = {&lower_arm_servo, 1ULL, .0F, .0F, false, TMR4_Start, TMR4_Stop};
+motor_t upper_arm_motor = {&upper_arm_servo, 2ULL, .0F, .0F, false, TMR5_Start, TMR5_Stop};
+motor_t end_effetor_motor = {&end_effector_servo, 3ULL, .0F, .0F, false, NULL, NULL};
 
 motors_t motors = {&base_motor, &lower_arm_motor, &upper_arm_motor, &end_effetor_motor};
 
@@ -40,6 +43,7 @@ void PLANNER_move_xyz(const point_t xyz) {
     angle_t *angle = (angle_t *) malloc(sizeof(angle_t));
     inverse_kinematics(xyz, angle);
     PLANNER_move_angle(*angle);
+    free(angle);
 }
 
 void PLANNER_move_angle(const angle_t angle) {

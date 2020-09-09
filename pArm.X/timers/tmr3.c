@@ -28,6 +28,10 @@ void TMR3_Initialize(motor_t *motor) {
 
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void) {
     tmr3_motor->angle_us += 1.0016F;
+    if (tmr3_motor->angle_us >= tmr3_motor->movement_duration) {
+        tmr3_motor->movement_finished = true;
+        TMR3_Stop();
+    }
     IFS0bits.T3IF = 0;
 }
 
