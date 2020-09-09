@@ -10,7 +10,7 @@ static inline void handleInterrupt(void) {
 
 inline void MOTOR_move(motor_t *motor, double64_t angle) {
     SERVO_write_angle(motor->servoHandler, angle);
-    double64_t current_angle = motor->ticks;
+    double64_t current_angle = motor->angle_us;
     double64_t expected_time_us = MOTOR_elapsed_time_us(fabsl(angle - current_angle));
     //    long double total_time_secs = SECS_PER_DEGREE * angle;
     motor->movement_duration = expected_time_us;
@@ -25,18 +25,18 @@ inline void MOTOR_home(motor_t *motor) {
 
 inline void MOTOR_freeze(motor_t *motor) {
     // TODO - Disable motor {id} interrupts / ticks so stop counting
-    const volatile time_t ticks = motor->ticks;
+    const volatile time_t ticks = motor->angle_us;
     const double motorActualMillis = (double) (ticksToUs(ticks) * 1000);
     SERVO_write_milliseconds(motor->servoHandler, motorActualMillis);
 }
 
 inline double MOTOR_position_ms(motor_t *motor) {
-    const time_t ticks = motor->ticks;
+    const time_t ticks = motor->angle_us;
     return (double) (ticksToUs(ticks) * 1000);
 }
 
 inline double MOTOR_position(motor_t *motor) {
-    const time_t ticks = motor->ticks;
+    const time_t ticks = motor->angle_us;
     const double timeMillis = (double) (ticksToUs(ticks) * 1000);
     return mapf(timeMillis, MIN_PULSE_MS, MAX_PULSE_MS, .0, 180.);
 }

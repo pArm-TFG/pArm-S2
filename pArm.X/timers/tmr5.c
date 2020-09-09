@@ -27,13 +27,13 @@ void TMR5_Initialize(motor_t *motor) {
 }
 
 void __attribute__((interrupt, no_auto_psv)) _T5Interrupt(void) {
-    tmr5_motor->ticks++;
+    tmr5_motor->angle_us += 1.0016F;
     IFS1bits.T5IF = 0;
 }
 
 void TMR5_Start(void) {
     /* Clear old value*/
-    tmr5_motor->ticks = 0ULL;
+    tmr5_motor->angle_us = .0F;
 
     /*Enable the interrupt*/
     IEC1bits.T5IE = 1;

@@ -42,9 +42,9 @@
 
 typedef struct {
     servo_t *servoHandler;
-    volatile time_t ticks;
     const uint8_t id;
     double64_t movement_duration;
+    volatile double64_t angle_us;
     bool movement_finished;
 } motor_t;
 

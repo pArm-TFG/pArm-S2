@@ -27,13 +27,13 @@ void TMR3_Initialize(motor_t *motor) {
 }
 
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void) {
-    tmr3_motor->ticks++;
+    tmr3_motor->angle_us += 1.0016F;
     IFS0bits.T3IF = 0;
 }
 
 void TMR3_Start(void) {
     /* Clear old value*/
-    tmr3_motor->ticks = 0ULL;
+    tmr3_motor->angle_us = .0F;
     
     /*Enable the interrupt*/
     IEC0bits.T3IE = 1;

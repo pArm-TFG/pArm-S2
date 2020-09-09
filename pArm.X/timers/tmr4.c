@@ -27,13 +27,13 @@ void TMR4_Initialize(motor_t *motor) {
 }
 
 void __attribute__((interrupt, no_auto_psv)) _T4Interrupt(void) {
-    tmr4_motor->ticks++;
+    tmr4_motor->angle_us += 1.0016F;
     IFS1bits.T4IF = 0;
 }
 
 void TMR4_Start(void) {
     /* Clear old value*/
-    tmr4_motor->ticks = 0ULL;
+    tmr4_motor->angle_us = .0F;
 
     /*Enable the interrupt*/
     IEC1bits.T4IE = 1;
