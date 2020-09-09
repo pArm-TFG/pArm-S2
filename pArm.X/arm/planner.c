@@ -10,6 +10,7 @@
 #include <xc.h>
 #include <float.h>
 #include <math.h>
+#include <stdlib.h>
 #include "../motor/motor.h"
 #include "../utils/types.h"
 #include "../utils/utils.h"
@@ -62,9 +63,9 @@ void PLANNER_move_waiting(const angle_t angle) {
 }
 
 void PLANNER_stop_moving(void) {
-    MOTOR_freeze(&motors.base_motor);
-    MOTOR_freeze(&motors.lower_arm);
-    MOTOR_freeze(&motors.upper_arm);
+    MOTOR_freeze(motors.base_motor);
+    MOTOR_freeze(motors.lower_arm);
+    MOTOR_freeze(motors.upper_arm);
 }
 
 point_t *PLANNER_get_position(void) {

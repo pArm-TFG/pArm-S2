@@ -33,6 +33,8 @@
 
 #include <math.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <libpic30.h>
 #include "defs.h"
 
 #define arrsize(array) (sizeof (array) / sizeof *(array))
@@ -82,6 +84,14 @@ inline double mapf(double x, double in_min, double in_max, double out_min, doubl
 inline uint8_t isnan(float value)
 {
     return ((*((unsigned*) &value + 1) & 0x7F80U) == 0x7F80U);
+}
+
+inline void delay_ms(uint64_t ms) {
+    __delay_ms(ms);
+}
+
+inline void delay_us(uint64_t us) {
+    __delay_us(us);
 }
 
 #endif	/* UTILS_H */
