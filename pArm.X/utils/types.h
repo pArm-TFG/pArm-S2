@@ -25,7 +25,7 @@
  * Comments: A header file that contains all custom data types used in this project.
  * Revision history: 1.0
  */
-  
+
 #ifndef TYPES_H
 #define	TYPES_H
 
@@ -37,22 +37,34 @@ typedef uint64_t time_t;
 #define time_t time_t
 #endif
 
+// Double precision double type
+#ifndef double64_t
+#ifndef USE_LONG_DOUBLE
+typedef long double double64_t;
+#else
+typedef double double64_t;
+#endif
+#define double64_t double64_t
+#endif
+
 // Position definitions
 #ifndef point_t
+
 typedef struct {
-    float x;
-    float y;
-    float z;
+    double64_t x;
+    double64_t y;
+    double64_t z;
 } point_t;
 #define point_t point_t
 #endif
 
 // Angle definitions
 #ifndef angle_t
+
 typedef struct {
-    float theta0;
-    float theta1;
-    float theta2;
+    double64_t theta0;
+    double64_t theta1;
+    double64_t theta2;
 } angle_t;
 #define angle_t angle_t
 #endif

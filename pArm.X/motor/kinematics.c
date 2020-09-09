@@ -12,54 +12,54 @@
 #include "../utils/utils.h"
 #include "../arm_config.h"
 
-float get_radius_from_height(float height) {
-    float radius = .0f;
-    float v_distance = .0f;
+double64_t get_radius_from_height(double64_t height) {
+    double64_t radius = .0f;
+    double64_t v_distance = .0f;
 
     if (height > 111.70f) {
-        v_distance = fabs(215.87f - height);
-        float data = (158.8f * 158.8f) - (v_distance * v_distance);
-        radius = sqrt(data) - 33.26f;
+        v_distance = fabsl(215.87f - height);
+        double64_t data = (158.8f * 158.8f) - (v_distance * v_distance);
+        radius = sqrtl(data) - 33.26f;
     } else {
-        v_distance = fabs(height + 20.88f);
-        float data = (225.0f * 225.0f) - (v_distance * v_distance);
-        radius = sqrt(data) - 97.45f;
+        v_distance = fabsl(height + 20.88f);
+        double64_t data = (225.0f * 225.0f) - (v_distance * v_distance);
+        radius = sqrtl(data) - 97.45f;
     }
 
     radius -= 44.5f;
     return radius;
 }
 
-inline double **forward_kinematics_matrix(
+inline double64_t **forward_kinematics_matrix(
         const angle_t angle,
-        const float a1,
-        const float a2,
-        const float a3,
-        const float d1,
-        const float Tx,
-        const float Tz
+        const double64_t a1,
+        const double64_t a2,
+        const double64_t a3,
+        const double64_t d1,
+        const double64_t Tx,
+        const double64_t Tz
         ) {
 
-    return ((double[4][4]) {
+    return ((double64_t[4][4]) {
         {
-            cos(angle.theta0) * cos(angle.theta1 - angle.theta2),
-            sin(angle.theta1 - angle.theta2) * cos(angle.theta0),
-            -sin(angle.theta0),
-            (a2 * cos(angle.theta1) + a3 * cos(angle.theta1 - angle.theta2) + d1) * cos(angle.theta0) + Tx
+            cosl(angle.theta0) * cosl(angle.theta1 - angle.theta2),
+            sinl(angle.theta1 - angle.theta2) * cosl(angle.theta0),
+            -sinl(angle.theta0),
+            (a2 * cosl(angle.theta1) + a3 * cosl(angle.theta1 - angle.theta2) + d1) * cosl(angle.theta0) + Tx
         },
         {
-            sin(angle.theta0) * cos(angle.theta1 - angle.theta2),
-            sin(angle.theta1 - angle.theta2) * sin(angle.theta0),
-            cos(angle.theta0),
-            (a2 * cos(angle.theta1) + a3 * cos(angle.theta1 - angle.theta2) + d1) * sin(angle.theta0)
+            sinl(angle.theta0) * cosl(angle.theta1 - angle.theta2),
+            sinl(angle.theta1 - angle.theta2) * sinl(angle.theta0),
+            cosl(angle.theta0),
+            (a2 * cosl(angle.theta1) + a3 * cosl(angle.theta1 - angle.theta2) + d1) * sinl(angle.theta0)
         },
         {
-            sin(angle.theta1 - angle.theta2),
-            -cos(angle.theta1 - angle.theta2),
+            sinl(angle.theta1 - angle.theta2),
+            -cosl(angle.theta1 - angle.theta2),
             0,
-            a1 + a2 * sin(angle.theta1) + a3 * sin(angle.theta1 - angle.theta2) - Tz
+            a1 + a2 * sinl(angle.theta1) + a3 * sinl(angle.theta1 - angle.theta2) - Tz
         },
-        {0, 0, 0, 1}
+        {.0F, .0F, .0F, 1.0F}
     });
 }
 
@@ -70,25 +70,25 @@ inline void check_angle_constraints(angle_t *angle) {
 }
 
 char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
-    float xIn = .0f;
-    float zIn = .0f;
-    float rightAll = .0f;
-    float sqrtXZ = .0f;
-    float phi = .0f;
+    double64_t xIn = .0f;
+    double64_t zIn = .0f;
+    double64_t rightAll = .0f;
+    double64_t sqrtXZ = .0f;
+    double64_t phi = .0f;
 
     // Create a copy of the struct
     point_t point = in_cartesian;
 
-    float angleRot = .0f;
-    float angleLeft = .0f;
-    float angleRight = .0f;
+    double64_t angleRot = .0f;
+    double64_t angleLeft = .0f;
+    double64_t angleRight = .0f;
 
     point.z += height_offset;
 
     zIn = (point.z - ARM_BASE_HEIGHT) / ARM_LOWER_ARM;
 
-    float xy_length = sqrt(point.x * point.x + point.y * point.y);
-    float radius = get_radius_from_height(point.z);
+    double64_t xy_length = sqrtl(point.x * point.x + point.y * point.y);
+    double64_t radius = get_radius_from_height(point.z);
 
     if ((xy_length - front_end_offset) < radius)
         return -1;
@@ -101,25 +101,25 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
         angleRot = 90.0f;
     } else {
         angleRot = (point.y < 0) ?
-                -atan2(point.x, point.y) * MATH_TRANS :
-                180.F - atan2(point.x, point.y) * MATH_TRANS;
+                -atan2l(point.x, point.y) * MATH_TRANS :
+                180.F - atan2l(point.x, point.y) * MATH_TRANS;
     }
 
-    xIn = (point.x / sin(angleRot / MATH_TRANS) - ARM_BASE_DEVIATION - front_end_offset)
+    xIn = (point.x / sinl(angleRot / MATH_TRANS) - ARM_BASE_DEVIATION - front_end_offset)
             / ARM_LOWER_ARM;
 
-    phi = atan2(zIn, xIn) * MATH_TRANS;
-    sqrtXZ = sqrt(zIn * zIn + xIn * xIn);
+    phi = atan2l(zIn, xIn) * MATH_TRANS;
+    sqrtXZ = sqrtl(zIn * zIn + xIn * xIn);
 
     // Cosine law
     rightAll = (sqrtXZ * sqrtXZ + ARM_UPPER_LOWER * ARM_UPPER_LOWER - 1) /
             (2 * ARM_UPPER_LOWER * sqrtXZ);
-    angleRight = acos(rightAll) * MATH_TRANS;
+    angleRight = acosl(rightAll) * MATH_TRANS;
 
     // Calculate the value of theta 2
     rightAll = (sqrtXZ * sqrtXZ + 1 - ARM_UPPER_LOWER * ARM_UPPER_LOWER) /
             (2 * sqrtXZ);
-    angleLeft = acos(rightAll) * MATH_TRANS;
+    angleLeft = acosl(rightAll) * MATH_TRANS;
 
     angleLeft += phi;
     angleRight -= phi;
@@ -166,7 +166,7 @@ char forward_kinematics(const angle_t in_angle, point_t *position) {
     angle_t angle = in_angle;
     check_angle_constraints(&angle);
     
-    const double **fk_matrix = forward_kinematics_matrix(
+    const double64_t **fk_matrix = forward_kinematics_matrix(
             angle,
             ARM_BASE_HEIGHT,
             ARM_LOWER_ARM,

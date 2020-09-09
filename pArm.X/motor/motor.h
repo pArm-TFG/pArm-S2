@@ -44,13 +44,13 @@ typedef struct {
     servo_t *servoHandler;
     volatile time_t ticks;
     const uint8_t id;
-    long double movement_duration;
+    double64_t movement_duration;
     bool movement_finished;
 } motor_t;
 
 
 static void handleInterrupt(void);
-void MOTOR_move(motor_t *motor, uint16_t angle);
+void MOTOR_move(motor_t *motor, double64_t angle);
 void MOTOR_home(motor_t motor[MAX_MOTORS]);
 void MOTOR_freeze(motor_t *motor);
 double MOTOR_position_ms(motor_t *motor);
