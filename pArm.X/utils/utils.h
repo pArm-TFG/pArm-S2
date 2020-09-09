@@ -35,6 +35,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <libpic30.h>
+#include "types.h"
 #include "defs.h"
 
 #define arrsize(array) (sizeof (array) / sizeof *(array))
@@ -60,23 +61,23 @@ inline long map(long x, long in_min, long in_max, long out_min, long out_max)
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-inline double roundp(double value)
+inline double64_t roundp(double64_t value)
 {
-    return floor(value + .5);
+    return floorl(value + .5F);
 }
 
-inline double preciseMap(
-    double value,
-    double in_min,
-    double in_max,
-    double out_min,
-    double out_max)
+inline double64_t preciseMap(
+    double64_t value,
+    double64_t in_min,
+    double64_t in_max,
+    double64_t out_min,
+    double64_t out_max)
 {
-    double slope = 1.0 * (out_max - out_min) / (in_max - in_min);
+    double64_t slope = 1.0F * (out_max - out_min) / (in_max - in_min);
     return out_min + roundp(slope * (value - in_min));
 }
 
-inline double mapf(double x, double in_min, double in_max, double out_min, double out_max)
+inline double64_t mapf(double64_t x, double64_t in_min, double64_t in_max, double64_t out_min, double64_t out_max)
 {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
