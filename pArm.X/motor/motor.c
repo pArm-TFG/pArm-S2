@@ -1,12 +1,9 @@
 #include <stdbool.h>
+#include <float.h>
 #include "motor.h"
 #include "../utils/utils.h"
 #include "../utils/defs.h"
 #include "../utils/types.h"
-
-static inline void handleInterrupt(void) {
-    // TODO
-}
 
 static inline double64_t us_to_deg(motor_t *motor) {
     return (motor->angle_us / US_PER_DEGREE);
@@ -25,26 +22,31 @@ inline void MOTOR_move(motor_t *motor, double64_t angle) {
     motor->TMR_Start();
 }
 
-inline void MOTOR_home(motor_t *motor) {
-    MOTOR_move(motor, motor->servoHandler->home);
-    // And setup interruptors for detecting the end
+inline double64_t MOTOR_home(motor_t motors[MAX_MOTORS]) {
+    double64_t max_duration = LDBL_MIN;
+    foreach(motor_t, motor, motors) {
+        MOTOR_move(motor, motor->servoHandler->home);
+        if (motor->movement_duration > max_duration)
+            max_duration = motor->movement_duration;
+    }
+    return max_duration;
 }
 
 inline void MOTOR_freeze(motor_t *motor) {
-    // TODO - Disable motor {id} interrupts / ticks so stop counting
-    const volatile time_t ticks = motor->angle_us;
-    const double motorActualMillis = (double) (ticksToUs(ticks) * 1000);
-    SERVO_write_milliseconds(motor->servoHandler, motorActualMillis);
+    // Disable motor interrupts so stop counting
+    motor->TMR_Stop();
+    // Get current position and fix the angle to its value
+    SERVO_write_angle(motor->servoHandler, MOTOR_position_deg(motor));
 }
 
-inline double MOTOR_position_us(motor_t *motor) {
+inline double64_t MOTOR_position_us(motor_t *motor) {
     return motor->angle_us;
 }
 
-inline double MOTOR_position_rad(motor_t *motor) {
+inline double64_t MOTOR_position_rad(motor_t *motor) {
     return us_to_rad(motor);
 }
 
-inline double MOTOR_position_deg(motor_t *motor) {
+inline double64_t MOTOR_position_deg(motor_t *motor) {
     return us_to_deg(motor);
 }

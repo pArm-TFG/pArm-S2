@@ -51,10 +51,9 @@ typedef struct {
 } motor_t;
 
 
-static void handleInterrupt(void);
 void MOTOR_move(motor_t *motor, double64_t angle);
-void MOTOR_home(motor_t motor[MAX_MOTORS]);
 void MOTOR_freeze(motor_t *motor);
+double64_t MOTOR_home(motor_t motors[MAX_MOTORS]);
 double64_t MOTOR_position_us(motor_t *motor);
 double64_t MOTOR_position_rad(motor_t *motor);
 double64_t MOTOR_position_deg(motor_t *motor);
