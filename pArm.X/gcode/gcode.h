@@ -28,17 +28,14 @@
 
 #ifndef GCODE_H
 #define	GCODE_H
-#define MAX_BUFFER_LENGTH 64
+#define MAX_BUFFER_LENGTH 256
 
 #include <stdint.h>
 #include "../utils/types.h"
 
 extern char GCODE_BUFFER[MAX_BUFFER_LENGTH];
 
-void GCODE_move_to(point_t position);
-point_t GCODE_get_position(void);
-angle_t GCODE_get_angular_position(void);
-void GCODE_pause(void);
+angle_t GCODE_get_position(void);
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
 float GCODE_parse_number(char code, float val);
 GCODE_ret_t GCODE_process_command(const char* command);

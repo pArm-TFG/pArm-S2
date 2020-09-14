@@ -13,29 +13,13 @@
 char GCODE_BUFFER[MAX_BUFFER_LENGTH] = {0};
 uint16_t cLength = 0;
 
-void GCODE_move_to(point_t position) {
-    return;
+angle_t GCODE_get_position(void) {
+    return (angle_t) {
+        motors.base_motor->angle_us,
+        motors.lower_arm->angle_us,
+        motors.upper_arm->angle_us
+    };
 }
-
-point_t GCODE_get_position(void) {
-    point_t position = {.0f, .0f, .0f};
-    return position;
-}
-
-angle_t GCODE_get_angular_position(void) {
-    return;
-}
-
-void GCODE_pause(void) {
-    return;
-}
-
-/*float GCODE_parser_instruction(char code) {
-    char *ptr = GCODE_BUFFER;
-    while ((long) ptr > 1 && (*ptr) && (long) ptr < (long) GCODE_BUFFER + cLength) {
-        
-    }
-}*/
 
 float GCODE_parse_number(char code, float val) {
     char *ptr = GCODE_BUFFER;
@@ -118,18 +102,9 @@ GCODE_ret_t GCODE_process_command(const char* command) {
             };
             break;
         case 114:
-        {
-            point_t current_position = GCODE_get_position();
-            ret = (GCODE_ret_t) {
-                false, // is_err
-                cmd * 10, // code
-                &current_position // the return value itself
-            };
-            break;
-        }
         case 280:
         {
-            angle_t current_position = GCODE_get_angular_position();
+            angle_t current_position = GCODE_get_position();
             ret = (GCODE_ret_t) {
                 false, // is_err
                 cmd * 10, // code
