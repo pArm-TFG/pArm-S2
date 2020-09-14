@@ -70,12 +70,14 @@ typedef struct {
 #define angle_t angle_t
 #endif
 
+// Pointer to function definitions
 #ifndef TMR_func
 
 typedef void (*TMR_func)(void) ;
 #define TMR_func TMR_func
 #endif
 
+// GCODE custom return type
 #ifndef GCODE_ret_t
 
 typedef struct {

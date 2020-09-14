@@ -35,6 +35,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <libpic30.h>
+#include <stdbool.h>
 #include "types.h"
 #include "defs.h"
 
@@ -82,7 +83,7 @@ inline double64_t mapf(double64_t x, double64_t in_min, double64_t in_max, doubl
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-inline uint8_t isnan(float value)
+inline bool isnan(float value)
 {
     return ((*((unsigned*) &value + 1) & 0x7F80U) == 0x7F80U);
 }
