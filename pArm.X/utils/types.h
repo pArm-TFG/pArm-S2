@@ -30,6 +30,7 @@
 #define	TYPES_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 // Time definitions
 #ifndef time_t
@@ -71,8 +72,18 @@ typedef struct {
 
 #ifndef TMR_func
 
-typedef void (*TMR_func)(void);
+typedef void (*TMR_func)(void) ;
 #define TMR_func TMR_func
+#endif
+
+#ifndef GCODE_ret_t
+
+typedef struct {
+    bool is_err;
+    int_fast16_t code;
+    void *gcode_ret_value;
+} GCODE_ret_t;
+#define GCODE_ret_t GCODE_ret_t
 #endif
 
 #endif	/* TYPES_H */

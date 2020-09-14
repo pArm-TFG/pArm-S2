@@ -22,6 +22,10 @@ point_t GCODE_get_position(void) {
     return position;
 }
 
+angle_t GCODE_get_angular_position(void) {
+    return;
+}
+
 void GCODE_pause(void) {
     return;
 }
@@ -42,7 +46,8 @@ float GCODE_parse_number(char code, float val) {
     return val;
 }
 
-void GCODE_process_command(const char* command) {
+GCODE_ret_t GCODE_process_command(const char* command) {
+    GCODE_ret_t ret; // = {false, -1, NULL};
 
     foreach(char, code, command) {
         if (cLength < (MAX_BUFFER_LENGTH - 1))
@@ -52,72 +57,119 @@ void GCODE_process_command(const char* command) {
             break;
         }
     }
-    uint8_t cmd = GCODE_parse_number('G', -1);
+    int_fast16_t cmd = (int_fast16_t) GCODE_parse_number('G', -1.0F);
     switch (cmd) {
         case 0:
+        {
+            point_t position = {
+                GCODE_parse_number('X', -1.0F),
+                GCODE_parse_number('Y', -1.0F),
+                GCODE_parse_number('Z', -1.0F)
+            };
+            ret = (GCODE_ret_t) {
+                false, // is_err
+                cmd, // code
+                &position // the return value itself
+            };
+            break;
+        }
         case 1:
         {
-            point_t position = {
-                GCODE_parse_number('X', -1),
-                GCODE_parse_number('Y', -1),
-                GCODE_parse_number('Z', -1)
+            angle_t angles = {
+                GCODE_parse_number('X', -1.0F),
+                GCODE_parse_number('Y', -1.0F),
+                GCODE_parse_number('Z', -1.0F)
             };
-            GCODE_move_to(position);
+            ret = (GCODE_ret_t) {
+                false, // is_err
+                cmd, // code
+                &angles // the return value itself
+            };
             break;
         }
-        case 2:
-        case 3:
-            // TODO - ARC
-            break;
         case 4:
-            // TODO - PAUSE
-            break;
         case 28:
-        {
-            // TODO - Home
-            point_t position = {
-                GCODE_parse_number('X', -1),
-                GCODE_parse_number('Y', -1),
-                GCODE_parse_number('Z', -1)
+            ret = (GCODE_ret_t) {
+                false, // is_err
+                cmd, // code
+                NULL // the return value itself
             };
-            if ((position.x == 0 && position.y == 0 && position.z == 0) ||
-                    ((position.x == -1 && position.y == -1 && position.z == -1)))
-                PLANNER_go_home();
-            if (position.x == 0) {
-                MOTOR_home(motors.lower_arm);
-            }
-            if (position.y == 0) {
-                MOTOR_home(motors.base_motor);
-            }
-            if (position.z == 0) {
-                MOTOR_home(motors.upper_arm);
-            }
+            break;
+        default:
+        {
+            const char *msg = "Unknown GCODE G%d\n";
+            ret = (GCODE_ret_t) {
+                true, // is_err
+                cmd, // the code itself
+                msg // the error message
+            };
             break;
         }
-        default:
-            break;
     }
 
-    cmd = GCODE_parse_number('M', -1);
+    cmd = (int_fast16_t) GCODE_parse_number('M', -1.0F);
     switch (cmd) {
         case 18:
-            GCODE_pause();
+            // TODO - PAUSE
+            ret = (GCODE_ret_t) {
+                false, // is_err
+                cmd * 10, // code
+                NULL // the return value itself
+            };
             break;
         case 114:
         {
-            // TODO - manage position
             point_t current_position = GCODE_get_position();
+            ret = (GCODE_ret_t) {
+                false, // is_err
+                cmd * 10, // code
+                &current_position // the return value itself
+            };
+            break;
+        }
+        case 280:
+        {
+            angle_t current_position = GCODE_get_angular_position();
+            ret = (GCODE_ret_t) {
+                false, // is_err
+                cmd * 10, // code
+                &current_position // the return value itself
+            };
             break;
         }
         default:
+        {
+            const char *msg = "Unknown GCODE M%d\n";
+            ret = (GCODE_ret_t) {
+                true, // is_err
+                cmd * 10, // the code
+                msg // the error message
+            };
             break;
+        }
     }
-    
-    cmd = GCODE_parse_number('I', -1);
+
+    cmd = (int_fast16_t) GCODE_parse_number('I', -1.0F);
     switch (cmd) {
-        case -1:
+        case 1:
+        {
+            ret = (GCODE_ret_t) {
+                false, // is_err
+                cmd * 100, // the code
+                NULL // the return value itself
+            };
             break;
+        }
         default:
+        {
+            const char *msg = "Unknown GCODE I%d\n";
+            ret = (GCODE_ret_t) {
+                true, // is_err
+                cmd * 100, // the code
+                msg // the error message
+            };
             break;
+        }
     }
+    return ret;
 }
