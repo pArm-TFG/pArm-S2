@@ -17,6 +17,9 @@ static inline double64_t us_to_rad(motor_t *motor) {
 inline void MOTOR_move(motor_t *motor, double64_t angle) {
     double64_t current_angle = us_to_rad(motor);
     double64_t expected_time_us = MOTOR_elapsed_time_us(fabsl(angle - current_angle));
+    motor->clockwise = (angle > current_angle)
+            ? 1
+            : -1;
     motor->movement_duration = expected_time_us;
     motor->movement_finished = false;
     SERVO_write_angle(motor->servoHandler, angle);
@@ -38,7 +41,7 @@ inline void MOTOR_freeze(motor_t *motor) {
     // Disable motor interrupts so stop counting
     motor->TMR_Stop();
     // Get current position and fix the angle to its value
-    SERVO_write_angle(motor->servoHandler, MOTOR_position_deg(motor));
+    SERVO_write_milliseconds(motor->servoHandler, (motor->angle_us * 1000.0F));
 }
 
 inline double64_t MOTOR_position_us(motor_t *motor) {
