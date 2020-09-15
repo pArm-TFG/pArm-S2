@@ -41,7 +41,7 @@
 // Servo definition
 typedef struct {
     uint16_t *dutyCycleRegister;
-    uint16_t *limit_switch_register;
+    uint16_t *limit_switch_value;
     double64_t home;
     double64_t min_angle;
     double64_t max_angle;

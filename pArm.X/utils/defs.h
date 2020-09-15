@@ -38,8 +38,8 @@
 #define PRESCALE    ((uint8_t) FOSC / FCLK_SPEED)
 
 // Servo definitions
-#define MIN_PULSE_MS    0.75
-#define MAX_PULSE_MS    2.25
+#define MIN_PULSE_MS    0.75F
+#define MAX_PULSE_MS    2.25F
 
 // UART delay
 #define DELAY_105uS asm volatile ("REPEAT, #4201"); Nop(); // 105uS delay
