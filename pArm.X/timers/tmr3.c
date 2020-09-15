@@ -6,14 +6,16 @@
  */
 
 #include <p33EP512GM604.h>
-
 #include "tmr3.h"
+#include "../utils/types.h"
 #include "../motor/motor.h"
 
-motor_t *tmr3_motor;
+motor_t *TMR3_motor;
+double64_t TMR3_count;
 
 void TMR3_Initialize(motor_t *motor) {
-    tmr3_motor = motor;
+    TMR3_motor = motor;
+    TMR3_count = .0F;
     
     //TMR3 0; 
     TMR3 = 0x00;
@@ -23,13 +25,18 @@ void TMR3_Initialize(motor_t *motor) {
     T3CON = 0x0;
 
     IFS0bits.T3IF = 0;
+
     IEC0bits.T3IE = 0;
 }
 
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void) {
-    tmr3_motor->angle_us += 1.0016F;
-    if (tmr3_motor->angle_us >= tmr3_motor->movement_duration) {
-        tmr3_motor->movement_finished = true;
+    TMR3_count += 1.0016F;
+
+    if (TMR3_count >= TMR3_motor->movement_duration) {
+        TMR3_motor->movement_finished = true;
+        // If movement is clockwise then add the count to current angle_us
+        // else, the count must be substracted
+        TMR3_motor->angle_us += (TMR3_motor->clockwise * TMR3_count);
         TMR3_Stop();
     }
     IFS0bits.T3IF = 0;
@@ -37,7 +44,7 @@ void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void) {
 
 void TMR3_Start(void) {
     /* Clear old value*/
-    tmr3_motor->angle_us = .0F;
+    TMR3_count = .0F;
     
     /*Enable the interrupt*/
     IEC0bits.T3IE = 1;

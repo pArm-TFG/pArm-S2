@@ -33,7 +33,7 @@
 
 #include "../motor/motor.h"
 
-extern motor_t *tmr4_motor;
+extern motor_t *TMR4_motor;
 
 void TMR4_Initialize(motor_t *motor);
 void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void);

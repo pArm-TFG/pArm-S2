@@ -25,10 +25,10 @@ servo_t lower_arm_servo = {&SDC2, &limit_switch_map[1], .0, LOWER_ARM_MIN_ANGLE,
 servo_t upper_arm_servo = {&SDC3, &limit_switch_map[2], .0, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE};
 servo_t end_effector_servo = {&PDC1, &limit_switch_map[3], .0, .0, 180.};
 
-motor_t base_motor = {&base_servo, 0ULL, .0F, .0F, false, TMR3_Start, TMR3_Stop};
-motor_t lower_arm_motor = {&lower_arm_servo, 1ULL, .0F, .0F, false, TMR4_Start, TMR4_Stop};
-motor_t upper_arm_motor = {&upper_arm_servo, 2ULL, .0F, .0F, false, TMR5_Start, TMR5_Stop};
-motor_t end_effetor_motor = {&end_effector_servo, 3ULL, .0F, .0F, false, NULL, NULL};
+motor_t base_motor = {&base_servo, 0ULL, .0F, .0F, false, 1, TMR3_Start, TMR3_Stop};
+motor_t lower_arm_motor = {&lower_arm_servo, 1ULL, .0F, .0F, false, 1, TMR4_Start, TMR4_Stop};
+motor_t upper_arm_motor = {&upper_arm_servo, 2ULL, .0F, .0F, false, 1, TMR5_Start, TMR5_Stop};
+motor_t end_effetor_motor = {&end_effector_servo, 3ULL, .0F, .0F, false, 1, NULL, NULL};
 
 motors_t motors = {&base_motor, &lower_arm_motor, &upper_arm_motor, &end_effetor_motor};
 

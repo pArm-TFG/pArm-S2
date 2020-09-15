@@ -6,14 +6,16 @@
  */
 
 #include <p33EP512GM604.h>
-
 #include "tmr5.h"
+#include "../utils/types.h"
 #include "../motor/motor.h"
 
-motor_t *tmr5_motor;
+motor_t *TMR5_motor;
+double64_t TMR5_count;
 
 void TMR5_Initialize(motor_t *motor) {
-    tmr5_motor = motor;
+    TMR5_motor = motor;
+    TMR5_count = .0F;
     
     //TMR5 0; 
     TMR5 = 0x00;
@@ -27,9 +29,13 @@ void TMR5_Initialize(motor_t *motor) {
 }
 
 void __attribute__((interrupt, no_auto_psv)) _T5Interrupt(void) {
-    tmr5_motor->angle_us += 1.0016F;
-    if (tmr5_motor->angle_us >= tmr5_motor->movement_duration) {
-        tmr5_motor->movement_finished = true;
+    TMR5_count += 1.0016F;
+
+    if (TMR5_count >= TMR5_motor->movement_duration) {
+        TMR5_motor->movement_finished = true;
+        // If movement is clockwise then add the count to current angle_us
+        // else, the count must be substracted
+        TMR5_motor->angle_us += (TMR5_motor->clockwise * TMR5_count);
         TMR5_Stop();
     }
     IFS1bits.T5IF = 0;
@@ -37,7 +43,7 @@ void __attribute__((interrupt, no_auto_psv)) _T5Interrupt(void) {
 
 void TMR5_Start(void) {
     /* Clear old value*/
-    tmr5_motor->angle_us = .0F;
+    TMR5_count = .0F;
 
     /*Enable the interrupt*/
     IEC1bits.T5IE = 1;
