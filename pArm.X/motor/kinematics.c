@@ -101,25 +101,25 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
         angleRot = 90.0f;
     } else {
         angleRot = (point.y < 0) ?
-                -atan2l(point.x, point.y) * MATH_TRANS :
-                180.F - atan2l(point.x, point.y) * MATH_TRANS;
+                -atan2l(point.x, point.y) :
+                MATH_PI - atan2l(point.x, point.y);
     }
 
-    xIn = (point.x / sinl(angleRot / MATH_TRANS) - ARM_BASE_DEVIATION - front_end_offset)
+    xIn = (point.x / sinl(angleRot) - ARM_BASE_DEVIATION - front_end_offset)
             / ARM_LOWER_ARM;
 
-    phi = atan2l(zIn, xIn) * MATH_TRANS;
+    phi = atan2l(zIn, xIn);
     sqrtXZ = sqrtl(zIn * zIn + xIn * xIn);
 
     // Cosine law
     rightAll = (sqrtXZ * sqrtXZ + ARM_UPPER_LOWER * ARM_UPPER_LOWER - 1) /
             (2 * ARM_UPPER_LOWER * sqrtXZ);
-    angleRight = acosl(rightAll) * MATH_TRANS;
+    angleRight = acosl(rightAll);
 
     // Calculate the value of theta 2
     rightAll = (sqrtXZ * sqrtXZ + 1 - ARM_UPPER_LOWER * ARM_UPPER_LOWER) /
             (2 * sqrtXZ);
-    angleLeft = acosl(rightAll) * MATH_TRANS;
+    angleLeft = acosl(rightAll);
 
     angleLeft += phi;
     angleRight -= phi;
@@ -127,32 +127,15 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
     if (isnan(angleRot) || isnan(angleLeft) || isnan(angleRight))
         return -1;
 
-    if (angleLeft > LOWER_ARM_MAX_ANGLE) {
-        return -1;
-    } else if (angleLeft < LOWER_ARM_MIN_ANGLE) {
-        return -1;
-    }
-
-    if (angleRight > UPPER_ARM_MAX_ANGLE) {
-        return -1;
-    } else if (angleRight < UPPER_ARM_MIN_ANGLE) {
-        return -1;
-    }
-
-    if (angleLeft + angleRight > (180 - LOWER_UPPER_MIN_ANGLE)) {
-        //angleLeft = 180  - LOWER_UPPER_MIN_ANGLE - angleRight;
-        return -1;
-    }
-
-    if ((180 - angleLeft - angleRight) > LOWER_UPPER_MAX_ANGLE) {
-        //angleRight = 180 - LOWER_UPPER_MAX_ANGLE - angleLeft;
-        return -1;
-    }
-
-
-    angleRot = constraint(angleRot, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE);
-    angleLeft = constraint(angleLeft, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE);
-    angleRight = constraint(angleRight, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE);
+    angleRot = constraint(angleRot,
+            (MATH_PI * LOWER_UPPER_MIN_ANGLE) / 180.0F,
+            (MATH_PI * LOWER_UPPER_MAX_ANGLE) / 180.0F);
+    angleLeft = constraint(angleLeft,
+            (MATH_PI * LOWER_ARM_MIN_ANGLE) / 180.0F,
+            (MATH_PI * LOWER_ARM_MAX_ANGLE) / 180.0F);
+    angleRight = constraint(angleRight,
+            (MATH_PI * UPPER_ARM_MIN_ANGLE) / 180.0F,
+            (MATH_PI * UPPER_ARM_MAX_ANGLE) / 180.0F);
 
 
     angle->theta0 = angleRot;
@@ -165,7 +148,7 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
 char forward_kinematics(const angle_t in_angle, point_t *position) {
     angle_t angle = in_angle;
     check_angle_constraints(&angle);
-    
+
     const double64_t **fk_matrix = forward_kinematics_matrix(
             angle,
             ARM_BASE_HEIGHT,

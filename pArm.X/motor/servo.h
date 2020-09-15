@@ -49,10 +49,10 @@ typedef struct {
 
 extern volatile uint_fast8_t limit_switch_map[4];
 
-void SERVO_write_angle(const servo_t *servo, double64_t angle);
+void SERVO_write_angle(const servo_t *servo, double64_t angle_rad);
 void SERVO_write_milliseconds(const servo_t *servo, double64_t ms);
 void SERVO_write_value(const servo_t *servo, uint16_t dtc_value);
-double64_t SERVO_from_angle_to_ms(const servo_t *servo, double64_t angle);
+double64_t SERVO_from_angle_to_ms(double64_t angle_rad);
 
 #endif	/* SERVO_H */
 
