@@ -311,7 +311,7 @@ void TMR2_Initialize(void) {
     IEC0bits.T2IE = 1;
 }
 
-void initDigitalPorts(void)
+void init_ports(void)
 {
     //Digital Ports for micro-interruptors, set as input
     TRISAbits.TRISA0 = 1;
@@ -345,15 +345,16 @@ void initDigitalPorts(void)
 }
 
 inline void system_initialize(void) {
-    init_pins();
-    initDigitalPorts();
+    INTERRUPT_GlobalDisable();
     init_clock();
-    initUART();
     TMR1_Initialize();
     TMR2_Initialize();
+    init_pins();
+    init_ports();
+    initUART();
     initPWM();
-    INTERRUPT_GlobalEnable();
     SYSTEM_CORCONModeOperatingSet(CORCON_MODE_PORVALUES);
     // Init interrupts only after the hole initialization process is finished
     init_interrupts();
+    INTERRUPT_GlobalEnable();
 }

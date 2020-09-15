@@ -31,7 +31,7 @@
 #ifndef INIT_H
 #define	INIT_H
 
-#include <xc.h> // include processor files - each processor file is guarded. 
+#include <xc.h>
 #include "system_types.h"
 
 void initBoard(void);
@@ -39,8 +39,7 @@ void initPWM(void);
 void TMR1_Initialize(void);
 void TMR2_Initialize(void);
 void initUnusedIOPorts(void);
-void initDigitalPorts(void);
-
+void init_ports(void);
 void init_pins(void);
 void init_clock(void);
 void init_interrupts(void);
@@ -74,6 +73,10 @@ void init_interrupts(void);
 inline static void INTERRUPT_GlobalEnable(void)
 {
     __builtin_enable_interrupts();
+}
+
+inline static void INTERRUPT_GlobalDisable(void) {
+    __builtin_disable_interrupts();
 }
 
 /**

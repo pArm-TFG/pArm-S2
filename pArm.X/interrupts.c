@@ -1,5 +1,6 @@
 #include "interrupts.h"
 #include "utils/time.h"
+#include "motor/servo.h"
 
 extern char receivedValue;
 volatile int _ICNFLAG = 0; // Auxiliar Flag defined in interrupts.h
@@ -30,6 +31,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void) {
+    limit_switch_map[0] = PORTAbits.RA0;
+    limit_switch_map[1] = PORTAbits.RA1;
+    limit_switch_map[2] = PORTBbits.RB0;
+    limit_switch_map[3] = PORTBbits.RB1;
     _ICNFLAG = 1; // Notify the input change using the auxiliar flag
     _CNIF = 0; // Clear the interruption flag
 }

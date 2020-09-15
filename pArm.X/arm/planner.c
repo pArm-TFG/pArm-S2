@@ -20,10 +20,10 @@
 #include "../timers/tmr4.h"
 #include "../timers/tmr5.h"
 
-servo_t base_servo = {&SDC1, .0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
-servo_t lower_arm_servo = {&SDC2, .0, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE};
-servo_t upper_arm_servo = {&SDC3, .0, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE};
-servo_t end_effector_servo = {&PDC1, .0, .0, 180.};
+servo_t base_servo = {&SDC1, &limit_switch_map[0], .0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
+servo_t lower_arm_servo = {&SDC2, &limit_switch_map[1], .0, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE};
+servo_t upper_arm_servo = {&SDC3, &limit_switch_map[2], .0, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE};
+servo_t end_effector_servo = {&PDC1, &limit_switch_map[3], .0, .0, 180.};
 
 motor_t base_motor = {&base_servo, 0ULL, .0F, .0F, false, TMR3_Start, TMR3_Stop};
 motor_t lower_arm_motor = {&lower_arm_servo, 1ULL, .0F, .0F, false, TMR4_Start, TMR4_Stop};
@@ -40,7 +40,7 @@ void PLANNER_go_home(void) {
 }
 
 void PLANNER_move_xyz(const point_t xyz) {
-    angle_t *angle = (angle_t *) malloc(sizeof(angle_t));
+    angle_t *angle = (angle_t *) malloc(sizeof (angle_t));
     inverse_kinematics(xyz, angle);
     PLANNER_move_angle(*angle);
     free(angle);
@@ -60,7 +60,7 @@ void PLANNER_move_waiting(const angle_t angle) {
     max_angle = max(diff_base, max_angle);
     max_angle = max(diff_lower_arm, max_angle);
     max_angle = max(diff_upper_arm, max_angle);
-    
+
     double64_t expected_time = MOTOR_elapsed_time_us(max_angle);
     PLANNER_move_angle(angle);
     delay_us(expected_time);
@@ -73,7 +73,7 @@ void PLANNER_stop_moving(void) {
 }
 
 point_t *PLANNER_get_position(void) {
-    point_t *position = (point_t *) malloc(sizeof(point_t));
+    point_t *position = (point_t *) malloc(sizeof (point_t));
     angle_t angles = {
         MOTOR_position_rad(motors.base_motor),
         MOTOR_position_rad(motors.lower_arm),
@@ -84,10 +84,10 @@ point_t *PLANNER_get_position(void) {
 }
 
 angle_t *PLANNER_get_angles(void) {
-    angle_t *angles = (angle_t *) malloc(sizeof(angle_t));
+    angle_t *angles = (angle_t *) malloc(sizeof (angle_t));
     angles->theta0 = MOTOR_position_rad(motors.base_motor);
     angles->theta1 = MOTOR_position_rad(motors.lower_arm);
     angles->theta2 = MOTOR_position_rad(motors.upper_arm);
-    
+
     return angles;
 }
