@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <float.h>
+#include <stdlib.h>
 #include "motor.h"
 #include "../utils/utils.h"
 #include "../utils/defs.h"
@@ -64,7 +65,7 @@ inline double64_t MOTOR_position_deg(motor_t *motor) {
     return us_to_deg(motor->angle_us);
 }
 
-void MOTOR_calibrate(motor_t *motor) {
+char MOTOR_calibrate(motor_t *motor) {
     // Init the angle to minimum long double value
     motor->angle_us = LDBL_MIN;
     // Move the motor to 0 radians
@@ -78,9 +79,13 @@ void MOTOR_calibrate(motor_t *motor) {
     while ((*motor->servoHandler->limit_switch_value != 1) ||
             (TIME_now_us() >= max_waiting_time) ||
             motor->movement_finished);
+    const bool timeout_happened = (TIME_now_us() >= max_waiting_time);
     *motor->servoHandler->limit_switch_value = 0;
     // Disable the PWM signal, so the motor stops moving
     SERVO_write_value(motor->servoHandler, 0U);
+    // Timeout happened, so return error
+    if (timeout_happened)
+        return EXIT_FAILURE;
     // and move it to an arbitrary position at 30 degrees
     SERVO_write_angle(motor->servoHandler, (MATH_PI / 6));
     double64_t duration_us = rad_to_us(MATH_PI / 6);
@@ -105,4 +110,6 @@ void MOTOR_calibrate(motor_t *motor) {
     // the new minimum angle the motor can reach
     double64_t min_angle_us = fabsl(motor->angle_us - motor->movement_duration);
     motor->servoHandler->min_angle = us_to_rad(min_angle_us);
+    // Return OK
+    return EXIT_SUCCESS;
 }

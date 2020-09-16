@@ -54,7 +54,7 @@ typedef struct {
 
 void MOTOR_move(motor_t *motor, double64_t angle_rad);
 void MOTOR_freeze(motor_t *motor);
-void MOTOR_calibrate(motor_t *motor);
+char MOTOR_calibrate(motor_t *motor);
 double64_t MOTOR_home(motor_t motors[MAX_MOTORS]);
 double64_t MOTOR_position_us(motor_t *motor);
 double64_t MOTOR_position_rad(motor_t *motor);
