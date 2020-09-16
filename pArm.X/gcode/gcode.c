@@ -136,7 +136,7 @@ GCODE_ret_t GCODE_process_command(const char* command) {
     }
 
     // GCODE found so quit and return value
-    if (cmd != 1)
+    if (cmd != -1)
         return ret;
 
     cmd = (int_fast16_t) GCODE_parse_number('M', -1.0F);
@@ -184,7 +184,7 @@ GCODE_ret_t GCODE_process_command(const char* command) {
     }
     
     // GCODE found so quit and return value
-    if (cmd != 1)
+    if (cmd != -1)
         return ret;
 
     cmd = (int_fast16_t) GCODE_parse_number('I', -1.0F);
