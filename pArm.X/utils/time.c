@@ -8,11 +8,11 @@ inline void TIME_updateMs(void) {
     _now_ms = (time_t) (_now_us / 1000ULL);
 }
 
-inline time_t TIME_now(void) {
+time_t TIME_now(void) {
     return _now_ms;
 }
 
-inline time_t TIME_now_us(void) {
+time_t TIME_now_us(void) {
     return _now_us;
 }
 
@@ -21,7 +21,7 @@ inline void TIME_increment_us(void) {
     TIME_updateMs();
 }
 
-inline void TIME_set_time(time_t value_us) {
+void TIME_set_time(time_t value_us) {
     _now_us = value_us;
     TIME_updateMs();
 }

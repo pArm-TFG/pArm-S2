@@ -23,6 +23,9 @@
 #include "arm/planner.h"
 
 rsa_t *RSA_key = NULL;
+bool message_received = false;
+char order_buffer[1024] = {0};
+uint16_t order_chars = 0;
 
 
 void setup(void);
@@ -50,15 +53,19 @@ inline void setup(void) {
         PORTBbits.RB6 = 1;
         PORTBbits.RB7 = 1;
         while (true) {
-            printf("Motor failure - check positions\n");
+            // I2 stands for motor failure
+            printf("I2\n");
             delay_ms(1000);
         }
     }
     rsa_t key = RSA_keygen();
+    RSA_key = &key;
 }
 
 inline void loop(void) {
-
+    while (!message_received);
+    message_received = false;
+    
 }
 
 inline char check_motor_status(void) {

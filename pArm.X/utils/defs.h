@@ -45,8 +45,8 @@
 #define DELAY_105uS asm volatile ("REPEAT, #4201"); Nop(); // 105uS delay
 
 // Mathematical constants
-#define MATH_PI         3.141592653589793238463
-#define MATH_TRANS      57.29577951308232087679
+#define MATH_PI         3.141592653589793238463F
+#define MATH_TRANS      57.29577951308232087679F
 
 #endif	/* DEFS_H */
 

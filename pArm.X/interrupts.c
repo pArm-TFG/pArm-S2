@@ -1,8 +1,18 @@
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "interrupts.h"
 #include "utils/time.h"
 #include "motor/servo.h"
+#include "utils/time.h"
 
 volatile int _ICNFLAG = 0; // Auxiliar Flag defined in interrupts.h
+volatile time_t _ns = 0ULL;
+static char uart_buffer[1024] = {0};
+static uint16_t uart_chars = 0U;
+extern bool message_received;
+extern char order_buffer[1024];
+extern uint16_t order_chars;
 
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
     _now_us += 1ULL;
@@ -25,7 +35,14 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
     if (U1STAbits.FERR == 1)
         return;
     if (U1STAbits.URXDA == 1) {
-        // Read from U1RXREG
+        char received_val = U1RXREG;
+        uart_buffer[uart_chars++] = received_val;
+        if (received_val == '\n') {
+            strncpy(order_buffer, uart_buffer, (size_t) uart_chars);
+            order_chars = uart_chars;
+            uart_chars = 0;
+            message_received = true;
+        }
     }
 }
 
@@ -44,4 +61,9 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1ErrInterrupt(void) {
     }
 
     IFS4bits.U1EIF = 0;
+}
+
+void __attribute__((interrupt, no_auto_psv)) _T6Interrupt() {
+    _ns += (TIME_now_us() * 1000ULL) + 50ULL;
+    IFS2bits.T6IF = false;
 }
