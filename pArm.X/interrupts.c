@@ -2,7 +2,6 @@
 #include "utils/time.h"
 #include "motor/servo.h"
 
-extern char receivedValue;
 volatile int _ICNFLAG = 0; // Auxiliar Flag defined in interrupts.h
 
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
@@ -26,7 +25,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
     if (U1STAbits.FERR == 1)
         return;
     if (U1STAbits.URXDA == 1) {
-        receivedValue = U1RXREG;
+        // Read from U1RXREG
     }
 }
 
