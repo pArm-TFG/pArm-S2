@@ -14,6 +14,7 @@
 #ifdef USE_CUSTOM_PRINTF
 #include "printf/printf.h"
 #endif
+#include "utils/types.h"
 #include "utils/uart.h"
 #include "init.h"
 #include "interrupts.h"
@@ -21,10 +22,11 @@
 #include "rsa/rsa.h"
 #include "motor/motor.h"
 #include "arm/planner.h"
+#include "gcode/gcode.h"
 
 rsa_t *RSA_key = NULL;
 bool message_received = false;
-char order_buffer[1024] = {0};
+char *order_buffer = NULL;
 uint16_t order_chars = 0;
 
 
@@ -65,7 +67,10 @@ inline void setup(void) {
 inline void loop(void) {
     while (!message_received);
     message_received = false;
-    
+    GCODE_ret_t ret = GCODE_process_command(order_buffer);
+    if (ret.is_err) {
+        printf("Fail\n");
+    }
 }
 
 inline char check_motor_status(void) {

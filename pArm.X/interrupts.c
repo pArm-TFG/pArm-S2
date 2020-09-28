@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 #include "interrupts.h"
 #include "utils/time.h"
 #include "motor/servo.h"
@@ -11,7 +12,7 @@ volatile time_t _ns = 0ULL;
 static char uart_buffer[1024] = {0};
 static uint16_t uart_chars = 0U;
 extern bool message_received;
-extern char order_buffer[1024];
+extern char *order_buffer;
 extern uint16_t order_chars;
 
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
@@ -38,7 +39,11 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
         char received_val = U1RXREG;
         uart_buffer[uart_chars++] = received_val;
         if (received_val == '\n') {
-            strncpy(order_buffer, uart_buffer, (size_t) uart_chars);
+            if (order_buffer != NULL) {
+                free(order_buffer);
+            }
+            order_buffer = (char *) malloc(sizeof(char) * uart_chars);
+            strncpy(order_buffer, uart_buffer, uart_chars);
             order_chars = uart_chars;
             uart_chars = 0;
             message_received = true;
