@@ -24,10 +24,10 @@
       <itemPath>motor/kinematics.h</itemPath>
       <itemPath>arm_config.h</itemPath>
       <itemPath>arm/planner.h</itemPath>
-      <itemPath>utils/rand.h</itemPath>
       <itemPath>rsa/rsa.h</itemPath>
       <itemPath>rsa/primes.h</itemPath>
       <itemPath>rsa/zeros.h</itemPath>
+      <itemPath>rsa/rand.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -50,10 +50,10 @@
       <itemPath>timers/tmr5.c</itemPath>
       <itemPath>motor/kinematics.c</itemPath>
       <itemPath>arm/planner.c</itemPath>
-      <itemPath>utils/rand.c</itemPath>
       <itemPath>rsa/rsa.c</itemPath>
       <itemPath>rsa/primes.c</itemPath>
       <itemPath>rsa/zeros.c</itemPath>
+      <itemPath>rsa/rand.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
