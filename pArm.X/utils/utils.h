@@ -31,11 +31,6 @@
 #ifndef UTILS_H
 #define	UTILS_H
 
-#include <math.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <libpic30.h>
-#include <stdbool.h>
 #include "types.h"
 #include "defs.h"
 
@@ -47,54 +42,24 @@
 #define clockCyclesPerMicrosecond() ( FCY / 1000000UL )
 #define constraint(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
-/**
- * Maps a value in between the output range by the given input range
- * @param x the value to map.
- * @param in_min the minimum acceptable value.
- * @param in_max the maximum acceptable value.
- * @param out_min the minimum output value.
- * @param out_max the maximum output value.
- * @return the mapped 'x' value in between [out_min, out_max]
- * @see https://www.arduino.cc/reference/en/language/functions/math/map/
- */
-inline long map(long x, long in_min, long in_max, long out_min, long out_max)
-{
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-inline double64_t roundp(double64_t value)
-{
-    return floorl(value + .5F);
-}
-
-inline double64_t preciseMap(
+long map(long x, long in_min, long in_max, long out_min, long out_max);
+double64_t roundp(double64_t value);
+double64_t preciseMap(
     double64_t value,
     double64_t in_min,
     double64_t in_max,
     double64_t out_min,
-    double64_t out_max)
-{
-    double64_t slope = 1.0F * (out_max - out_min) / (in_max - in_min);
-    return out_min + roundp(slope * (value - in_min));
-}
+    double64_t out_max);
 
-inline double64_t mapf(double64_t x, double64_t in_min, double64_t in_max, double64_t out_min, double64_t out_max)
-{
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
+double64_t mapf(double64_t x, double64_t in_min, double64_t in_max, double64_t out_min, double64_t out_max);
 
-inline bool isnan(float value)
-{
-    return ((*((unsigned*) &value + 1) & 0x7F80U) == 0x7F80U);
-}
+#ifndef __isnan
+bool __isnan(double64_t x);
+#define isnan __isnan
+#endif
 
-inline void delay_ms(uint64_t ms) {
-    __delay_ms(ms);
-}
-
-inline void delay_us(uint64_t us) {
-    __delay_us(us);
-}
+void delay_ms(uint64_t ms);
+void delay_us(uint64_t us);
 
 #endif	/* UTILS_H */
 

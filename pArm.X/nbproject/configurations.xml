@@ -54,6 +54,7 @@
       <itemPath>rsa/primes.c</itemPath>
       <itemPath>rsa/zeros.c</itemPath>
       <itemPath>rsa/rand.c</itemPath>
+      <itemPath>utils/utils.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
