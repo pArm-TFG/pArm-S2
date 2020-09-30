@@ -96,14 +96,11 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
     if (point.x < .01f)
         point.x = .01f;
 
-    // Calculate value of theta 1 (rotation angle)
-    if (point.y == 0) {
-        angleRot = 90.0f;
-    } else {
-        angleRot = (point.y < 0) ?
-                -atan2l(point.x, point.y) :
-                MATH_PI - atan2l(point.x, point.y);
-    }
+    // Calculate value of theta 1 (rotation angle).
+    // As we are using 'atan2', there is no need to
+    // use specific cases (y > 0, y < 0, y = 0) but just
+    // do pi - atan2(x, y);
+    angleRot = MATH_PI - atan2l(point.x, point.y);
 
     xIn = (point.x / sinl(angleRot) - ARM_BASE_DEVIATION - front_end_offset)
             / ARM_LOWER_ARM;
