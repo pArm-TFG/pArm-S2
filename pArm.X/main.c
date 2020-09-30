@@ -12,6 +12,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 #ifdef USE_CUSTOM_PRINTF
 #include "printf/printf.h"
 #endif
@@ -32,7 +33,7 @@ char *order_buffer = NULL;
 uint16_t order_chars = 0;
 volatile bool trusted_device = false;
 int_fast64_t rnd_message;
-
+double64_t motor_movement_finished_time = LDBL_MAX;
 
 void setup(void);
 void loop(void);
@@ -90,7 +91,9 @@ inline void loop(void) {
             case 0:
             {
                 point_t *position = (point_t *) ret.gcode_ret_val;
-//                PLANNER_move_xyz();
+                double64_t expected_time = PLANNER_move_xyz(*position);
+                printf("J1 %lf\n", expected_time);
+                motor_movement_finished_time = TIME_now_us() + expected_time;
                 break;
             }
                 // G1

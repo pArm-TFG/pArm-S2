@@ -19,6 +19,7 @@
 #include "../timers/tmr3.h"
 #include "../timers/tmr4.h"
 #include "../timers/tmr5.h"
+#include "../utils/defs.h"
 
 servo_t base_servo = {&SDC1, &limit_switch_map[0], .0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
 servo_t lower_arm_servo = {&SDC2, &limit_switch_map[1], .0, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE};
