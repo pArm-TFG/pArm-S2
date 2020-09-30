@@ -195,8 +195,6 @@ GCODE_ret_t GCODE_process_command(const char* command) {
             // both modulus (n) and public exponent (e)
             // so the other system can decrypt our messages.
         case 1:
-            // GCODE I6 - generate new RSA keys
-        case 6:
         {
             ret = (GCODE_ret_t){
                 false, // is_err
@@ -205,9 +203,12 @@ GCODE_ret_t GCODE_process_command(const char* command) {
             };
             break;
         }
+            // All the following must have the random message encrypted.
             // GCODE I5 - received the unsigned message
             // when verifying
         case 5:
+            // GCODE I6 - generate new RSA keys
+        case 6:
             // GCODE I7 - received heartbeat so we know
             // the trusted device is still alive
         case 7:

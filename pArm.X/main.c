@@ -41,7 +41,7 @@ char check_motor_status(void);
 void do_handshake(void);
 void handle_order(void);
 void do_movement(double64_t expected_time);
-void beat(void);
+void beat(int_fast64_t encrypted_msg);
 
 int main(void) {
     setup();
@@ -113,36 +113,47 @@ inline void loop(void) {
                 // M1
             case 10:
             {
+                PLANNER_stop_moving();
                 break;
             }
                 // M114
             case 1140:
             {
+                point_t *position = PLANNER_get_position();
+                printf("G0 X%lf Y%lf Z%lf\n", 
+                        position->x, 
+                        position->y, 
+                        position->z);
                 break;
             }
                 // M280
             case 2800:
             {
-                break;
-            }
-                // I1
-            case 100:
-            {
-                break;
-            }
-                // I5
-            case 500:
-            {
+                angle_t *position = PLANNER_get_angles();
+                printf("G1 X%lf Y%lf Z%lf\n",
+                        position->theta0,
+                        position->theta1,
+                        position->theta2);
                 break;
             }
                 // I6
             case 600:
             {
+                int_fast64_t encrypted_msg = (int_fast64_t) ret.gcode_ret_val;
+                int_fast64_t msg = RSA_decrypt(encrypted_msg, RSA_key);
+                if (msg == rnd_message) {
+                    trusted_device = false;
+                    RSA_key = RSA_keygen();
+                } else {
+                    printf("J6\n");
+                }
                 break;
             }
                 // I7
             case 700:
             {
+                int_fast64_t encrypted_msg = (int_fast64_t) ret.gcode_ret_val;
+                beat(encrypted_msg);
                 break;
             }
             default:
@@ -170,7 +181,7 @@ inline void do_handshake(void) {
     message_received = false;
     GCODE_ret_t ret = GCODE_process_command(order_buffer);
     switch (ret.code) {
-        // I1
+            // I1
         case 100:
         {
             printf("I2 %lld\n", RSA_key->n);
@@ -180,7 +191,7 @@ inline void do_handshake(void) {
             printf("I4 %lld\n", signed_message);
             break;
         }
-        // I5 with decrypted msg
+            // I5 with decrypted msg
         case 500:
         {
             int_fast64_t encrypted_msg = (int_fast64_t) ret.gcode_ret_val;
@@ -201,9 +212,14 @@ inline void do_handshake(void) {
             break;
         }
     }
-    
-    inline void do_movement(double64_t expected_time) {
-        printf("J1 %lf\n", expected_time);
-        motor_movement_finished_time = TIME_now_us() + expected_time;
-    }
+}
+
+inline void do_movement(double64_t expected_time) {
+    printf("J1 %lf\n", expected_time);
+    motor_movement_finished_time = TIME_now_us() + expected_time;
+}
+
+inline void beat(int_fast64_t encrypted_msg) {
+    int_fast64_t msg = RSA_decrypt(encrypted_msg, RSA_key);
+    // TO-DO update new untrusted device time
 }
