@@ -31,6 +31,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <float.h>
 
 // Time definitions
 #ifndef time_t
@@ -40,7 +41,7 @@ typedef uint64_t time_t;
 
 // Double precision double type
 #ifndef double64_t
-#ifndef USE_LONG_DOUBLE
+#if DBL_MANT_DIG < LDBL_MANT_DIG
 typedef long double double64_t;
 #else
 typedef double double64_t;
@@ -83,9 +84,9 @@ typedef void (*TMR_func)(void) ;
 typedef struct {
     bool is_err;
     int_fast16_t code;
-    void *gcode_ret_value;
-} GCODE_ret_t;
-#define GCODE_ret_t GCODE_ret_t
+    void *gcode_ret_val;
+} GCODE_ret;
+#define GCODE_ret_t GCODE_ret
 #endif
 
 #endif	/* TYPES_H */
