@@ -40,7 +40,7 @@ void loop(void);
 char check_motor_status(void);
 void do_handshake(void);
 void handle_order(void);
-void do_movement(angle_t *angles);
+void do_movement(double64_t expected_time);
 void beat(void);
 
 int main(void) {
@@ -92,18 +92,22 @@ inline void loop(void) {
             {
                 point_t *position = (point_t *) ret.gcode_ret_val;
                 double64_t expected_time = PLANNER_move_xyz(*position);
-                printf("J1 %lf\n", expected_time);
-                motor_movement_finished_time = TIME_now_us() + expected_time;
+                do_movement(expected_time);
                 break;
             }
                 // G1
             case 1:
             {
+                angle_t *angles = (angle_t *) ret.gcode_ret_val;
+                double64_t expected_time = PLANNER_move_angle(*angles);
+                do_movement(expected_time);
                 break;
             }
                 // G28
             case 28:
             {
+                double64_t expected_time = PLANNER_go_home();
+                do_movement(expected_time);
                 break;
             }
                 // M1
@@ -196,5 +200,10 @@ inline void do_handshake(void) {
             printf("J8\n");
             break;
         }
+    }
+    
+    inline void do_movement(double64_t expected_time) {
+        printf("J1 %lf\n", expected_time);
+        motor_movement_finished_time = TIME_now_us() + expected_time;
     }
 }
