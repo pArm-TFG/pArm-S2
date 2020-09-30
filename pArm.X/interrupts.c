@@ -37,16 +37,18 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
         return;
     if (U1STAbits.URXDA == 1) {
         char received_val = U1RXREG;
-        uart_buffer[uart_chars++] = received_val;
         if (received_val == '\n') {
             if (order_buffer != NULL) {
                 free(order_buffer);
             }
+            uart_buffer[uart_chars] = '\0';
             order_buffer = (char *) malloc(sizeof(char) * uart_chars);
             strncpy(order_buffer, uart_buffer, uart_chars);
             order_chars = uart_chars;
             uart_chars = 0;
             message_received = true;
+        } else {
+            uart_buffer[uart_chars++] = received_val;
         }
     }
 }
