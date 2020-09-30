@@ -6,7 +6,8 @@
  */
 
 #include <float.h>
-
+#include <stdlib.h>
+#include <string.h>
 #include "gcode.h"
 #include "../arm/planner.h"
 #include "../utils/utils.h"
@@ -39,8 +40,8 @@ GCODE_ret_t GCODE_process_command(const char* command) {
     foreach(char, code, command) {
         if (cLength < (MAX_BUFFER_LENGTH - 1))
             GCODE_BUFFER[cLength++] = code;
-        if (code == "\n" || code == "\r") {
-            GCODE_BUFFER[cLength] = 0;
+        if (code == '\n' || code == '\r') {
+            GCODE_BUFFER[cLength] = '\0';
             break;
         }
     }
@@ -182,23 +183,41 @@ GCODE_ret_t GCODE_process_command(const char* command) {
             break;
         }
     }
-    
+
     // GCODE found so quit and return value
     if (cmd != -1)
         return ret;
 
     cmd = (int_fast16_t) GCODE_parse_number('I', -1.0F);
     switch (cmd) {
-        // GCODE I1 - custom command for sending RSA public key
-        // When received, the main orchestrator must send
-        // both modulus (n) and public exponent (e)
-        // so the other system can decrypt our messages.
+            // GCODE I1 - custom command for sending RSA public key
+            // When received, the main orchestrator must send
+            // both modulus (n) and public exponent (e)
+            // so the other system can decrypt our messages.
         case 1:
+            // GCODE I6 - generate new RSA keys
+        case 6:
         {
             ret = (GCODE_ret_t){
                 false, // is_err
                 cmd * 100, // the code
                 NULL // the return value itself
+            };
+            break;
+        }
+            // GCODE I5 - received the unsigned message
+            // when verifying
+        case 5:
+            // GCODE I7 - received heartbeat so we know
+            // the trusted device is still alive
+        case 7:
+        {
+            char *msg = (char *) malloc(sizeof (char) * (cLength - 3));
+            strncpy(msg, command + 3, (cLength - 3));
+            ret = (GCODE_ret_t){
+                false, // is_err
+                cmd * 100, // the code
+                strtoll(msg) // the msg
             };
             break;
         }
