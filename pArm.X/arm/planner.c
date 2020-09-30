@@ -32,27 +32,7 @@ motor_t end_effetor_motor = {&end_effector_servo, 3ULL, .0F, .0F, false, 1, NULL
 
 motors_t motors = {&base_motor, &lower_arm_motor, &upper_arm_motor, &end_effetor_motor};
 
-void PLANNER_go_home(void) {
-    MOTOR_move(motors.base_motor, motors.base_motor->servoHandler->home);
-    MOTOR_move(motors.lower_arm, motors.lower_arm->servoHandler->home);
-    MOTOR_move(motors.upper_arm, motors.upper_arm->servoHandler->home);
-    MOTOR_move(motors.end_effector_arm, motors.end_effector_arm->servoHandler->home);
-}
-
-void PLANNER_move_xyz(const point_t xyz) {
-    angle_t *angle = (angle_t *) malloc(sizeof (angle_t));
-    inverse_kinematics(xyz, angle);
-    PLANNER_move_angle(*angle);
-    free(angle);
-}
-
-void PLANNER_move_angle(const angle_t angle) {
-    MOTOR_move(motors.base_motor, angle.theta0);
-    MOTOR_move(motors.lower_arm, angle.theta1);
-    MOTOR_move(motors.upper_arm, angle.theta2);
-}
-
-void PLANNER_move_waiting(const angle_t angle) {
+static inline double64_t expected_duration(angle_t angle) {
     double64_t max_angle = LDBL_MIN;
     double64_t diff_base = fabsl(angle.theta0 - MOTOR_position_rad(motors.base_motor));
     double64_t diff_lower_arm = fabsl(angle.theta1 - MOTOR_position_rad(motors.lower_arm));
@@ -61,8 +41,38 @@ void PLANNER_move_waiting(const angle_t angle) {
     max_angle = max(diff_lower_arm, max_angle);
     max_angle = max(diff_upper_arm, max_angle);
 
-    double64_t expected_time = MOTOR_elapsed_time_us(max_angle);
-    PLANNER_move_angle(angle);
+    return MOTOR_elapsed_time_us(max_angle);
+}
+
+double64_t PLANNER_go_home(void) {
+    angle_t home_angles = {
+        motors.base_motor->servoHandler->home,
+        motors.lower_arm->servoHandler->home,
+        motors.upper_arm->servoHandler->home
+    };
+    MOTOR_move(motors.base_motor, motors.base_motor->servoHandler->home);
+    MOTOR_move(motors.lower_arm, motors.lower_arm->servoHandler->home);
+    MOTOR_move(motors.upper_arm, motors.upper_arm->servoHandler->home);
+    return expected_duration(home_angles);
+}
+
+double64_t PLANNER_move_xyz(point_t xyz) {
+    angle_t *angle = (angle_t *) malloc(sizeof (angle_t));
+    inverse_kinematics(xyz, angle);
+    double64_t expected_duration = PLANNER_move_angle(*angle);
+    free(angle);
+    return expected_duration;
+}
+
+double64_t PLANNER_move_angle(angle_t angle) {
+    MOTOR_move(motors.base_motor, angle.theta0);
+    MOTOR_move(motors.lower_arm, angle.theta1);
+    MOTOR_move(motors.upper_arm, angle.theta2);
+    return expected_duration(angle);
+}
+
+void PLANNER_move_waiting(angle_t angle) {
+    double64_t expected_time = PLANNER_move_angle(angle);
     delay_us(expected_time);
 }
 
