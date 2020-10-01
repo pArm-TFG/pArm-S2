@@ -34,6 +34,7 @@ uint16_t order_chars = 0;
 volatile bool trusted_device = false;
 int_fast64_t rnd_message;
 double64_t motor_movement_finished_time = LDBL_MAX;
+time_t last_beat = UINT64_C(0);
 
 void setup(void);
 void loop(void);
@@ -54,6 +55,7 @@ int main(void) {
 inline void setup(void) {
     // Initialize different system modules
     system_initialize();
+    TIME_set_time(UINT64_C(0));
 
     // Initialize RAND module
     RAND_init();
@@ -143,7 +145,8 @@ inline void loop(void) {
                 int_fast64_t msg = RSA_decrypt(encrypted_msg, RSA_key);
                 if (msg == rnd_message) {
                     trusted_device = false;
-                    RSA_key = RSA_keygen();
+                    *RSA_key = RSA_keygen();
+                    rnd_message = UINT64_C(0);
                 } else {
                     printf("J6\n");
                 }
@@ -156,10 +159,22 @@ inline void loop(void) {
                 beat(encrypted_msg);
                 break;
             }
+            // Invalid GCODE found
             default:
             {
-                // TO-DO
+                printf("J3\n");
+                break;
             }
+        }
+    }
+    if (trusted_device) {
+        // If last beat happened at least 1 second ago
+        // untrust the device and send 'J6' for informing
+        if ((TIME_now() - last_beat) >= UINT64_C(1000)) {
+            printf("J8\n");
+            trusted_device = false;
+            *RSA_key = RSA_keygen();
+            rnd_message = UINT64_C(0);
         }
     }
 }
@@ -199,6 +214,7 @@ inline void do_handshake(void) {
             if (msg == rnd_message) {
                 printf("I5\n");
                 trusted_device = true;
+                last_beat = TIME_now();
             } else {
                 printf("J6\n");
                 trusted_device = false;
@@ -221,5 +237,7 @@ inline void do_movement(double64_t expected_time) {
 
 inline void beat(int_fast64_t encrypted_msg) {
     int_fast64_t msg = RSA_decrypt(encrypted_msg, RSA_key);
-    // TO-DO update new untrusted device time
+    if (msg == rnd_message) {
+        last_beat = TIME_now();
+    }
 }
