@@ -22,7 +22,7 @@ barrier_t *BARRIER_create(uint16_t total) {
 
 void BARRIER_arrive(barrier_t *barrier) {
     mutex_acquire(&barrier->lock);
-    if (++barrier->counter == barrier->total)
+    if (++barrier->counter >= barrier->total)
         barrier->flag = true;
     mutex_release(&barrier->lock);
 }

@@ -26,6 +26,7 @@
 #include "arm/planner.h"
 #include "gcode/gcode.h"
 #include "rsa/rand.h"
+#include "sync/barrier.h"
 
 rsa_t *RSA_key = NULL;
 bool message_received = false;
@@ -35,6 +36,7 @@ volatile bool trusted_device = false;
 int_fast64_t rnd_message;
 double64_t motor_movement_finished_time = LDBL_MAX;
 time_t last_beat = 0ULL;
+barrier_t *barrier;
 
 void setup(void);
 void loop(void);
@@ -79,6 +81,9 @@ inline void setup(void) {
 
     rsa_t key = RSA_keygen();
     RSA_key = &key;
+    
+    barrier = BARRIER_create(MAX_MOTORS - 1);
+    PLANNER_init(barrier);
 }
 
 inline void loop(void) {
@@ -176,6 +181,12 @@ inline void loop(void) {
             *RSA_key = RSA_keygen();
             rnd_message = 0LL;
         }
+    }
+    if (BARRIER_all_done(barrier)) {
+        // Notify all motors have finished their movement
+        printf("J21\n");
+        // and clear barrier interrupt flag
+        BARRIER_clr(barrier);
     }
 }
 

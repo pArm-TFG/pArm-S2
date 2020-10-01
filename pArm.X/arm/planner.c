@@ -33,7 +33,7 @@ motor_t upper_arm_motor = {&upper_arm_servo, 2ULL, .0F, .0F, false, 1, TMR5_Star
 motor_t end_effetor_motor = {&end_effector_servo, 3ULL, .0F, .0F, false, 1, NULL, NULL};
 
 motors_t motors = {&base_motor, &lower_arm_motor, &upper_arm_motor, &end_effetor_motor};
-barrier_t *barrier;
+barrier_t *PLANNER_barrier;
 
 static inline double64_t expected_duration(angle_t angle) {
     double64_t max_angle = LDBL_MIN;
@@ -47,15 +47,15 @@ static inline double64_t expected_duration(angle_t angle) {
     return MOTOR_elapsed_time_us(max_angle);
 }
 
-void PLANNER_init(void) {
-    barrier = BARRIER_create(4);
-    TMR3_Initialize(motors.base_motor, barrier);
-    TMR4_Initialize(motors.lower_arm, barrier);
-    TMR5_Initialize(motors.upper_arm, barrier);
+void PLANNER_init(barrier_t *barrier) {
+    PLANNER_barrier = barrier;
+    TMR3_Initialize(motors.base_motor, PLANNER_barrier);
+    TMR4_Initialize(motors.lower_arm, PLANNER_barrier);
+    TMR5_Initialize(motors.upper_arm, PLANNER_barrier);
 }
 
 double64_t PLANNER_go_home(void) {
-    BARRIER_clr(barrier);
+    BARRIER_clr(PLANNER_barrier);
     angle_t home_angles = {
         motors.base_motor->servoHandler->home,
         motors.lower_arm->servoHandler->home,
@@ -68,7 +68,7 @@ double64_t PLANNER_go_home(void) {
 }
 
 double64_t PLANNER_move_xyz(point_t xyz) {
-    BARRIER_clr(barrier);
+    BARRIER_clr(PLANNER_barrier);
     angle_t *angle = (angle_t *) malloc(sizeof (angle_t));
     inverse_kinematics(xyz, angle);
     double64_t expected_duration = PLANNER_move_angle(*angle);
@@ -77,7 +77,7 @@ double64_t PLANNER_move_xyz(point_t xyz) {
 }
 
 double64_t PLANNER_move_angle(angle_t angle) {
-    BARRIER_clr(barrier);
+    BARRIER_clr(PLANNER_barrier);
     MOTOR_move(motors.base_motor, angle.theta0);
     MOTOR_move(motors.lower_arm, angle.theta1);
     MOTOR_move(motors.upper_arm, angle.theta2);
@@ -93,7 +93,7 @@ void PLANNER_stop_moving(void) {
     MOTOR_freeze(motors.base_motor);
     MOTOR_freeze(motors.lower_arm);
     MOTOR_freeze(motors.upper_arm);
-    BARRIER_set_done(barrier);
+    BARRIER_set_done(PLANNER_barrier);
 }
 
 point_t *PLANNER_get_position(void) {
