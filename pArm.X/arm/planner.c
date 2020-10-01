@@ -22,9 +22,9 @@
 #include "../utils/defs.h"
 #include "../sync/barrier.h"
 
-servo_t base_servo = {&SDC1, &limit_switch_map[0], .0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
+servo_t base_servo = {&SDC1, &limit_switch_map[0], MATH_PI, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
 servo_t lower_arm_servo = {&SDC2, &limit_switch_map[1], .0, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE};
-servo_t upper_arm_servo = {&SDC3, &limit_switch_map[2], .0, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE};
+servo_t upper_arm_servo = {&SDC3, &limit_switch_map[2], (MATH_PI / 18), UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE};
 servo_t end_effector_servo = {&PDC1, &limit_switch_map[3], .0, .0, 180.};
 
 motor_t base_motor = {&base_servo, 0ULL, .0F, .0F, false, 1, TMR3_Start, TMR3_Stop};

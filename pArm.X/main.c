@@ -172,6 +172,12 @@ inline void loop(void) {
             }
         }
     }
+    if (BARRIER_all_done(barrier)) {
+        // Notify all motors have finished their movement
+        printf("J21\n");
+        // and clear barrier interrupt flag
+        BARRIER_clr(barrier);
+    }
     if (trusted_device) {
         // If last beat happened at least 1 second ago
         // untrust the device and send 'J6' for informing
@@ -181,12 +187,6 @@ inline void loop(void) {
             *RSA_key = RSA_keygen();
             rnd_message = 0LL;
         }
-    }
-    if (BARRIER_all_done(barrier)) {
-        // Notify all motors have finished their movement
-        printf("J21\n");
-        // and clear barrier interrupt flag
-        BARRIER_clr(barrier);
     }
 }
 
