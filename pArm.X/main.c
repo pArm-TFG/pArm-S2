@@ -30,11 +30,11 @@
 rsa_t *RSA_key = NULL;
 bool message_received = false;
 char *order_buffer = NULL;
-uint16_t order_chars = 0;
+uint16_t order_chars = 0U;
 volatile bool trusted_device = false;
 int_fast64_t rnd_message;
 double64_t motor_movement_finished_time = LDBL_MAX;
-time_t last_beat = UINT64_C(0);
+time_t last_beat = 0ULL;
 
 void setup(void);
 void loop(void);
@@ -55,7 +55,7 @@ int main(void) {
 inline void setup(void) {
     // Initialize different system modules
     system_initialize();
-    TIME_set_time(UINT64_C(0));
+    TIME_set_time(0ULL);
 
     // Initialize RAND module
     RAND_init();
@@ -122,9 +122,9 @@ inline void loop(void) {
             case 1140:
             {
                 point_t *position = PLANNER_get_position();
-                printf("G0 X%lf Y%lf Z%lf\n", 
-                        position->x, 
-                        position->y, 
+                printf("G0 X%lf Y%lf Z%lf\n",
+                        position->x,
+                        position->y,
                         position->z);
                 break;
             }
@@ -146,7 +146,7 @@ inline void loop(void) {
                 if (msg == rnd_message) {
                     trusted_device = false;
                     *RSA_key = RSA_keygen();
-                    rnd_message = UINT64_C(0);
+                    rnd_message = 0LL;
                 } else {
                     printf("J6\n");
                 }
@@ -159,7 +159,7 @@ inline void loop(void) {
                 beat(encrypted_msg);
                 break;
             }
-            // Invalid GCODE found
+                // Invalid GCODE found
             default:
             {
                 printf("J3\n");
@@ -170,11 +170,11 @@ inline void loop(void) {
     if (trusted_device) {
         // If last beat happened at least 1 second ago
         // untrust the device and send 'J6' for informing
-        if ((TIME_now() - last_beat) >= UINT64_C(1000)) {
+        if ((TIME_now() - last_beat) >= 1000ULL) {
             printf("J8\n");
             trusted_device = false;
             *RSA_key = RSA_keygen();
-            rnd_message = UINT64_C(0);
+            rnd_message = 0LL;
         }
     }
 }
