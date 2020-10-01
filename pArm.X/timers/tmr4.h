@@ -32,10 +32,12 @@
 #define	TIMER4_H
 
 #include "../motor/motor.h"
+#include "../sync/barrier.h"
 
 extern motor_t *TMR4_motor;
+extern barrier_t *TMR4_barrier;
 
-void TMR4_Initialize(motor_t *motor);
+void TMR4_Initialize(motor_t *motor, barrier_t *barrier);
 void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void);
 void TMR4_Start(void);
 void TMR4_Stop(void);

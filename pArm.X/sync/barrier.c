@@ -39,6 +39,12 @@ void BARRIER_clr(barrier_t *barrier) {
     barrier->lock = UNLOCKED;
 }
 
+void BARRIER_set_done(barrier_t *barrier) {
+    mutex_acquire(&barrier->lock);
+    barrier->flag = true;
+    mutex_release(&barrier->lock);
+}
+
 bool BARRIER_all_done(barrier_t *barrier) {
     mutex_acquire(&barrier->lock);
     bool flag = barrier->flag;

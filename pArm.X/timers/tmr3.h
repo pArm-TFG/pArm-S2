@@ -32,10 +32,12 @@
 #define	TIMER3_H
 
 #include "../motor/motor.h"
+#include "../sync/barrier.h"
 
 extern motor_t *TMR3_motor;
+extern barrier_t *TMR3_barrier;
 
-void TMR3_Initialize(motor_t *motor);
+void TMR3_Initialize(motor_t *motor, barrier_t *barrier);
 void __attribute__ ((interrupt, no_auto_psv)) _T3Interrupt(void);
 void TMR3_Start(void);
 void TMR3_Stop(void);

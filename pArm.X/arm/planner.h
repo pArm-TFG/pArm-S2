@@ -43,6 +43,7 @@ typedef struct {
 
 extern motors_t motors;
 
+void PLANNER_init(void);
 double64_t PLANNER_go_home(void);
 double64_t PLANNER_move_xyz(point_t xyz);
 double64_t PLANNER_move_angle(angle_t angle);

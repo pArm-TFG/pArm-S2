@@ -9,12 +9,15 @@
 #include "tmr5.h"
 #include "../utils/types.h"
 #include "../motor/motor.h"
+#include "../sync/barrier.h"
 
 motor_t *TMR5_motor;
+barrier_t *TMR5_barrier;
 double64_t TMR5_count;
 
-void TMR5_Initialize(motor_t *motor) {
+void TMR5_Initialize(motor_t *motor, barrier_t *barrier) {
     TMR5_motor = motor;
+    TMR5_barrier = barrier;
     TMR5_count = .0F;
     
     //TMR5 0; 
@@ -33,6 +36,7 @@ void __attribute__((interrupt, no_auto_psv)) _T5Interrupt(void) {
 
     if (TMR5_count >= TMR5_motor->movement_duration) {
         TMR5_motor->movement_finished = true;
+        BARRIER_arrive(TMR5_barrier);
         // If movement is clockwise then add the count to current angle_us
         // else, the count must be substracted
         TMR5_motor->angle_us += (TMR5_motor->clockwise * TMR5_count);

@@ -9,12 +9,15 @@
 #include "tmr3.h"
 #include "../utils/types.h"
 #include "../motor/motor.h"
+#include "../sync/barrier.h"
 
 motor_t *TMR3_motor;
+barrier_t *TMR3_barrier;
 double64_t TMR3_count;
 
-void TMR3_Initialize(motor_t *motor) {
+void TMR3_Initialize(motor_t *motor, barrier_t *barrier) {
     TMR3_motor = motor;
+    TMR3_barrier = barrier;
     TMR3_count = .0F;
     
     //TMR3 0; 
@@ -34,6 +37,7 @@ void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void) {
 
     if (TMR3_count >= TMR3_motor->movement_duration) {
         TMR3_motor->movement_finished = true;
+        BARRIER_arrive(TMR3_barrier);
         // If movement is clockwise then add the count to current angle_us
         // else, the count must be substracted
         TMR3_motor->angle_us += (TMR3_motor->clockwise * TMR3_count);
