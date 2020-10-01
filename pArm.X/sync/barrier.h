@@ -20,28 +20,36 @@
  */
 
 /* 
- * File: mutex.h
+ * File: barrier.h
  * Author: Javinator9889
- * Comments: Ensures mutual exclusion when accessing a critical section.
+ * Comments: Synchronization mechanism using a barrier and mutex.
  * Revision history: v1.0
  */
 
 // This is a guard condition so that contents of this file are not included
 // more than once.  
-#ifndef MUTEX_H
-#define	MUTEX_H
+#ifndef BARRIER_H
+#define	BARRIER_H
 
+#include <stdint.h>
 #include <stdbool.h>
-#define LOCKED      1
-#define UNLOCKED    0
+#include "mutex.h"
 
-#ifndef mut_t
-typedef volatile unsigned char mut_t;
-#define mut_t mut_t
+#ifndef barrier_t
+typedef struct {
+    uint16_t counter;
+    uint16_t total;
+    bool flag;
+    mut_t lock;
+} barrier_t;
+#define barrier_t barrier_t
 #endif
 
-void mutex_acquire(mut_t *lock);
-void mutex_release(mut_t *lock);
+barrier_t *BARRIER_create(uint16_t total);
+void BARRIER_arrive(barrier_t *barrier);
+void BARRIER_set_total(barrier_t *barrier, uint16_t p);
+void BARRIER_clr(barrier_t *barrier);
+bool BARRIER_all_done(barrier_t *barrier);
 
-#endif	/* MUTEX_H */
+#endif	/* BARRIER_H */
 

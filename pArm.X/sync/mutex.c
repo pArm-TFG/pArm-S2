@@ -19,11 +19,11 @@ static unsigned char test_and_set(mut_t *lock_ptr) {
     return old_value;
 }
 
-bool mutex_acquire(mut_t *lock) {
-    while (test_and_set(lock) == 1);
+void mutex_acquire(mut_t *lock) {
+    while (test_and_set(lock) == LOCKED);
 }
 
-bool mutex_release(mut_t *lock) {
-    if (test_and_set(lock) == 1)
-        *lock = 0;
+void mutex_release(mut_t *lock) {
+    if (test_and_set(lock) == LOCKED)
+        *lock = UNLOCKED;
 }

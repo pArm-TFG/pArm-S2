@@ -19,6 +19,7 @@
                 <sourceRootElem>aes</sourceRootElem>
                 <sourceRootElem>rsa_embedded</sourceRootElem>
                 <sourceRootElem>rsa</sourceRootElem>
+                <sourceRootElem>sync</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
