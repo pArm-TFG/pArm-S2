@@ -2,18 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include "printf/printf.h"
 #include "interrupts.h"
 #include "utils/time.h"
 #include "motor/servo.h"
 #include "utils/time.h"
+#include "utils/uart.h"
 
 volatile int _ICNFLAG = 0; // Auxiliar Flag defined in interrupts.h
 volatile time_t _ns = 0ULL;
 static char uart_buffer[1024] = {0};
 static uint16_t uart_chars = 0U;
-extern bool message_received;
-extern char *order_buffer;
-extern uint16_t order_chars;
+extern order_t *order;
 
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
     _now_us += 1ULL;
@@ -38,17 +38,23 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
     if (U1STAbits.URXDA == 1) {
         char received_val = U1RXREG;
         if (received_val == '\n') {
-            if (order_buffer != NULL) {
-                free(order_buffer);
+            if (order->order_buffer != NULL) {
+                free(order->order_buffer);
             }
             uart_buffer[uart_chars] = '\0';
-            order_buffer = (char *) malloc(sizeof(char) * uart_chars);
-            strncpy(order_buffer, uart_buffer, uart_chars);
-            order_chars = uart_chars;
+            order->order_buffer = (char *) malloc(sizeof(char) * uart_chars);
+            strncpy(order->order_buffer, uart_buffer, uart_chars);
+            order->order_chars = uart_chars;
             uart_chars = 0;
-            message_received = true;
+            order->message_received = true;
         } else {
             uart_buffer[uart_chars++] = received_val;
+            if (uart_chars >= 1024) {
+                // UART buffer overflow...
+                // Release memory and ignore instruction
+                printf("J11\n");
+                
+            }
         }
     }
 }

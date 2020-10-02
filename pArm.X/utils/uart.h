@@ -32,6 +32,45 @@
 #define	UART_H
 
 #include <stdint.h>
+#include <stdbool.h>
+
+#ifndef order_t
+typedef struct {
+    /**
+     * Flag active when a new message is received through UART port.
+     * It is updated at <pre>interrupts.h#_U1RXInterrupt</pre>.
+     * 
+     * @type bool
+     * @see interrupts.h#_U1RXInterrupt
+     */
+    bool message_received;
+    
+    /**
+     * Buffer which contains the order received by the UART. It has fixed
+     * size so no extra space is used. This variable is updated at
+     * <pre>interrupts.h#_U1RXInterrupt</pre>.
+     * 
+     * @type char[]
+     * @see interrupts.h#_U1RXInterrupt
+     */
+    char *order_buffer;
+    
+    /**
+     * A simple counter indicating how long is the <pre>order_buffer</pre>
+     * string. This is updated in <pre>interrupts.h#_U1RXInterrupt</pre>.
+     * 
+     * @type uint16_t
+     * @see interrupts.h#_U1RXInterrupt
+     */
+    uint16_t order_chars;
+} 
+/**
+ * Order container with all the required information for managing
+ * the UART messages.
+ */
+order_t;
+#define order_t order_t
+#endif
 
 void putch(char data);
 void _putchar(char character);

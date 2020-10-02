@@ -104,9 +104,9 @@ inline void loop(void) {
     if (!trusted_device) {
         do_handshake();
     }
-    if (message_received) {
-        message_received = false;
-        GCODE_ret_t ret = GCODE_process_command(order_buffer);
+    if (order->message_received) {
+        order->message_received = false;
+        GCODE_ret_t ret = GCODE_process_command(order->order_buffer);
         switch (ret.code) {
                 // G0
             case 0:
@@ -217,9 +217,9 @@ inline char check_motor_status(void) {
 }
 
 inline void do_handshake(void) {
-    while (!message_received);
-    message_received = false;
-    GCODE_ret_t ret = GCODE_process_command(order_buffer);
+    while (!order->message_received);
+    order->message_received = false;
+    GCODE_ret_t ret = GCODE_process_command(order->order_buffer);
     switch (ret.code) {
             // I1
         case 100:
