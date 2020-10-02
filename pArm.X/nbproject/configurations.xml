@@ -949,7 +949,7 @@
         <property key="legacy-libc" value="true"/>
         <property key="mpreserve-all" value="false"/>
         <property key="oXC16glb-macros"
-                  value="PRINTF_INCLUDE_CONFIG_H;CONFIG_DEBUG;CONFIG_SIMULATOR;USE_CUSTOM_PRINTF;USE_LONG_DOUBLE"/>
+                  value="USE_CUSTOM_PRINTF;PRINTF_INCLUDE_CONFIG_H;USE_LONG_DOUBLE;CONFIG_DEBUG;CONFIG_SIMULATOR"/>
         <property key="omit-pack-options" value="1"/>
         <property key="output-file-format" value="elf"/>
         <property key="preserve-all" value="false"/>

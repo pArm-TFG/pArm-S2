@@ -13,9 +13,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
-#ifdef USE_CUSTOM_PRINTF
 #include "printf/printf.h"
-#endif
 #include "utils/types.h"
 #include "utils/uart.h"
 #include "init.h"
@@ -28,10 +26,21 @@
 #include "rsa/rand.h"
 #include "sync/barrier.h"
 
+/**
+ * Global program RSA key that will be used for securing communications.
+ * @type rsa_t
+ * @see rsa_t
+ */
 rsa_t *RSA_key = NULL;
-bool message_received = false;
-char *order_buffer = NULL;
-uint16_t order_chars = 0U;
+
+/**
+ * Global order container for managing the received orders
+ * from UART.
+ * 
+ * @see order_t
+ */
+volatile order_t *order;
+
 volatile bool trusted_device = false;
 int_fast64_t rnd_message;
 double64_t motor_movement_finished_time = LDBL_MAX;
@@ -59,6 +68,11 @@ inline void setup(void) {
     system_initialize();
     TIME_set_time(0ULL);
 
+    order = (order_t *) malloc(sizeof (order_t));
+    order->message_received = false;
+    order->order_buffer = NULL;
+    order->order_chars = 0UL;
+
     // Initialize RAND module
     RAND_init();
 
@@ -81,7 +95,7 @@ inline void setup(void) {
 
     rsa_t key = RSA_keygen();
     RSA_key = &key;
-    
+
     barrier = BARRIER_create(MAX_MOTORS - 1);
     PLANNER_init(barrier);
 }
