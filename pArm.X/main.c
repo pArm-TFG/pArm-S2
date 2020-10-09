@@ -13,7 +13,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
-#include "printf/printf.h"
+#include <p33EP512GM604.h>
+#include "printf/io.h"
 #include "utils/types.h"
 #include "utils/uart.h"
 #include "init.h"
@@ -39,12 +40,27 @@ rsa_t *RSA_key = NULL;
  * 
  * @see order_t
  */
-volatile order_t *order;
+static volatile order_t *order = NULL;
 
+/**
+ * Flag active when the handshake has been successful.
+ * If there is any kind of error during the message exchange
+ * the device will be marked as untrusted.
+ */
 volatile bool trusted_device = false;
-int_fast64_t rnd_message;
-double64_t motor_movement_finished_time = LDBL_MAX;
-time_t last_beat = 0ULL;
+
+/**
+ * Application's random message used for authoring the remote
+ * device. When the host changes this message is destroyed.
+ */
+static int_fast64_t rnd_message;
+
+/**
+ * 
+ */
+static double64_t motor_movement_finished_time = LDBL_MAX;
+static time_t last_beat = 0ULL;
+//volatile static char rec_val = NULL;
 barrier_t *barrier;
 
 void setup(void);
@@ -54,6 +70,11 @@ void do_handshake(void);
 void handle_order(void);
 void do_movement(double64_t expected_time);
 void beat(int_fast64_t encrypted_msg);
+
+/*void putch(char character) {
+    while (!IFS0bits.U1TXIF);
+    U1TXREG = character;
+}*/
 
 int main(void) {
     setup();
@@ -66,47 +87,74 @@ int main(void) {
 inline void setup(void) {
     // Initialize different system modules
     system_initialize();
-    TIME_set_time(0ULL);
+    printf("[SETUP]\tStarting system setup\n");
+    PORTBbits.RB5 = 1;
+    PORTBbits.RB6 = 1;
+    PORTBbits.RB7 = 1;
+    TIME_init();
+    printf("[SETUP]\tTime set to 0. Starting count...\n");
 
-    order = (order_t *) malloc(sizeof (order_t));
+    printf("[SETUP]\tAllocating pointer to order\n");
+    order = (order_t *) malloc(sizeof(order_t));
+    if (order == NULL) {
+        printf("[ERROR]\tFailed to initialize order_t!\n");
+        order_t ptr = {
+            false, {'\0'}, 0UL
+        };
+        order = &ptr;
+    }
     order->message_received = false;
     order->order_buffer = NULL;
     order->order_chars = 0UL;
+    printf("[SETUP]\tInitializing UART RX\n");
+    U1RX_Init(order);
 
-    // Initialize RAND module
-    RAND_init();
+    PORTBbits.RB5 = 0;
+    PORTBbits.RB6 = 0;
+    PORTBbits.RB7 = 0;
 
+    printf("[SETUP]\tChecking motor status...\n");
     // Calibrate the motors. If someone returns
     // not OK, stop execution until rebooted
     // and notify turning on an LED
-    if (check_motor_status() == EXIT_FAILURE) {
-        // Turn on LEDs
-        PORTBbits.RB5 = 1;
-        PORTBbits.RB6 = 1;
-        PORTBbits.RB7 = 1;
+    if (false && check_motor_status() == EXIT_FAILURE) {
+        printf("[SETUP]\tMotor failure!\n");
+        bool led_on = true;
         while (true) {
+            // Switch on LEDs
+            PORTBbits.RB5 = led_on;
+            PORTBbits.RB6 = led_on;
+            PORTBbits.RB7 = led_on;
+            led_on = !led_on;
             // I2 stands for motor failure
             printf("J2\n");
             delay_ms(500);
         }
     }
+    printf("[SETUP]\tInitializing RAND seed\n");
     // Initialize RAND seed before generating the new keys
+    RAND_init();
     RAND_init_seed();
 
-    rsa_t key = RSA_keygen();
-    RSA_key = &key;
-
+    printf("[SETUP]\tCreating barrier for motors\n");
     barrier = BARRIER_create(MAX_MOTORS - 1);
     PLANNER_init(barrier);
+    PORTBbits.RB5 = 0;
+    PORTBbits.RB6 = 0;
+    PORTBbits.RB7 = 0;
+    printf("[DEBUG]\tFinished setup!\n");
 }
 
 inline void loop(void) {
+#ifndef CLI_MODE
     if (!trusted_device) {
+        printf("[DEBUG]\tDevice not trusted... Waiting I1\n");
         do_handshake();
     }
+#endif
     if (order->message_received) {
         order->message_received = false;
-        GCODE_ret_t ret = GCODE_process_command(order->order_buffer);
+        GCODE_ret_t ret = GCODE_process_command(order);
         switch (ret.code) {
                 // G0
             case 0:
@@ -185,6 +233,7 @@ inline void loop(void) {
                 break;
             }
         }
+        free(order->order_buffer);
     }
     if (BARRIER_all_done(barrier)) {
         // Notify all motors have finished their movement
@@ -192,6 +241,7 @@ inline void loop(void) {
         // and clear barrier interrupt flag
         BARRIER_clr(barrier);
     }
+#ifndef CLI_MODE
     if (trusted_device) {
         // If last beat happened at least 1 second ago
         // untrust the device and send 'J6' for informing
@@ -202,6 +252,7 @@ inline void loop(void) {
             rnd_message = 0LL;
         }
     }
+#endif
 }
 
 inline char check_motor_status(void) {
@@ -217,13 +268,22 @@ inline char check_motor_status(void) {
 }
 
 inline void do_handshake(void) {
+    printf("[DEBUG]\tWaiting for message\n");
     while (!order->message_received);
+    printf("[DEBUG]\tHS - Message received: %s\n", order->order_buffer);
     order->message_received = false;
-    GCODE_ret_t ret = GCODE_process_command(order->order_buffer);
+    GCODE_ret_t ret = GCODE_process_command(order);
+    printf("[DEBUG]\tReceived order: I%d\n", (ret.code / 100));
     switch (ret.code) {
             // I1
         case 100:
         {
+            // Initialize the seed every time this function is called
+            RAND_init_seed();
+            if (RSA_key == NULL) {
+                rsa_t key = RSA_keygen();
+                RSA_key = &key;
+            }
             printf("I2 %lld\n", RSA_key->n);
             printf("I3 %lld\n", RSA_key->e);
             rnd_message = RAND(10007LL, 104729LL);
@@ -234,12 +294,14 @@ inline void do_handshake(void) {
             // I5 with decrypted msg
         case 500:
         {
-            int_fast64_t encrypted_msg = (int_fast64_t) ret.gcode_ret_val;
+            int_fast64_t encrypted_msg = atoll((char *) ret.gcode_ret_val);
+            printf("[DEBUG]\tRec. msg: %lld\n", encrypted_msg);
             int_fast64_t msg = RSA_decrypt(encrypted_msg, RSA_key);
+            printf("[DEBUG]\tDecrypted msg: %lld\n", msg);
             if (msg == rnd_message) {
-                printf("I5\n");
                 trusted_device = true;
                 last_beat = TIME_now();
+                printf("I5\n");
             } else {
                 printf("J6\n");
                 trusted_device = false;
