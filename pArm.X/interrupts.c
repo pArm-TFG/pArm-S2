@@ -2,29 +2,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
-#include "printf/printf.h"
+#include "printf/io.h"
 #include "interrupts.h"
-#include "utils/time.h"
 #include "motor/servo.h"
+#include "utils/utils.h"
 #include "utils/time.h"
 #include "utils/uart.h"
+#include "utils/types.h"
 
 volatile int _ICNFLAG = 0; // Auxiliar Flag defined in interrupts.h
 volatile time_t _ns = 0ULL;
 static char uart_buffer[1024] = {0};
 static uint16_t uart_chars = 0U;
-extern order_t *order;
+static volatile order_t *urx_order = NULL;
 
-void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
-    _now_us += 1ULL;
-    // Clear Timer1 interrupt
-    IFS0bits.T1IF = 0;
-}
-
-void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void) {
-    _now_ms += 1ULL;
-    // Clear Timer2 interrupt
-    IFS0bits.T2IF = 0;
+void U1RX_Init(volatile order_t *order) {
+    urx_order = order;
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
@@ -37,21 +30,54 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
         return;
     if (U1STAbits.URXDA == 1) {
         char received_val = U1RXREG;
-        if (received_val == '\n') {
-            if (order->order_buffer != NULL) {
-                free(order->order_buffer);
+        printf("%c", received_val);
+        if (received_val == '\n' || received_val == '\r') {
+            if (urx_order == NULL) {
+                printf("[DEBUG]\tU1RX not initialized!\n");
+                return;
             }
-            uart_buffer[uart_chars] = '\0';
-            order->order_buffer = (char *) malloc(sizeof(char) * uart_chars);
-            strncpy(order->order_buffer, uart_buffer, uart_chars);
-            order->order_chars = uart_chars;
+            if (urx_order->order_buffer != NULL) {
+                free(urx_order->order_buffer);
+            }
+//            if (order->order_buffer == NULL) {
+//                char ptr[1024] = {'\0'};
+//                order->order_buffer = ptr;
+//            }
+            printf("\n");
+            uart_buffer[uart_chars++] = '\0';
+            printf("[DEBUG]\tUpdating uart buffer with length of %d chars...\n", uart_chars);
+            printf("[DEBUG]\tBuffer: %s\n", uart_buffer);
+            urx_order->order_buffer = (char *) malloc(uart_chars * sizeof(char));
+            if (urx_order->order_buffer == NULL) {
+                printf("[ERROR]\tFailed to allocate %dB for order!\n", (uart_chars * sizeof(char)));
+                return;
+            }
+            strncpy(urx_order->order_buffer, uart_buffer, (uart_chars * sizeof(char)));
+//            strcpy(urx_order->order_buffer, uart_buffer);
+//            strncpy(urx_order, uart_buffer, (uart_chars * sizeof(char)));
+//            strcpy(order->order_buffer, uart_buffer);
+//            cstrncpy(uart_buffer, order->order_buffer, uart_chars);
+//            for (uint16_t i = 0; i < uart_chars; ++i) {
+//                order->order_buffer[i] = uart_buffer[i];
+//            }
+//            char buffer[MAX_ORDER_LENGTH] = {0};
+//            strncpy(buffer, uart_buffer, uart_chars);
+//            snprintf(urx_order->order_buffer, (size_t) (uart_chars * sizeof(char)), "%s", uart_buffer);
+//            order->order_buffer = buffer;
+            urx_order->order_chars = uart_chars;
+//            for (int i = 0; i <= urx_order->order_chars; ++i) {
+//                printf("%c", order->order_buffer[i]);
+//            }
+            printf("[DEBUG]\tReceived order: %s\n", urx_order->order_buffer);
             uart_chars = 0;
-            order->message_received = true;
+            urx_order->message_received = true;
+//            }
         } else {
             uart_buffer[uart_chars++] = received_val;
             if (uart_chars >= 1024) {
                 // UART buffer overflow...
                 // Release memory and ignore instruction
+                uart_chars = 0;
                 printf("J11\n");
                 
             }
@@ -74,9 +100,4 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1ErrInterrupt(void) {
     }
 
     IFS4bits.U1EIF = 0;
-}
-
-void __attribute__((interrupt, no_auto_psv)) _T6Interrupt() {
-    _ns += (TIME_now_us() * 1000ULL) + 50ULL;
-    IFS2bits.T6IF = false;
 }
