@@ -12,12 +12,10 @@
 #include "barrier.h"
 
 barrier_t *BARRIER_create(uint16_t total) {
-    barrier_t *barrier = (barrier_t *) malloc(sizeof (barrier_t));
-    barrier->counter = 0;
-    barrier->total = total;
-    barrier->flag = false;
-    barrier->lock = UNLOCKED;
-    return barrier;
+    barrier_t *created_barrier = (barrier_t *) malloc(sizeof(barrier_t));
+    BARRIER_clr(created_barrier);
+    created_barrier->total = total;
+    return created_barrier;
 }
 
 void BARRIER_arrive(barrier_t *barrier) {
