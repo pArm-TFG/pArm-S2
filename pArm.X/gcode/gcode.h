@@ -32,13 +32,14 @@
 
 #include <stdint.h>
 #include "../utils/types.h"
+#include "../utils/uart.h"
 
-extern char GCODE_BUFFER[MAX_BUFFER_LENGTH];
+//extern char GCODE_BUFFER[MAX_BUFFER_LENGTH];
 
 angle_t GCODE_get_position(void);
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
 float GCODE_parse_number(char code, float val);
-GCODE_ret_t GCODE_process_command(const char* command);
+GCODE_ret_t GCODE_process_command(volatile order_t *order);
 
 #endif	/* GCODE_H */
 
