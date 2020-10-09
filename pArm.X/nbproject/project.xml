@@ -23,11 +23,11 @@
             </sourceRootList>
             <confList>
                 <confElem>
-                    <name>recording</name>
+                    <name>simulation</name>
                     <type>2</type>
                 </confElem>
                 <confElem>
-                    <name>simulation</name>
+                    <name>recording</name>
                     <type>2</type>
                 </confElem>
             </confList>

@@ -53,12 +53,12 @@
 // FOSC
 #pragma config POSCMD = NONE    //Primary Oscillator Mode Select bits->Primary Oscillator disabled
 #pragma config OSCIOFNC = OFF    //OSC2 Pin Function bit->OSC2 is clock output
-#pragma config IOL1WAY = ON    //Peripheral pin select configuration->Allow only one reconfiguration
+#pragma config IOL1WAY = OFF    //Peripheral pin select configuration->Allow only one reconfiguration
 #pragma config FCKSM = CSECME    //Clock Switching Mode bits->Both Clock switching and Fail-safe Clock Monitor are enabled
 
 // FOSCSEL
 #pragma config FNOSC = FRC    //Oscillator Source Selection->FRC
-#pragma config PWMLOCK = ON    //PWM Lock Enable bit->Certain PWM registers may only be written after key sequence
+#pragma config PWMLOCK = OFF    //PWM Lock Enable bit->Certain PWM registers may only be written after key sequence
 #pragma config IESO = OFF    //Two-speed Oscillator Start-up Enable bit->Start up with user-selected oscillator source
 
 // FGS

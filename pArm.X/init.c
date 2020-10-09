@@ -5,6 +5,7 @@
  * Created on 3 de julio de 2020, 13:07
  */
 
+#include <p33EP512GM604.h>
 #include "init.h"
 #include "utils/utils.h"
 #include "utils/defs.h"
@@ -19,7 +20,7 @@ void init_pins(void) {
 #ifndef CONFIG_SIMULATOR
     __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock PPS
 #endif
-
+    
     TRISCbits.TRISC7 = 1;
     TRISCbits.TRISC6 = 0;
 
@@ -53,9 +54,10 @@ void init_clock(void) {
     // F_cy = F_osc / 2 = 59.904 MHz
     //
     // Then, setup the PLL's prescaler, postcaler and divisor
-    PLLFBDbits.PLLDIV = 63; // M = PLLDIV + 2 -> PLLDIV = 65 - 2 = 63
-    CLKDIVbits.PLLPOST = 0; // N2 = 2 * (PLLPOST + 1) -> PLLPOST = (N2 / 2) - 1 = 0
-    CLKDIVbits.PLLPRE = 0; // N1 = PLLPRE + 2; -> PLLPRE = N1 - 2 = 0
+//    PLLFBDbits.PLLDIV = 63; // M = PLLDIV + 2 -> PLLDIV = 65 - 2 = 63
+//    CLKDIVbits.PLLPOST = 0; // N2 = 2 * (PLLPOST + 1) -> PLLPOST = (N2 / 2) - 1 = 0
+//    CLKDIVbits.PLLPRE = 0; // N1 = PLLPRE + 2; -> PLLPRE = N1 - 2 = 0
+    PLLFBD = 0x3F;
     // AD1MD enabled; PWMMD enabled; T3MD enabled; T4MD enabled; T1MD enabled; U2MD enabled; T2MD enabled; U1MD enabled; QEI1MD enabled; SPI2MD enabled; SPI1MD enabled; C2MD enabled; C1MD enabled; DCIMD enabled; T5MD enabled; I2C1MD enabled; 
     PMD1 = 0x00;
     // OC5MD enabled; OC6MD enabled; OC7MD enabled; OC8MD enabled; OC1MD enabled; IC2MD enabled; OC2MD enabled; IC1MD enabled; OC3MD enabled; OC4MD enabled; IC6MD enabled; IC7MD enabled; IC5MD enabled; IC8MD enabled; IC4MD enabled; IC3MD enabled; 
@@ -77,7 +79,7 @@ void init_clock(void) {
     // And wait for clock switching to happen
     // First, wait for clock switch to occur
     // and thenm wait the PLL to lock
-    while (OSCCONbits.COSC != 0b011);
+//    while (OSCCONbits.COSC != 0b011);
     while (OSCCONbits.LOCK != 1);
 #endif
 }
@@ -95,21 +97,60 @@ void init_interrupts(void) {
 }
 
 void initUART(void) {
+    RPOR6bits.RP54R = 0b00001;
+    RPINR18bits.U1RXR = 55;
+    U1MODEbits.USIDL = 1;
+    U1MODEbits.RXINV = 0;
+    U1MODEbits.BRGH = 0;
+    // 8 data bits without parity
+    U1MODEbits.PDSEL = 0b00;
+    U1MODEbits.UEN = 0b00;
+    U1BRG = 0x185;
+    U1STA = 0x400;
+    IEC0bits.U1TXIE = 1;
+    IEC0bits.U1RXIE = 1;
+    IFS0bits.U1RXIF = 0;
+    IFS0bits.U1TXIF = 0;
+
+    U1MODEbits.UARTEN = 1;
+    U1STAbits.UTXEN = 1;
+
+    DELAY_105uS;
+    return;
+    // Unlock the Peripheral Pin Selector (PPS)
+    // for allowing changes on TRIS ports without
+    // affecting expected device behavior.
+    // 0xBF is a shortcut for ~(1 << 6) == 191
+#ifndef CONFIG_SIMULATOR
+    __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock PPS
+#endif
+    TRISCbits.TRISC7 = 1; // RC7 set as input
+    TRISCbits.TRISC6 = 0; // RC6 set as output
+
+    RPOR6bits.RP54R = 0b00001; // RC6->UART1:U1TX
+    RPINR18bits.U1RXR = 55;
+    // Lock again the PPS as we are done
+    // configuring the remappable ports.
+    // 0x40 is a shortcut for (1 << 6) == 64
+#ifndef CONFIG_SIMULATOR
+    __builtin_write_OSCCONL(OSCCON | 0x40); // lock PPS
+#endif
+    
     IEC0bits.U1TXIE = 0;
     IEC0bits.U1RXIE = 0;
     
     // Setup UART
     // Stop on idle
-    U1MODEbits.USIDL = 1;
+    U1MODEbits.USIDL = 0;
     // Disable IrDA
     U1MODEbits.IREN = 0;
     // Use only TX and RX pins
     // ignoring CTS, RTS and BCLK
-    U1MODEbits.UEN = 0;
+    U1MODEbits.UEN = 0b00;
     // Do not wake-up with UART
     U1MODEbits.WAKE = 0;
-    // Disable loopback mode
-    U1MODEbits.LPBACK = 0;
+    // Enable loopback mode
+    U1MODEbits.LPBACK = 1;
     // Do not use automatic baudrate when receiving
     U1MODEbits.ABAUD = 0;
     // Disable polarity inversion. Idle state is '1'
@@ -117,7 +158,7 @@ void initUART(void) {
     // Do not use high speed baudrate
     U1MODEbits.BRGH = 0;
     // 8 data bits without parity
-    U1MODEbits.PDSEL = 0;
+    U1MODEbits.PDSEL = 0b00;
     // One stop bit
     U1MODEbits.STSEL = 0;
     
@@ -126,20 +167,28 @@ void initUART(void) {
     // For 9600 bauds and FCY = 59.904E6, the obtained BRG is
     // -> 389, and the obtained baudrate is: 9600, with an error
     // of 0%
-    U1BRG = 389; 
+    U1BRG = 0x185; 
 
     // Interrupt after one RX character is received;
     // UTXISEL0 TX_ONE_CHAR; UTXINV disabled; OERR NO_ERROR_cleared; URXISEL RX_ONE_CHAR; UTXBRK COMPLETED; UTXEN enabled; ADDEN disabled; 
     U1STA = 0x400;
     
+    // Interrupt on each received character
+    U1STAbits.URXISEL = 0b00;
+    
     // Enable UART TX Interrupt
     IEC0bits.U1TXIE = 1;
     IEC0bits.U1RXIE = 1;
+    IEC4bits.U1EIE = 1;
     IFS0bits.U1RXIF = 0;
     IFS0bits.U1TXIF = 0;
+    IFS4bits.U1EIF = 0;
     IPC2bits.U1RXIP = 0b110;
 
     //Make sure to set LAT bit corresponding to TxPin as high before UART initialization
+    LATCbits.LATC7 = 1;
+    LATCbits.LATC6 = 1;
+    PORTCbits.RC7 = 1;
     U1MODEbits.UARTEN = 1; // enabling UART ON bit
     U1STAbits.UTXEN = 1;
     
@@ -223,8 +272,14 @@ void initPWM(void) {
     IOCON4bits.PENH = 0;
     IOCON3bits.PENH = 0;
     IOCON2bits.PENH = 0;
+    IOCON6bits.PENH = 0;
+    IOCON6bits.PENL = 0;
+    IOCON6bits.OVRENH = 1;
+    IOCON6bits.OVRENH = 1;
 
     // Set PWM configurations to zero by default
+    PWMCON6 = 0;
+    PWMCON5 = 0;
     PWMCON4 = 0;
     PWMCON3 = 0;
     PWMCON2 = 0;
@@ -270,8 +325,8 @@ void TMR1_Initialize(void) {
 
     // Clear interrupt flag,
     IFS0bits.T1IF = 0;
-    // set priority to maximum
-    IPC0bits.T1IP = 6;
+    // set high priority
+    IPC0bits.T1IP = 5;
     // and enable interrupts
     IEC0bits.T1IE = 1;
 }
@@ -307,12 +362,14 @@ void TMR2_Initialize(void) {
 
     // Clear interrupt flag...
     IFS0bits.T2IF = 0;
+    // set high priority
+    IPC1bits.T2IP = 5;
     // and enable TMR2 interruptions
     IEC0bits.T2IE = 1;
 }
 
 void init_ports(void)
-{
+{   
     //Digital Ports for micro-interruptors, set as input
     TRISAbits.TRISA0 = 1;
     TRISAbits.TRISA1 = 1;
@@ -347,14 +404,12 @@ void init_ports(void)
 inline void system_initialize(void) {
     INTERRUPT_GlobalDisable();
     init_clock();
-    TMR1_Initialize();
-    TMR2_Initialize();
-    init_pins();
     init_ports();
-    initUART();
+//    init_pins();
     initPWM();
+    initUART();
     SYSTEM_CORCONModeOperatingSet(CORCON_MODE_PORVALUES);
     // Init interrupts only after the hole initialization process is finished
-    init_interrupts();
+//    init_interrupts();
     INTERRUPT_GlobalEnable();
 }
