@@ -2,6 +2,7 @@
 #include <float.h>
 #include <stdlib.h>
 #include "motor.h"
+#include "../printf/io.h"
 #include "../utils/utils.h"
 #include "../utils/defs.h"
 #include "../utils/types.h"
@@ -65,10 +66,18 @@ inline double64_t MOTOR_position_deg(motor_t *motor) {
     return us_to_deg(motor->angle_us);
 }
 
+inline bool check_motor_finished(motor_t *motor, time_t max_waiting_time) {
+    return (*motor->servoHandler->limit_switch_value == 1) ? true : 
+        (TIME_now_us() >= max_waiting_time) ? true :
+            motor->movement_finished;
+}
+
 char MOTOR_calibrate(motor_t *motor) {
+    printf("[SETUP]\tCalibrating motor %d\n", motor->id);
     // Init the angle to minimum long double value
     motor->angle_us = LDBL_MIN;
     // Move the motor to 0 radians
+    printf("[SETUP]\tMoving motor %d to position 0\n", motor->id);
     SERVO_write_angle(motor->servoHandler, .0F);
     // and wait until the interruptor is pressed.
     // As maybe the interruptor can be not pressed, wait
@@ -76,22 +85,26 @@ char MOTOR_calibrate(motor_t *motor) {
     // or the "movement_finished" flag to be true
     const time_t max_waiting_time =
             (time_t) (TIME_now_us() + (US_PER_DEGREE * 180.0F));
-    while ((*motor->servoHandler->limit_switch_value != 1) ||
-            (TIME_now_us() >= max_waiting_time) ||
-            motor->movement_finished);
-    const bool timeout_happened = (TIME_now_us() >= max_waiting_time);
+    printf("[SETUP]\tWaiting at most %LG s\n", (max_waiting_time / 1E6));
+    while (!check_motor_finished(motor, max_waiting_time));
+    const bool timeout_happened = (TIME_now_us() >= max_waiting_time == 1);
+    printf("[SETUP]\tTimeout? %d\n", timeout_happened);
     *motor->servoHandler->limit_switch_value = 0;
     // Disable the PWM signal, so the motor stops moving
+    printf("[SETUP]\tDisabling PWM signal\n");
     SERVO_write_value(motor->servoHandler, 0U);
     // Timeout happened, so return error
     if (timeout_happened)
         return EXIT_FAILURE;
+    printf("[SETUP]\tMoving to 30 degrees\n");
     // and move it to an arbitrary position at 30 degrees
     SERVO_write_angle(motor->servoHandler, (MATH_PI / 6));
     double64_t duration_us = rad_to_us(MATH_PI / 6);
+    printf("[SETUP]\tExpected duration: %LG us\n", duration_us);
     // waiting until the movement should finish
     delay_us(rad_to_us(duration_us));
     // Finally, plan a movement again to 0 radians
+    printf("[SETUP]\tFinishing calibration... Moving to 0 again\n");
     motor->movement_duration = duration_us;
     motor->movement_finished = false;
     SERVO_write_angle(motor->servoHandler, .0F);
@@ -100,6 +113,7 @@ char MOTOR_calibrate(motor_t *motor) {
     // or the movement flag finished is set to true
     while ((*motor->servoHandler->limit_switch_value != 1) ||
             motor->movement_finished);
+    printf("[SETUP]\tMovement for motor %d finished!\n", motor->id);
     // When done, finish the counter and update the minimum angle
     // with the difference in us obtained
     motor->TMR_Stop();
@@ -110,6 +124,7 @@ char MOTOR_calibrate(motor_t *motor) {
     // the new minimum angle the motor can reach
     double64_t min_angle_us = fabsl(motor->angle_us - motor->movement_duration);
     motor->servoHandler->min_angle = us_to_rad(min_angle_us);
+    printf("[SETUP]\tMinimum angle for motor %d is: %LG rad\n", motor->id, motor->servoHandler->min_angle);
     // Return OK
     return EXIT_SUCCESS;
 }
