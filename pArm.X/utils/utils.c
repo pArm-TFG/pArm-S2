@@ -64,3 +64,12 @@ inline void delay_ms(uint64_t ms) {
 inline void delay_us(uint64_t us) {
     __delay_us(us);
 }
+
+void cstrncpy(char source[], char dest[], uint16_t size) {
+    printf("%d\n", size);
+    for (int i = (size - 1); i >= 0; i--) {
+        printf("source[%d] = %c\n", i, source[i]);
+        dest[i] = source[i];
+        printf("dest[%d] = %c\n", i, dest[i]);
+    }
+}

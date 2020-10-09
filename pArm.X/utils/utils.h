@@ -61,5 +61,7 @@ bool __isnan(double64_t x);
 void delay_ms(uint64_t ms);
 void delay_us(uint64_t us);
 
+void cstrncpy(char source[], char dest[], uint16_t size);
+
 #endif	/* UTILS_H */
 

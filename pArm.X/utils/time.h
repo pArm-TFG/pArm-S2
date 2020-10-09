@@ -33,14 +33,15 @@
 
 #include "types.h"
 
-extern volatile time_t _now_ms;
-extern volatile time_t _now_us;
-
+void TIME_init(void);
 void TIME_updateMs(void);
 time_t TIME_now(void);
 time_t TIME_now_us(void);
 void TIME_increment_us(void);
 void TIME_set_time(time_t value_us);
+
+void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void);
 
 #endif	/* TIME_H */
 
