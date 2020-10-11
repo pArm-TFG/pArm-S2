@@ -8,6 +8,12 @@
 #include <xc.h>
 #include "mutex.h"
 
+static inline void mutex_switch(bool state) {
+    IEC0bits.T3IE = state;
+    IEC1bits.T4IE = state;
+    IEC1bits.T5IE = state;
+}
+
 static unsigned char test_and_set(mut_t *lock_ptr) {
     mut_t old_value;
     // Disable interrupts
@@ -17,12 +23,6 @@ static unsigned char test_and_set(mut_t *lock_ptr) {
     // Enable interrupts
     mutex_switch(true);
     return old_value;
-}
-
-static inline void mutex_switch(bool state) {
-    IEC0bits.T3IE = state;
-    IEC1bits.T4IE = state;
-    IEC1bits.T5IE = state;
 }
 
 void mutex_acquire(mut_t *lock) {
