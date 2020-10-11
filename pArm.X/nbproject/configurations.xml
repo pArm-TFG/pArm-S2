@@ -31,6 +31,7 @@
       <itemPath>sync/mutex.h</itemPath>
       <itemPath>sync/barrier.h</itemPath>
       <itemPath>printf/io.h</itemPath>
+      <itemPath>utils/buffer.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -60,6 +61,7 @@
       <itemPath>utils/utils.c</itemPath>
       <itemPath>sync/mutex.c</itemPath>
       <itemPath>sync/barrier.c</itemPath>
+      <itemPath>utils/buffer.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

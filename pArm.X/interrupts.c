@@ -33,45 +33,34 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
         printf("%c", received_val);
         if (received_val == '\n' || received_val == '\r') {
             if (urx_order == NULL) {
+#ifdef DEBUG_ENABLED
                 printf("[DEBUG]\tU1RX not initialized!\n");
+#endif
                 return;
             }
             if (urx_order->order_buffer != NULL) {
                 free(urx_order->order_buffer);
             }
-//            if (order->order_buffer == NULL) {
-//                char ptr[1024] = {'\0'};
-//                order->order_buffer = ptr;
-//            }
             printf("\n");
             uart_buffer[uart_chars++] = '\0';
+#ifdef DEBUG_ENABLED
             printf("[DEBUG]\tUpdating uart buffer with length of %d chars...\n", uart_chars);
             printf("[DEBUG]\tBuffer: %s\n", uart_buffer);
+#endif
             urx_order->order_buffer = (char *) malloc(uart_chars * sizeof(char));
             if (urx_order->order_buffer == NULL) {
+#ifdef DEBUG_ENABLED
                 printf("[ERROR]\tFailed to allocate %dB for order!\n", (uart_chars * sizeof(char)));
+#endif
                 return;
             }
             strncpy(urx_order->order_buffer, uart_buffer, (uart_chars * sizeof(char)));
-//            strcpy(urx_order->order_buffer, uart_buffer);
-//            strncpy(urx_order, uart_buffer, (uart_chars * sizeof(char)));
-//            strcpy(order->order_buffer, uart_buffer);
-//            cstrncpy(uart_buffer, order->order_buffer, uart_chars);
-//            for (uint16_t i = 0; i < uart_chars; ++i) {
-//                order->order_buffer[i] = uart_buffer[i];
-//            }
-//            char buffer[MAX_ORDER_LENGTH] = {0};
-//            strncpy(buffer, uart_buffer, uart_chars);
-//            snprintf(urx_order->order_buffer, (size_t) (uart_chars * sizeof(char)), "%s", uart_buffer);
-//            order->order_buffer = buffer;
             urx_order->order_chars = uart_chars;
-//            for (int i = 0; i <= urx_order->order_chars; ++i) {
-//                printf("%c", order->order_buffer[i]);
-//            }
+#ifdef DEBUG_ENABLED
             printf("[DEBUG]\tReceived order: %s\n", urx_order->order_buffer);
+#endif
             uart_chars = 0;
             urx_order->message_received = true;
-//            }
         } else {
             uart_buffer[uart_chars++] = received_val;
             if (uart_chars >= 1024) {

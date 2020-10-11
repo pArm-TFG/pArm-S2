@@ -60,7 +60,6 @@ static int_fast64_t rnd_message;
  */
 static double64_t motor_movement_finished_time = LDBL_MAX;
 static time_t last_beat = 0ULL;
-//volatile static char rec_val = NULL;
 barrier_t *barrier;
 
 void setup(void);
@@ -87,17 +86,23 @@ int main(void) {
 inline void setup(void) {
     // Initialize different system modules
     system_initialize();
+#ifdef DEBUG_ENABLED
     printf("[SETUP]\tStarting system setup\n");
+#endif
     PORTBbits.RB5 = 1;
     PORTBbits.RB6 = 1;
     PORTBbits.RB7 = 1;
     TIME_init();
+#ifdef DEBUG_ENABLED
     printf("[SETUP]\tTime set to 0. Starting count...\n");
 
     printf("[SETUP]\tAllocating pointer to order\n");
+#endif
     order = (order_t *) malloc(sizeof(order_t));
     if (order == NULL) {
+#ifdef DEBUG_ENABLED
         printf("[ERROR]\tFailed to initialize order_t!\n");
+#endif
         order_t ptr = {
             false, {'\0'}, 0UL
         };
@@ -106,19 +111,25 @@ inline void setup(void) {
     order->message_received = false;
     order->order_buffer = NULL;
     order->order_chars = 0UL;
+#ifdef DEBUG_ENABLED
     printf("[SETUP]\tInitializing UART RX\n");
+#endif
     U1RX_Init(order);
 
     PORTBbits.RB5 = 0;
     PORTBbits.RB6 = 0;
     PORTBbits.RB7 = 0;
 
+#ifdef DEBUG_ENABLED
     printf("[SETUP]\tChecking motor status...\n");
+#endif
     // Calibrate the motors. If someone returns
     // not OK, stop execution until rebooted
     // and notify turning on an LED
-    if (false && check_motor_status() == EXIT_FAILURE) {
+    if (check_motor_status() == EXIT_FAILURE) {
+#ifdef DEBUG_ENABLED
         printf("[SETUP]\tMotor failure!\n");
+#endif
         bool led_on = true;
         while (true) {
             // Switch on LEDs
@@ -126,23 +137,29 @@ inline void setup(void) {
             PORTBbits.RB6 = led_on;
             PORTBbits.RB7 = led_on;
             led_on = !led_on;
-            // I2 stands for motor failure
+            // J2 stands for motor failure
             printf("J2\n");
             delay_ms(500);
         }
     }
+#ifdef DEBUG_ENABLED
     printf("[SETUP]\tInitializing RAND seed\n");
+#endif
     // Initialize RAND seed before generating the new keys
     RAND_init();
     RAND_init_seed();
 
+#ifdef DEBUG_ENABLED
     printf("[SETUP]\tCreating barrier for motors\n");
+#endif
     barrier = BARRIER_create(MAX_MOTORS - 1);
     PLANNER_init(barrier);
     PORTBbits.RB5 = 0;
     PORTBbits.RB6 = 0;
     PORTBbits.RB7 = 0;
+#ifdef DEBUG_ENABLED
     printf("[DEBUG]\tFinished setup!\n");
+#endif
 }
 
 inline void loop(void) {
@@ -183,6 +200,7 @@ inline void loop(void) {
             case 10:
             {
                 PLANNER_stop_moving();
+                printf("M1\n");
                 break;
             }
                 // M114
@@ -268,12 +286,18 @@ inline char check_motor_status(void) {
 }
 
 inline void do_handshake(void) {
+#ifdef DEBUG_ENABLED
     printf("[DEBUG]\tWaiting for message\n");
+#endif
     while (!order->message_received);
+#ifdef DEBUG_ENABLED
     printf("[DEBUG]\tHS - Message received: %s\n", order->order_buffer);
+#endif
     order->message_received = false;
     GCODE_ret_t ret = GCODE_process_command(order);
+#ifdef DEBUG_ENABLED
     printf("[DEBUG]\tReceived order: I%d\n", (ret.code / 100));
+#endif
     switch (ret.code) {
             // I1
         case 100:
@@ -291,13 +315,17 @@ inline void do_handshake(void) {
             printf("I4 %lld\n", signed_message);
             break;
         }
-            // I5 with decrypted msg
+            // I5 with encrypted msg
         case 500:
         {
             int_fast64_t encrypted_msg = atoll((char *) ret.gcode_ret_val);
+#ifdef DEBUG_ENABLED
             printf("[DEBUG]\tRec. msg: %lld\n", encrypted_msg);
+#endif
             int_fast64_t msg = RSA_decrypt(encrypted_msg, RSA_key);
+#ifdef DEBUG_ENABLED
             printf("[DEBUG]\tDecrypted msg: %lld\n", msg);
+#endif
             if (msg == rnd_message) {
                 trusted_device = true;
                 last_beat = TIME_now();
