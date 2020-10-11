@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <float.h>
 #include <stdlib.h>
+#include <math.h>
 #include "motor.h"
 #include "../printf/io.h"
 #include "../utils/utils.h"
@@ -93,7 +94,7 @@ char MOTOR_calibrate(motor_t *motor) {
     printf("[SETUP]\tWaiting at most %LG s\n", (max_waiting_time / 1E6));
 #endif
     while (!check_motor_finished(motor, max_waiting_time));
-    const bool timeout_happened = (TIME_now_us() >= max_waiting_time == 1);
+    const bool timeout_happened = ((TIME_now_us() >= max_waiting_time) == 1);
 #ifdef DEBUG_ENABLED
     printf("[SETUP]\tTimeout? %d\n", timeout_happened);
 #endif

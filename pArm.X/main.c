@@ -104,13 +104,12 @@ inline void setup(void) {
         printf("[ERROR]\tFailed to initialize order_t!\n");
 #endif
         order_t ptr = {
-            false, {'\0'}, 0UL
+            false, NULL
         };
         order = &ptr;
     }
     order->message_received = false;
     order->order_buffer = NULL;
-    order->order_chars = 0UL;
 #ifdef DEBUG_ENABLED
     printf("[SETUP]\tInitializing UART RX\n");
 #endif

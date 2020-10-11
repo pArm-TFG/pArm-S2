@@ -95,6 +95,18 @@ typedef struct {
 #define MAX_ORDER_LENGTH 1024U
 #endif
 
+
+// buffer_t definition for arbitrary buffers
+#ifndef buffer_t
+
+typedef struct {
+    size_t size;
+    size_t bsize;
+    char *buffer;
+} buffer_t;
+#define buffer_t buffer_t
+#endif
+
 #ifndef order_t
 
 typedef struct {
@@ -112,19 +124,10 @@ typedef struct {
      * size so no extra space is used. This variable is updated at
      * <pre>interrupts.h#_U1RXInterrupt</pre>.
      * 
-     * @type char[]
+     * @type buffer_t
      * @see interrupts.h#_U1RXInterrupt
      */
-    char *order_buffer;
-
-    /**
-     * A simple counter indicating how long is the <pre>order_buffer</pre>
-     * string. This is updated in <pre>interrupts.h#_U1RXInterrupt</pre>.
-     * 
-     * @type uint16_t
-     * @see interrupts.h#_U1RXInterrupt
-     */
-    uint16_t order_chars;
+    buffer_t *order_buffer;
 }
 /**
  * Order container with all the required information for managing
@@ -132,16 +135,6 @@ typedef struct {
  */
 order_t;
 #define order_t order_t
-#endif
-
-// buffer_t definition for arbitrary buffers
-#ifndef buffer_t
-typedef struct {
-    size_t size;
-    size_t bsize;
-    char *buffer;
-} buffer_t;
-#define buffer_t buffer_t
 #endif
 
 #endif	/* TYPES_H */

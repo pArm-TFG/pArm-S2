@@ -47,13 +47,13 @@ GCODE_ret_t GCODE_process_command(volatile order_t *order) {
     GCODE_ret_t ret; // = {false, -1, NULL};
     
     if (gcode_buffer == NULL) {
-        gcode_buffer = BUFFER_create(order->order_chars);
+        gcode_buffer = BUFFER_create(order->order_buffer->size);
     }
     
-    if (gcode_buffer->size != order->order_chars) {
-        BUFFER_update_size(gcode_buffer, order->order_chars);
+    if (gcode_buffer->size != order->order_buffer->size) {
+        BUFFER_update_size(gcode_buffer, order->order_buffer->size);
     }
-    strcpy(gcode_buffer->buffer, order->order_buffer);
+    strcpy(gcode_buffer->buffer, order->order_buffer->buffer);
 #ifdef DEBUG_ENABLED
     printf("[DEBUG]\tGCODE buffer: %s\n", GCODE_BUFFER);
 #endif

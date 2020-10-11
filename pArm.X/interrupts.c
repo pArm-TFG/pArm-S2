@@ -9,6 +9,7 @@
 #include "utils/time.h"
 #include "utils/uart.h"
 #include "utils/types.h"
+#include "utils/buffer.h"
 
 volatile int _ICNFLAG = 0; // Auxiliar Flag defined in interrupts.h
 volatile time_t _ns = 0ULL;
@@ -38,24 +39,25 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 #endif
                 return;
             }
-            if (urx_order->order_buffer != NULL) {
-                free(urx_order->order_buffer);
-            }
             printf("\n");
             uart_buffer[uart_chars++] = '\0';
 #ifdef DEBUG_ENABLED
             printf("[DEBUG]\tUpdating uart buffer with length of %d chars...\n", uart_chars);
             printf("[DEBUG]\tBuffer: %s\n", uart_buffer);
 #endif
-            urx_order->order_buffer = (char *) malloc(uart_chars * sizeof(char));
             if (urx_order->order_buffer == NULL) {
+                BUFFER_create(uart_chars);
+            }
+            if (urx_order->order_buffer->size != uart_chars) {
+                BUFFER_update_size(urx_order->order_buffer, uart_chars);
+            }
+            if (urx_order->order_buffer->buffer == NULL) {
 #ifdef DEBUG_ENABLED
                 printf("[ERROR]\tFailed to allocate %dB for order!\n", (uart_chars * sizeof(char)));
 #endif
                 return;
             }
-            strncpy(urx_order->order_buffer, uart_buffer, (uart_chars * sizeof(char)));
-            urx_order->order_chars = uart_chars;
+            strncpy(urx_order->order_buffer->buffer, uart_buffer, urx_order->order_buffer->bsize);
 #ifdef DEBUG_ENABLED
             printf("[DEBUG]\tReceived order: %s\n", urx_order->order_buffer);
 #endif
