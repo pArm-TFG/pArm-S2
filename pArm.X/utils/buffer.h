@@ -20,22 +20,23 @@
  */
 
 /* 
- * File: gcode.h
+ * File: buffer.h
  * Author: Javinator9889
- * Comments: GCode interpreter
+ * Comments: Buffer handler and shortcuts for handling buffer_t
  * Revision history: v1.0
  */
 
-#ifndef GCODE_H
-#define	GCODE_H
+// This is a guard condition so that contents of this file are not included
+// more than once.  
+#ifndef BUFFER_H
+#define	BUFFER_H
 
-#include <stdint.h>
-#include "../utils/types.h"
-#include "../utils/uart.h"
+#include <stdlib.h>
+#include "types.h"
 
-angle_t GCODE_get_position(void);
-double64_t GCODE_parse_number(char code, double64_t ret);
-GCODE_ret_t GCODE_process_command(volatile order_t *order);
+buffer_t *BUFFER_create(size_t size);
+void BUFFER_update_size(buffer_t *buffer, size_t size);
+void BUFFER_free(buffer_t *buffer);
 
-#endif	/* GCODE_H */
+#endif	/* BUFFER_H */
 

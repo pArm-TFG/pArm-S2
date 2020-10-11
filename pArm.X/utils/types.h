@@ -32,6 +32,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <float.h>
+#include <stddef.h>
 
 // Time definitions
 #ifndef time_t
@@ -131,6 +132,16 @@ typedef struct {
  */
 order_t;
 #define order_t order_t
+#endif
+
+// buffer_t definition for arbitrary buffers
+#ifndef buffer_t
+typedef struct {
+    size_t size;
+    size_t bsize;
+    char *buffer;
+} buffer_t;
+#define buffer_t buffer_t
 #endif
 
 #endif	/* TYPES_H */
