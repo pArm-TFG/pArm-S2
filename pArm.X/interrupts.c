@@ -31,7 +31,9 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
         return;
     if (U1STAbits.URXDA == 1) {
         char received_val = U1RXREG;
+#ifdef CLI_MODE
         printf("%c", received_val);
+#endif
         if (received_val == '\n' || received_val == '\r') {
             if (urx_order == NULL) {
 #ifdef DEBUG_ENABLED
@@ -39,16 +41,24 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 #endif
                 return;
             }
+#ifdef CLI_MODE
             printf("\n");
+#endif
             uart_buffer[uart_chars++] = '\0';
 #ifdef DEBUG_ENABLED
             printf("[DEBUG]\tUpdating uart buffer with length of %d chars...\n", uart_chars);
             printf("[DEBUG]\tBuffer: %s\n", uart_buffer);
 #endif
             if (urx_order->order_buffer == NULL) {
-                BUFFER_create(uart_chars);
+#ifdef DEBUG_ENABLED
+                printf("[DEBUG]\tCreating buffer with size %d\n", uart_chars);
+#endif
+                urx_order->order_buffer = BUFFER_create(uart_chars);
             }
             if (urx_order->order_buffer->size != uart_chars) {
+#ifdef DEBUG_ENABLED
+                printf("[DEBUG]\tUpdating buffer size to %d\n", uart_chars);
+#endif
                 BUFFER_update_size(urx_order->order_buffer, uart_chars);
             }
             if (urx_order->order_buffer->buffer == NULL) {
@@ -57,9 +67,9 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 #endif
                 return;
             }
-            strncpy(urx_order->order_buffer->buffer, uart_buffer, urx_order->order_buffer->bsize);
+            strncpy(urx_order->order_buffer->buffer, uart_buffer, urx_order->order_buffer->size);
 #ifdef DEBUG_ENABLED
-            printf("[DEBUG]\tReceived order: %s\n", urx_order->order_buffer);
+            printf("[DEBUG]\tReceived order: %s\n", urx_order->order_buffer->buffer);
 #endif
             uart_chars = 0;
             urx_order->message_received = true;

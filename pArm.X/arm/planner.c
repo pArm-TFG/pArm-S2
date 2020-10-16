@@ -11,6 +11,7 @@
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../motor/motor.h"
 #include "../utils/types.h"
 #include "../utils/utils.h"
@@ -70,7 +71,9 @@ double64_t PLANNER_go_home(void) {
 double64_t PLANNER_move_xyz(point_t xyz) {
     BARRIER_clr(PLANNER_barrier);
     angle_t *angle = (angle_t *) malloc(sizeof (angle_t));
-    inverse_kinematics(xyz, angle);
+    char ret = inverse_kinematics(xyz, angle);
+    if (ret != EXIT_SUCCESS)
+        return -1.0F;
     double64_t expected_duration = PLANNER_move_angle(*angle);
     free(angle);
     return expected_duration;
@@ -78,6 +81,11 @@ double64_t PLANNER_move_xyz(point_t xyz) {
 
 double64_t PLANNER_move_angle(angle_t angle) {
     BARRIER_clr(PLANNER_barrier);
+    point_t *final_point = (point_t *) malloc(sizeof(point_t));
+    if (final_point == NULL)
+        return -1.0F;
+    if (!check_angle_constraints(&angle))
+        return -1.0F;
     MOTOR_move(motors.base_motor, angle.theta0);
     MOTOR_move(motors.lower_arm, angle.theta1);
     MOTOR_move(motors.upper_arm, angle.theta2);
@@ -89,11 +97,14 @@ void PLANNER_move_waiting(angle_t angle) {
     delay_us(expected_time);
 }
 
-void PLANNER_stop_moving(void) {
+uint8_t PLANNER_stop_moving(void) {
+    if (PLANNER_barrier->flag)
+        return EXIT_FAILURE;
     MOTOR_freeze(motors.base_motor);
     MOTOR_freeze(motors.lower_arm);
     MOTOR_freeze(motors.upper_arm);
     BARRIER_set_done(PLANNER_barrier);
+    return EXIT_SUCCESS;
 }
 
 point_t *PLANNER_get_position(void) {

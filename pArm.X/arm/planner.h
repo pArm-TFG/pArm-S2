@@ -31,6 +31,7 @@
 #ifndef PLANNER_H
 #define	PLANNER_H
 
+#include <stdint.h>
 #include "../motor/motor.h"
 #include "../utils/types.h"
 #include "../sync/barrier.h"
@@ -49,7 +50,7 @@ double64_t PLANNER_go_home(void);
 double64_t PLANNER_move_xyz(point_t xyz);
 double64_t PLANNER_move_angle(angle_t angle);
 void PLANNER_move_waiting(angle_t angle);
-void PLANNER_stop_moving(void);
+uint8_t PLANNER_stop_moving(void);
 point_t *PLANNER_get_position(void);
 angle_t *PLANNER_get_angles(void);
 

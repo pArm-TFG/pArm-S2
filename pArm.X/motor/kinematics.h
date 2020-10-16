@@ -31,8 +31,10 @@
 #ifndef KINEMATICS_H
 #define	KINEMATICS_H
 
+#include <stdbool.h>
 #include "../utils/types.h"
 
+bool check_angle_constraints(angle_t *angle);
 char inverse_kinematics(const point_t in_cartesian, angle_t *angle);
 char forward_kinematics(const angle_t in_angle, point_t *position);
 

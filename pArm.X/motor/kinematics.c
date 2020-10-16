@@ -6,6 +6,8 @@
  */
 
 #include <math.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "kinematics.h"
 #include "../utils/defs.h"
 #include "../utils/types.h"
@@ -63,10 +65,13 @@ inline double64_t **forward_kinematics_matrix(
     });
 }
 
-inline void check_angle_constraints(angle_t *angle) {
-    angle->theta0 = constraint(angle->theta0, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE);
-    angle->theta1 = constraint(angle->theta1, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE);
-    angle->theta2 = constraint(angle->theta2, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE);
+bool check_angle_constraints(angle_t *angle) {
+    return ((angle->theta0 > LOWER_UPPER_MIN_ANGLE) && 
+            (angle->theta0 < LOWER_UPPER_MAX_ANGLE) && 
+            (angle->theta1 > LOWER_ARM_MIN_ANGLE) &&
+            (angle->theta1 < LOWER_ARM_MAX_ANGLE) &&
+            (angle->theta2 > UPPER_ARM_MIN_ANGLE) &&
+            (angle->theta2 < UPPER_ARM_MAX_ANGLE));
 }
 
 char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
@@ -91,7 +96,7 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
     double64_t radius = get_radius_from_height(point.z);
 
     if ((xy_length - front_end_offset) < radius)
-        return -1;
+        return EXIT_FAILURE;
 
     if (point.x < .01f)
         point.x = .01f;
@@ -122,7 +127,7 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
     angleRight -= phi;
 
     if (isnan(angleRot) || isnan(angleLeft) || isnan(angleRight))
-        return -1;
+        return EXIT_FAILURE;
 
     angleRot = constraint(angleRot,
             (MATH_PI * LOWER_UPPER_MIN_ANGLE) / 180.0F,
@@ -139,12 +144,13 @@ char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
     angle->theta1 = angleLeft;
     angle->theta2 = angleRight;
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 char forward_kinematics(const angle_t in_angle, point_t *position) {
     angle_t angle = in_angle;
-    check_angle_constraints(&angle);
+    if (!check_angle_constraints(&angle))
+        return EXIT_FAILURE;
 
     const double64_t **fk_matrix = forward_kinematics_matrix(
             angle,
@@ -159,5 +165,5 @@ char forward_kinematics(const angle_t in_angle, point_t *position) {
     position->y = fk_matrix[1][3];
     position->z = fk_matrix[2][3];
 
-    return 1;
+    return EXIT_SUCCESS;
 }

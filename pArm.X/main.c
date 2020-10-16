@@ -70,11 +70,6 @@ void handle_order(void);
 void do_movement(double64_t expected_time);
 void beat(int_fast64_t encrypted_msg);
 
-/*void putch(char character) {
-    while (!IFS0bits.U1TXIF);
-    U1TXREG = character;
-}*/
-
 int main(void) {
     setup();
     while (true) {
@@ -98,7 +93,7 @@ inline void setup(void) {
 
     printf("[SETUP]\tAllocating pointer to order\n");
 #endif
-    order = (order_t *) malloc(sizeof(order_t));
+    order = (order_t *) malloc(sizeof (order_t));
     if (order == NULL) {
 #ifdef DEBUG_ENABLED
         printf("[ERROR]\tFailed to initialize order_t!\n");
@@ -125,7 +120,7 @@ inline void setup(void) {
     // Calibrate the motors. If someone returns
     // not OK, stop execution until rebooted
     // and notify turning on an LED
-    if (check_motor_status() == EXIT_FAILURE) {
+    if (false && check_motor_status() == EXIT_FAILURE) {
 #ifdef DEBUG_ENABLED
         printf("[SETUP]\tMotor failure!\n");
 #endif
@@ -164,7 +159,9 @@ inline void setup(void) {
 inline void loop(void) {
 #ifndef CLI_MODE
     if (!trusted_device) {
+#ifdef DEBUG_ENABLED
         printf("[DEBUG]\tDevice not trusted... Waiting I1\n");
+#endif
         do_handshake();
     }
 #endif
@@ -175,17 +172,37 @@ inline void loop(void) {
                 // G0
             case 0:
             {
-                point_t *position = (point_t *) ret.gcode_ret_val;
-                double64_t expected_time = PLANNER_move_xyz(*position);
-                do_movement(expected_time);
+                if (ret.is_err) {
+                    // Coordinates missing for G0
+                    printf("J8\n");
+                } else {
+                    point_t *position = (point_t *) ret.gcode_ret_val;
+                    double64_t expected_time = PLANNER_move_xyz(*position);
+                    if (expected_time == -1.0F) {
+                        // Out-of-range
+                        printf("J4\n");
+                    } else {
+                        do_movement(expected_time);
+                    }
+                }
                 break;
             }
                 // G1
             case 1:
             {
-                angle_t *angles = (angle_t *) ret.gcode_ret_val;
-                double64_t expected_time = PLANNER_move_angle(*angles);
-                do_movement(expected_time);
+                if (ret.is_err) {
+                    // Coordinates missing for G1
+                    printf("J9\n");
+                } else {
+                    angle_t *angles = (angle_t *) ret.gcode_ret_val;
+                    double64_t expected_time = PLANNER_move_angle(*angles);
+                    if (expected_time == -1.0F) {
+                        // Out-of-range
+                        printf("J4\n");
+                    } else {
+                        do_movement(expected_time);
+                    }
+                }
                 break;
             }
                 // G28
@@ -198,49 +215,58 @@ inline void loop(void) {
                 // M1
             case 10:
             {
-                PLANNER_stop_moving();
-                printf("M1\n");
+                uint8_t ret = PLANNER_stop_moving();
+                if (ret == EXIT_SUCCESS)
+                    printf("M1\n");
+                else // Motors not moving
+                    printf("J5\n");
                 break;
             }
                 // M114
             case 1140:
             {
                 point_t *position = PLANNER_get_position();
-                printf("G0 X%lf Y%lf Z%lf\n",
+                printf("G0 X%Lf Y%Lf Z%Lf\n",
                         position->x,
                         position->y,
                         position->z);
+                free(position);
                 break;
             }
                 // M280
             case 2800:
             {
                 angle_t *position = PLANNER_get_angles();
-                printf("G1 X%lf Y%lf Z%lf\n",
+                printf("G1 X%Lf Y%Lf Z%Lf\n",
                         position->theta0,
                         position->theta1,
                         position->theta2);
+                free(position);
                 break;
             }
                 // I6
             case 600:
             {
-                int_fast64_t encrypted_msg = (int_fast64_t) ret.gcode_ret_val;
-                int_fast64_t msg = RSA_decrypt(encrypted_msg, RSA_key);
-                if (msg == rnd_message) {
+                char *ord_msg = (char *) ret.gcode_ret_val;
+                int_fast64_t encrypted_msg = atoll(ord_msg);
+                int_fast64_t dec_msg = RSA_decrypt(encrypted_msg, RSA_key);
+                if (dec_msg == rnd_message) {
                     trusted_device = false;
                     *RSA_key = RSA_keygen();
                     rnd_message = 0LL;
                 } else {
                     printf("J6\n");
                 }
+                free(ord_msg);
                 break;
             }
                 // I7
             case 700:
             {
-                int_fast64_t encrypted_msg = (int_fast64_t) ret.gcode_ret_val;
+                char *ord_msg = (char *) ret.gcode_ret_val;
+                int_fast64_t encrypted_msg = atoll(ord_msg);
                 beat(encrypted_msg);
+                free(ord_msg);
                 break;
             }
                 // Invalid GCODE found
@@ -286,17 +312,11 @@ inline char check_motor_status(void) {
 
 inline void do_handshake(void) {
 #ifdef DEBUG_ENABLED
-    printf("[DEBUG]\tWaiting for message\n");
+    printf("[DEBUG]\tWaiting for handshake message...\n");
 #endif
     while (!order->message_received);
-#ifdef DEBUG_ENABLED
-    printf("[DEBUG]\tHS - Message received: %s\n", order->order_buffer);
-#endif
     order->message_received = false;
     GCODE_ret_t ret = GCODE_process_command(order);
-#ifdef DEBUG_ENABLED
-    printf("[DEBUG]\tReceived order: I%d\n", (ret.code / 100));
-#endif
     switch (ret.code) {
             // I1
         case 100:
@@ -317,14 +337,9 @@ inline void do_handshake(void) {
             // I5 with encrypted msg
         case 500:
         {
-            int_fast64_t encrypted_msg = atoll((char *) ret.gcode_ret_val);
-#ifdef DEBUG_ENABLED
-            printf("[DEBUG]\tRec. msg: %lld\n", encrypted_msg);
-#endif
+            char *ord_msg = (char *) ret.gcode_ret_val;
+            int_fast64_t encrypted_msg = atoll(ord_msg);
             int_fast64_t msg = RSA_decrypt(encrypted_msg, RSA_key);
-#ifdef DEBUG_ENABLED
-            printf("[DEBUG]\tDecrypted msg: %lld\n", msg);
-#endif
             if (msg == rnd_message) {
                 trusted_device = true;
                 last_beat = TIME_now();
@@ -333,6 +348,7 @@ inline void do_handshake(void) {
                 printf("J6\n");
                 trusted_device = false;
             }
+            free(ord_msg);
             break;
         }
         default:
@@ -346,7 +362,7 @@ inline void do_handshake(void) {
 
 inline void do_movement(double64_t expected_time) {
     printf("J1 %lf\n", expected_time);
-    motor_movement_finished_time = TIME_now_us() + expected_time;
+    motor_movement_finished_time = (TIME_now_us() + expected_time);
 }
 
 inline void beat(int_fast64_t encrypted_msg) {
