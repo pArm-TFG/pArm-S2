@@ -23,10 +23,10 @@
 #include "../utils/defs.h"
 #include "../sync/barrier.h"
 
-servo_t base_servo = {&SDC1, &limit_switch_map[0], MATH_PI, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
-servo_t lower_arm_servo = {&SDC2, &limit_switch_map[1], .0, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE};
-servo_t upper_arm_servo = {&SDC3, &limit_switch_map[2], (MATH_PI / 18), UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE};
-servo_t end_effector_servo = {&PDC1, &limit_switch_map[3], .0, .0, 180.};
+servo_t base_servo = {&SDC1, NULL, MATH_PI, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
+servo_t lower_arm_servo = {&SDC2, NULL, .0, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE};
+servo_t upper_arm_servo = {&SDC3, NULL, (MATH_PI / 18), UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE};
+servo_t end_effector_servo = {&PDC1, NULL, .0, .0, 180.};
 
 motor_t base_motor = {&base_servo, 0ULL, .0F, .0F, false, 1, TMR3_Start, TMR3_Stop};
 motor_t lower_arm_motor = {&lower_arm_servo, 1ULL, .0F, .0F, false, 1, TMR4_Start, TMR4_Stop};
@@ -48,8 +48,12 @@ static inline double64_t expected_duration(angle_t angle) {
     return MOTOR_elapsed_time_us(max_angle);
 }
 
-void PLANNER_init(barrier_t *barrier) {
+void PLANNER_init(barrier_t *barrier, uint_fast8_t switch_map[4]) {
     PLANNER_barrier = barrier;
+    base_servo.limit_switch_value = &switch_map[0];
+    lower_arm_servo.limit_switch_value = &switch_map[1];
+    upper_arm_servo.limit_switch_value = &switch_map[2];
+    end_effector_servo.limit_switch_value = &switch_map[3];
     TMR3_Initialize(motors.base_motor, PLANNER_barrier);
     TMR4_Initialize(motors.lower_arm, PLANNER_barrier);
     TMR5_Initialize(motors.upper_arm, PLANNER_barrier);

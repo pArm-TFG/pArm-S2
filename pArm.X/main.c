@@ -147,7 +147,8 @@ inline void setup(void) {
     printf("[SETUP]\tCreating barrier for motors\n");
 #endif
     barrier = BARRIER_create(MAX_MOTORS - 1);
-    PLANNER_init(barrier);
+    // TO-DO update interrupts init with switch map
+    PLANNER_init(barrier, (uint_fast8_t *) {0, 0, 0, 0});
     PORTBbits.RB5 = 0;
     PORTBbits.RB6 = 0;
     PORTBbits.RB7 = 0;
