@@ -32,8 +32,9 @@ double64_t get_radius_from_height(double64_t height) {
     return radius;
 }
 
-inline double64_t **forward_kinematics_matrix(
+void do_forward_kinematics(
         const angle_t angle,
+        point_t *res,
         const double64_t a1,
         const double64_t a2,
         const double64_t a3,
@@ -41,33 +42,14 @@ inline double64_t **forward_kinematics_matrix(
         const double64_t Tx,
         const double64_t Tz
         ) {
-
-    return ((double64_t[4][4]) {
-        {
-            cosl(angle.theta0) * cosl(angle.theta1 - angle.theta2),
-            sinl(angle.theta1 - angle.theta2) * cosl(angle.theta0),
-            -sinl(angle.theta0),
-            (a2 * cosl(angle.theta1) + a3 * cosl(angle.theta1 - angle.theta2) + d1) * cosl(angle.theta0) + Tx
-        },
-        {
-            sinl(angle.theta0) * cosl(angle.theta1 - angle.theta2),
-            sinl(angle.theta1 - angle.theta2) * sinl(angle.theta0),
-            cosl(angle.theta0),
-            (a2 * cosl(angle.theta1) + a3 * cosl(angle.theta1 - angle.theta2) + d1) * sinl(angle.theta0)
-        },
-        {
-            sinl(angle.theta1 - angle.theta2),
-            -cosl(angle.theta1 - angle.theta2),
-            0,
-            a1 + a2 * sinl(angle.theta1) + a3 * sinl(angle.theta1 - angle.theta2) - Tz
-        },
-        {.0F, .0F, .0F, 1.0F}
-    });
+    res->x = (a2 * cosl(angle.theta1) + a3 * cosl(angle.theta1 - angle.theta2) + d1) * cosl(angle.theta0) + Tx;
+    res->y = (a2 * cosl(angle.theta1) + a3 * cosl(angle.theta1 - angle.theta2) + d1) * sinl(angle.theta0);
+    res->z = a1 + (a2 * sinl(angle.theta1)) + (a3 * sinl(angle.theta1 - angle.theta2)) - Tz;
 }
 
 bool check_angle_constraints(angle_t *angle) {
-    return ((angle->theta0 > LOWER_UPPER_MIN_ANGLE) && 
-            (angle->theta0 < LOWER_UPPER_MAX_ANGLE) && 
+    return ((angle->theta0 > LOWER_UPPER_MIN_ANGLE) &&
+            (angle->theta0 < LOWER_UPPER_MAX_ANGLE) &&
             (angle->theta1 > LOWER_ARM_MIN_ANGLE) &&
             (angle->theta1 < LOWER_ARM_MAX_ANGLE) &&
             (angle->theta2 > UPPER_ARM_MIN_ANGLE) &&
@@ -152,8 +134,9 @@ char forward_kinematics(const angle_t in_angle, point_t *position) {
     if (!check_angle_constraints(&angle))
         return EXIT_FAILURE;
 
-    const double64_t **fk_matrix = forward_kinematics_matrix(
+    do_forward_kinematics(
             angle,
+            position,
             ARM_BASE_HEIGHT,
             ARM_LOWER_ARM,
             ARM_UPPER_ARM,
@@ -161,9 +144,6 @@ char forward_kinematics(const angle_t in_angle, point_t *position) {
             front_end_offset,
             -ARM_BASE_DEVIATION
             );
-    position->x = fk_matrix[0][3];
-    position->y = fk_matrix[1][3];
-    position->z = fk_matrix[2][3];
 
     return EXIT_SUCCESS;
 }

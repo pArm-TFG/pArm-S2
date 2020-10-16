@@ -25,7 +25,7 @@ buffer_t *BUFFER_create(size_t size) {
 void BUFFER_update_size(buffer_t *buffer, size_t size) {
     buffer->size = size;
     buffer->bsize = (size * sizeof(char));
-    buffer->buffer = (buffer_t *) realloc(buffer->buffer, buffer->bsize);
+    buffer->buffer = (char *) realloc(buffer->buffer, buffer->bsize);
 #ifdef DEBUG_ENABLED
     if (buffer->buffer == NULL && size != 0U) {
         printf("[ERROR]\tFailed to re-allocate %dB for new buffer!\n", buffer->bsize);

@@ -91,7 +91,7 @@ char MOTOR_calibrate(motor_t *motor) {
     const time_t max_waiting_time =
             (time_t) (TIME_now_us() + (US_PER_DEGREE * 180.0F));
 #ifdef DEBUG_ENABLED
-    printf("[SETUP]\tWaiting at most %LG s\n", (max_waiting_time / 1E6));
+    printf("[SETUP]\tWaiting at most %Lf s\n", (max_waiting_time / 1E6));
 #endif
     while (!check_motor_finished(motor, max_waiting_time));
     const bool timeout_happened = ((TIME_now_us() >= max_waiting_time) == 1);
@@ -114,7 +114,7 @@ char MOTOR_calibrate(motor_t *motor) {
     SERVO_write_angle(motor->servoHandler, (MATH_PI / 6));
     double64_t duration_us = rad_to_us(MATH_PI / 6);
 #ifdef DEBUG_ENABLED
-    printf("[SETUP]\tExpected duration: %LG us\n", duration_us);
+    printf("[SETUP]\tExpected duration: %Lf us\n", duration_us);
 #endif
     // waiting until the movement should finish
     delay_us(rad_to_us(duration_us));
@@ -144,7 +144,7 @@ char MOTOR_calibrate(motor_t *motor) {
     double64_t min_angle_us = fabsl(motor->angle_us - motor->movement_duration);
     motor->servoHandler->min_angle = us_to_rad(min_angle_us);
 #ifdef DEBUG_ENABLED
-    printf("[SETUP]\tMinimum angle for motor %d is: %LG rad\n", motor->id, motor->servoHandler->min_angle);
+    printf("[SETUP]\tMinimum angle for motor %d is: %Lf rad\n", motor->id, motor->servoHandler->min_angle);
 #endif
     // Return OK
     return EXIT_SUCCESS;

@@ -16,12 +16,13 @@
 #include "../printf/io.h"
 
 static buffer_t *gcode_buffer = NULL;
+//static const char *delim = ' ';
 
 double64_t GCODE_parse_number(char code, double64_t ret) {
-    char *ptr = strtok(gcode_buffer->buffer, ' ');
+    char *ptr = strtok(gcode_buffer->buffer, " ");
     while (ptr != NULL) {
         if (*ptr == code) return atof(ptr + 1);
-        ptr = strtok(NULL, ' ');
+        ptr = strtok(NULL, " ");
     }
     return ret;
 }
