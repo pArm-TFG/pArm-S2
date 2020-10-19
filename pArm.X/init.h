@@ -34,15 +34,12 @@
 #include <xc.h>
 #include "system_types.h"
 
-void initBoard(void);
 void initPWM(void);
 void TMR1_Initialize(void);
 void TMR2_Initialize(void);
-void initUnusedIOPorts(void);
 void init_ports(void);
-void init_pins(void);
+void initUART(void);
 void init_clock(void);
-void init_interrupts(void);
 
 /**
   @Summary
