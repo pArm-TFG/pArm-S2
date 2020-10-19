@@ -16,7 +16,9 @@ volatile time_t _ns = 0ULL;
 static char uart_buffer[1024] = {0};
 static uint16_t uart_chars = 0U;
 static volatile order_t *urx_order = NULL;
+#ifdef LIMIT_SWITCH_ENABLED
 static volatile uint_fast8_t *limit_switch_map = NULL;
+#endif
 
 void U1RX_Init(volatile order_t *order) {
     urx_order = order;

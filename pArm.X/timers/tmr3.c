@@ -12,10 +12,10 @@
 #include "../sync/barrier.h"
 
 motor_t *TMR3_motor;
-barrier_t *TMR3_barrier;
-double64_t TMR3_count;
+volatile barrier_t *TMR3_barrier;
+static double64_t TMR3_count;
 
-void TMR3_Initialize(motor_t *motor, barrier_t *barrier) {
+void TMR3_Initialize(motor_t *motor, volatile barrier_t *barrier) {
     TMR3_motor = motor;
     TMR3_barrier = barrier;
     TMR3_count = .0F;

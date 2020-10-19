@@ -46,11 +46,11 @@ typedef struct {
 #endif
 
 barrier_t *BARRIER_create(uint16_t total);
-void BARRIER_arrive(barrier_t *barrier);
-void BARRIER_set_total(barrier_t *barrier, uint16_t p);
-void BARRIER_clr(barrier_t *barrier);
-void BARRIER_set_done(barrier_t *barrier);
-bool BARRIER_all_done(barrier_t *barrier);
+void BARRIER_arrive(volatile barrier_t *barrier);
+void BARRIER_set_total(volatile barrier_t *barrier, uint16_t p);
+void BARRIER_clr(volatile barrier_t *barrier);
+void BARRIER_set_done(volatile barrier_t *barrier);
+bool BARRIER_all_done(volatile barrier_t *barrier);
 
 #endif	/* BARRIER_H */
 

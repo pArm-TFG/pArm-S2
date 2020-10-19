@@ -35,9 +35,9 @@
 #include "../sync/barrier.h"
 
 extern motor_t *TMR5_motor;
-extern barrier_t *TMR5_barrier;
+extern volatile barrier_t *TMR5_barrier;
 
-void TMR5_Initialize(motor_t *motor, barrier_t *barrier);
+void TMR5_Initialize(motor_t *motor, volatile barrier_t *barrier);
 void __attribute__ ((interrupt, no_auto_psv)) _T5Interrupt(void);
 void TMR5_Start(void);
 void TMR5_Stop(void);

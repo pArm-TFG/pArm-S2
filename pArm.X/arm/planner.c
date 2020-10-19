@@ -34,7 +34,7 @@ motor_t upper_arm_motor = {&upper_arm_servo, 2ULL, .0F, .0F, false, 1, TMR5_Star
 motor_t end_effetor_motor = {&end_effector_servo, 3ULL, .0F, .0F, false, 1, NULL, NULL};
 
 motors_t motors = {&base_motor, &lower_arm_motor, &upper_arm_motor, &end_effetor_motor};
-barrier_t *PLANNER_barrier;
+volatile barrier_t *PLANNER_barrier;
 
 static inline double64_t expected_duration(angle_t angle) {
     double64_t max_angle = LDBL_MIN;
@@ -49,13 +49,13 @@ static inline double64_t expected_duration(angle_t angle) {
 }
 
 #ifdef LIMIT_SWITCH_ENABLED
-void PLANNER_init(barrier_t *barrier, uint_fast8_t switch_map[4]) {
+void PLANNER_init(volatile barrier_t *barrier, uint_fast8_t switch_map[4]) {
     base_servo.limit_switch_value = &switch_map[0];
     lower_arm_servo.limit_switch_value = &switch_map[1];
     upper_arm_servo.limit_switch_value = &switch_map[2];
     end_effector_servo.limit_switch_value = &switch_map[3];
 #else
-void PLANNER_init(barrier_t *barrier) {
+void PLANNER_init(volatile barrier_t *barrier) {
 #endif
     PLANNER_barrier = barrier;
     TMR3_Initialize(motors.base_motor, PLANNER_barrier);

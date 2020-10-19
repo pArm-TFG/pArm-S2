@@ -12,10 +12,10 @@
 #include "../sync/barrier.h"
 
 motor_t *TMR5_motor;
-barrier_t *TMR5_barrier;
-double64_t TMR5_count;
+volatile barrier_t *TMR5_barrier;
+static double64_t TMR5_count;
 
-void TMR5_Initialize(motor_t *motor, barrier_t *barrier) {
+void TMR5_Initialize(motor_t *motor, volatile barrier_t *barrier) {
     TMR5_motor = motor;
     TMR5_barrier = barrier;
     TMR5_count = .0F;
