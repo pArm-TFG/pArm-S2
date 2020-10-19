@@ -45,7 +45,11 @@ typedef struct {
 
 extern motors_t motors;
 
+#ifdef LIMIT_SWITCH_ENABLED
 void PLANNER_init(barrier_t *barrier, uint_fast8_t switch_map[4]);
+#else
+void PLANNER_init(barrier_t *barrier);
+#endif
 double64_t PLANNER_go_home(void);
 double64_t PLANNER_move_xyz(point_t xyz);
 double64_t PLANNER_move_angle(angle_t angle);

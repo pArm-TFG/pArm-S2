@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "printf/io.h"
 #include "interrupts.h"
 #include "motor/servo.h"
@@ -11,15 +12,21 @@
 #include "utils/types.h"
 #include "utils/buffer.h"
 
-volatile int _ICNFLAG = 0; // Auxiliar Flag defined in interrupts.h
 volatile time_t _ns = 0ULL;
 static char uart_buffer[1024] = {0};
 static uint16_t uart_chars = 0U;
 static volatile order_t *urx_order = NULL;
+static volatile uint_fast8_t *limit_switch_map = NULL;
 
 void U1RX_Init(volatile order_t *order) {
     urx_order = order;
 }
+
+#ifdef LIMIT_SWITCH_ENABLED
+void CN_Init(volatile uint_fast8_t *switch_map) {
+    limit_switch_map = switch_map;
+}
+#endif
 
 void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
     IFS0bits.U1TXIF = 0; // Clear TX Interrupt flag
@@ -46,7 +53,8 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 #endif
             uart_buffer[uart_chars++] = '\0';
 #ifdef DEBUG_ENABLED
-            printf("[DEBUG]\tUpdating uart buffer with length of %d chars...\n", uart_chars);
+            printf("[DEBUG]\tUpdating uart buffer with length of %d chars...\n",
+                    uart_chars);
             printf("[DEBUG]\tBuffer: %s\n", uart_buffer);
 #endif
             if (urx_order->order_buffer == NULL) {
@@ -63,14 +71,12 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
             }
             if (urx_order->order_buffer->buffer == NULL) {
 #ifdef DEBUG_ENABLED
-                printf("[ERROR]\tFailed to allocate %dB for order!\n", (uart_chars * sizeof(char)));
+                printf("[ERROR]\tFailed to allocate %dB for order!\n",
+                        (uart_chars * sizeof (char)));
 #endif
                 return;
             }
             strncpy(urx_order->order_buffer->buffer, uart_buffer, urx_order->order_buffer->size);
-#ifdef DEBUG_ENABLED
-            printf("[DEBUG]\tReceived order: %s\n", urx_order->order_buffer->buffer);
-#endif
             uart_chars = 0;
             urx_order->message_received = true;
         } else {
@@ -80,18 +86,21 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
                 // Release memory and ignore instruction
                 uart_chars = 0;
                 printf("J11\n");
-                
+
             }
         }
     }
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void) {
-    limit_switch_map[0] = PORTAbits.RA0;
-    limit_switch_map[1] = PORTAbits.RA1;
-    limit_switch_map[2] = PORTBbits.RB0;
-    limit_switch_map[3] = PORTBbits.RB1;
-    _ICNFLAG = 1; // Notify the input change using the auxiliar flag
+#ifdef LIMIT_SWITCH_ENABLED
+    if (limit_switch_map != NULL) {
+        limit_switch_map[0] = PORTAbits.RA0;
+        limit_switch_map[1] = PORTAbits.RA1;
+        limit_switch_map[2] = PORTBbits.RB0;
+        limit_switch_map[3] = PORTBbits.RB1;
+    }
+#endif
     _CNIF = 0; // Clear the interruption flag
 }
 

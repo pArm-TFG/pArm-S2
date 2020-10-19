@@ -2,8 +2,7 @@
 #include "../utils/defs.h"
 #include "../utils/utils.h"
 
-
-volatile uint_fast8_t limit_switch_map[4] = {0U};
+//volatile uint_fast8_t limit_switch_map[4] = {0U};
 
 void SERVO_write_angle(const servo_t *servo, double64_t angle_rad) {
     double64_t time = SERVO_from_angle_to_ms(angle_rad);

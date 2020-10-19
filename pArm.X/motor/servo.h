@@ -47,7 +47,7 @@ typedef struct {
     double64_t max_angle;
 } servo_t;
 
-extern volatile uint_fast8_t limit_switch_map[4];
+//extern volatile uint_fast8_t limit_switch_map[4];
 
 void SERVO_write_angle(const servo_t *servo, double64_t angle_rad);
 void SERVO_write_milliseconds(const servo_t *servo, double64_t ms);

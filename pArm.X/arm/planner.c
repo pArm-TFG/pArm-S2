@@ -48,12 +48,16 @@ static inline double64_t expected_duration(angle_t angle) {
     return MOTOR_elapsed_time_us(max_angle);
 }
 
+#ifdef LIMIT_SWITCH_ENABLED
 void PLANNER_init(barrier_t *barrier, uint_fast8_t switch_map[4]) {
-    PLANNER_barrier = barrier;
     base_servo.limit_switch_value = &switch_map[0];
     lower_arm_servo.limit_switch_value = &switch_map[1];
     upper_arm_servo.limit_switch_value = &switch_map[2];
     end_effector_servo.limit_switch_value = &switch_map[3];
+#else
+void PLANNER_init(barrier_t *barrier) {
+#endif
+    PLANNER_barrier = barrier;
     TMR3_Initialize(motors.base_motor, PLANNER_barrier);
     TMR4_Initialize(motors.lower_arm, PLANNER_barrier);
     TMR5_Initialize(motors.upper_arm, PLANNER_barrier);
@@ -85,9 +89,6 @@ double64_t PLANNER_move_xyz(point_t xyz) {
 
 double64_t PLANNER_move_angle(angle_t angle) {
     BARRIER_clr(PLANNER_barrier);
-    point_t *final_point = (point_t *) malloc(sizeof(point_t));
-    if (final_point == NULL)
-        return -1.0F;
     if (!check_angle_constraints(&angle))
         return -1.0F;
     MOTOR_move(motors.base_motor, angle.theta0);

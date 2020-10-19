@@ -68,9 +68,13 @@ inline double64_t MOTOR_position_deg(motor_t *motor) {
 }
 
 inline bool check_motor_finished(motor_t *motor, time_t max_waiting_time) {
-    return (*motor->servoHandler->limit_switch_value == 1) ? true : 
-        (TIME_now_us() >= max_waiting_time) ? true :
-            motor->movement_finished;
+#ifdef LIMIT_SWITCH_ENABLED
+    if (*motor->servoHandler->limit_switch_value == 1)
+        return true;
+#endif
+    return ((TIME_now_us() >= max_waiting_time)) 
+            ? true 
+            : motor->movement_finished;
 }
 
 char MOTOR_calibrate(motor_t *motor) {

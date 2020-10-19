@@ -32,13 +32,14 @@
 #define	INTERRUPTS_H
 
 #include <xc.h>
+#include <stdint.h>
 #include "utils/types.h"
-
-// Global variable used to notify Input Change on I/O Ports
-extern volatile int _ICNFLAG;
 
 // UART RX initializer
 void U1RX_Init(volatile order_t* order);
+#ifdef LIMIT_SWITCH_ENABLED
+void CN_Init(volatile uint_fast8_t *switch_map);
+#endif
 
 // Define Timer interrupts
 void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void);

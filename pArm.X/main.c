@@ -40,7 +40,7 @@ rsa_t *RSA_key = NULL;
  * 
  * @see order_t
  */
-static volatile order_t *order = NULL;
+volatile order_t *order = NULL;
 
 /**
  * Flag active when the handshake has been successful.
@@ -60,7 +60,10 @@ static int_fast64_t rnd_message;
  */
 static double64_t motor_movement_finished_time = LDBL_MAX;
 static time_t last_beat = 0ULL;
-barrier_t *barrier;
+volatile barrier_t *barrier;
+#ifdef LIMIT_SWITCH_ENABLED
+volatile uint_fast8_t limit_switch_map[4] = {0};
+#endif
 
 void setup(void);
 void loop(void);
@@ -109,6 +112,9 @@ inline void setup(void) {
     printf("[SETUP]\tInitializing UART RX\n");
 #endif
     U1RX_Init(order);
+#ifdef LIMIT_SWITCH_ENABLED
+    CN_Init(limit_switch_map);
+#endif
 
     PORTBbits.RB5 = 0;
     PORTBbits.RB6 = 0;
@@ -116,6 +122,12 @@ inline void setup(void) {
 
 #ifdef DEBUG_ENABLED
     printf("[SETUP]\tChecking motor status...\n");
+#endif
+    // Init the planner so the motors are available
+#ifdef LIMIT_SWITCH_ENABLED    
+    PLANNER_init(barrier, limit_switch_map);
+#else
+    PLANNER_init(barrier);
 #endif
     // Calibrate the motors. If someone returns
     // not OK, stop execution until rebooted
@@ -148,7 +160,6 @@ inline void setup(void) {
 #endif
     barrier = BARRIER_create(MAX_MOTORS - 1);
     // TO-DO update interrupts init with switch map
-    PLANNER_init(barrier, (uint_fast8_t *) {0, 0, 0, 0});
     PORTBbits.RB5 = 0;
     PORTBbits.RB6 = 0;
     PORTBbits.RB7 = 0;
