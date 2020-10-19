@@ -26,6 +26,7 @@
 #include "gcode/gcode.h"
 #include "rsa/rand.h"
 #include "sync/barrier.h"
+#include "utils/buffer.h"
 
 /**
  * Global program RSA key that will be used for securing communications.
@@ -63,6 +64,9 @@ static time_t last_beat = 0ULL;
 volatile barrier_t *barrier;
 #ifdef LIMIT_SWITCH_ENABLED
 volatile uint_fast8_t limit_switch_map[4] = {0};
+#endif
+#ifdef CLI_MODE
+static bool show_cursor = true;
 #endif
 
 void setup(void);
@@ -176,6 +180,11 @@ inline void loop(void) {
 #endif
         do_handshake();
     }
+#else
+    if (show_cursor) {
+        printf("$> ");
+        show_cursor = false;
+    }
 #endif
     if (order->message_received) {
         order->message_received = false;
@@ -194,6 +203,10 @@ inline void loop(void) {
                         // Out-of-range
                         printf("J4\n");
                     } else {
+#ifdef DEBUG_ENABLED
+                        printf("[DEBUG]\tMoving motors to x: %Lf, y: %Lf, z: %Lf\n",
+                                position->x, position->y, position->z);
+#endif
                         do_movement(expected_time);
                     }
                 }
@@ -212,6 +225,10 @@ inline void loop(void) {
                         // Out-of-range
                         printf("J4\n");
                     } else {
+#ifdef DEBUG_ENABLED
+                        printf("[DEBUG]\tMoving motors to t0: %Lf, t1: %Lf, t2: %Lf\n",
+                                angles->theta0, angles->theta1, angles->theta2);
+#endif
                         do_movement(expected_time);
                     }
                 }
@@ -222,6 +239,9 @@ inline void loop(void) {
             {
                 double64_t expected_time = PLANNER_go_home();
                 do_movement(expected_time);
+#ifdef DEBUG_ENABLED
+                printf("[DEBUG]\tMoving motors to home position...\n");
+#endif
                 break;
             }
                 // M1
@@ -288,13 +308,19 @@ inline void loop(void) {
                 break;
             }
         }
-        free(order->order_buffer);
+        BUFFER_free(order->order_buffer);
+#ifdef CLI_MODE
+        show_cursor = true;
+#endif
     }
     if (BARRIER_all_done(barrier)) {
         // Notify all motors have finished their movement
         printf("J21\n");
         // and clear barrier interrupt flag
         BARRIER_clr(barrier);
+#ifdef CLI_MODE
+        show_cursor = true;
+#endif
     }
 #ifndef CLI_MODE
     if (trusted_device) {
@@ -317,9 +343,7 @@ inline char check_motor_status(void) {
     motor_status = MOTOR_calibrate(motors.lower_arm);
     if (motor_status == EXIT_FAILURE)
         return motor_status;
-    motor_status = MOTOR_calibrate(motors.upper_arm);
-
-    return motor_status;
+    return MOTOR_calibrate(motors.upper_arm);
 }
 
 inline void do_handshake(void) {

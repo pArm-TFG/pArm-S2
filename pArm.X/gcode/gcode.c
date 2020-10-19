@@ -132,7 +132,10 @@ GCODE_ret_t GCODE_process_command(volatile order_t *order) {
         default:
         {
 #ifdef DEBUG_ENABLED
-            printf("[ERROR]\tUnknown GCODE G%d\n", cmd);
+            if (cmd == -1)
+                printf("[INFO]\tGCODE type 'G' not found\n");
+            else
+                printf("[ERROR]\tUnknown GCODE G%d\n", cmd);
 #endif
             ret = (GCODE_ret_t){
                 true, // is_err
@@ -173,7 +176,10 @@ GCODE_ret_t GCODE_process_command(volatile order_t *order) {
         default:
         {
 #ifdef DEBUG_ENABLED
-            printf("[ERROR]\tUnknown GCODE M%d\n", cmd);
+            if (cmd == -1)
+                printf("[INFO]\tGCODE type 'M' not found\n");
+            else
+                printf("[ERROR]\tUnknown GCODE M%d\n", cmd);
 #endif
             ret = (GCODE_ret_t){
                 true, // is_err
@@ -228,7 +234,10 @@ GCODE_ret_t GCODE_process_command(volatile order_t *order) {
         default:
         {
 #ifdef DEBUG_ENABLED
-            printf("[ERROR]\tUnknown GCODE I%d\n", cmd);
+            if (cmd == -1)
+                printf("[INFO]\tGCODE type 'I' not found\n");
+            else
+                printf("[ERROR]\tUnknown GCODE I%d\n", cmd);
 #endif
             ret = (GCODE_ret_t){
                 true, // is_err

@@ -55,20 +55,12 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 #endif
             uart_buffer[uart_chars++] = '\0';
 #ifdef DEBUG_ENABLED
-            printf("[DEBUG]\tUpdating uart buffer with length of %d chars...\n",
-                    uart_chars);
-            printf("[DEBUG]\tBuffer: %s\n", uart_buffer);
+            printf("[DEBUG]\tNew order received: '%s'\n", uart_buffer);
 #endif
             if (urx_order->order_buffer == NULL) {
-#ifdef DEBUG_ENABLED
-                printf("[DEBUG]\tCreating buffer with size %d\n", uart_chars);
-#endif
                 urx_order->order_buffer = BUFFER_create(uart_chars);
             }
             if (urx_order->order_buffer->size != uart_chars) {
-#ifdef DEBUG_ENABLED
-                printf("[DEBUG]\tUpdating buffer size to %d\n", uart_chars);
-#endif
                 BUFFER_update_size(urx_order->order_buffer, uart_chars);
             }
             if (urx_order->order_buffer->buffer == NULL) {
@@ -76,10 +68,14 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
                 printf("[ERROR]\tFailed to allocate %dB for order!\n",
                         (uart_chars * sizeof (char)));
 #endif
+                BUFFER_free(urx_order->order_buffer);
+                uart_chars = 0U;
                 return;
             }
-            strncpy(urx_order->order_buffer->buffer, uart_buffer, urx_order->order_buffer->size);
-            uart_chars = 0;
+            strncpy(urx_order->order_buffer->buffer,
+                    uart_buffer, 
+                    urx_order->order_buffer->size);
+            uart_chars = 0U;
             urx_order->message_received = true;
         } else {
             uart_buffer[uart_chars++] = received_val;
@@ -88,7 +84,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
                 // Release memory and ignore instruction
                 uart_chars = 0;
                 printf("J11\n");
-
             }
         }
     }
