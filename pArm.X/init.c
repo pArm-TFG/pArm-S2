@@ -54,9 +54,6 @@ void init_clock(void) {
     // F_cy = F_osc / 2 = 59.904 MHz
     //
     // Then, setup the PLL's prescaler, postcaler and divisor
-//    PLLFBDbits.PLLDIV = 63; // M = PLLDIV + 2 -> PLLDIV = 65 - 2 = 63
-//    CLKDIVbits.PLLPOST = 0; // N2 = 2 * (PLLPOST + 1) -> PLLPOST = (N2 / 2) - 1 = 0
-//    CLKDIVbits.PLLPRE = 0; // N1 = PLLPRE + 2; -> PLLPRE = N1 - 2 = 0
     PLLFBD = 0x3F;
     // AD1MD enabled; PWMMD enabled; T3MD enabled; T4MD enabled; T1MD enabled; U2MD enabled; T2MD enabled; U1MD enabled; QEI1MD enabled; SPI2MD enabled; SPI1MD enabled; C2MD enabled; C1MD enabled; DCIMD enabled; T5MD enabled; I2C1MD enabled; 
     PMD1 = 0x00;
@@ -79,7 +76,6 @@ void init_clock(void) {
     // And wait for clock switching to happen
     // First, wait for clock switch to occur
     // and thenm wait the PLL to lock
-//    while (OSCCONbits.COSC != 0b011);
     while (OSCCONbits.LOCK != 1);
 #endif
 }

@@ -95,7 +95,7 @@ char MOTOR_calibrate(motor_t *motor) {
     const time_t max_waiting_time =
             (time_t) (TIME_now_us() + (US_PER_DEGREE * 180.0F));
 #ifdef DEBUG_ENABLED
-    printf("[SETUP]\tWaiting at most %Lf s\n", (max_waiting_time / 1E6));
+    printf("[SETUP]\tWaiting at most %f s\n", (max_waiting_time / 1E6));
 #endif
     while (!check_motor_finished(motor, max_waiting_time));
     const bool timeout_happened = ((TIME_now_us() >= max_waiting_time) == 1);

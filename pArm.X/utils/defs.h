@@ -47,14 +47,19 @@
 // Mathematical constants
 #define MATH_PI         3.141592653589793238463F
 #define MATH_TRANS      57.29577951308232087679F
+#define MATH_TRANS_I    0.017453292519943295769F
+#define DEG_151         2.356194490192344928847F
+#define DEG_135         2.356194490192344928847F
+#define DEG_120         2.094395102393195492308F
+#define DEG_55          0.959931088596881267308F
 
 // Possible missing functions
 #ifndef max
-#define	max(a,b)	(((a) > (b)) ? (a) : (b))
+#define	max(a, b)	(((a) > (b)) ? (a) : (b))
 #endif
 
 #ifndef min
-#define	min(a,b)	(((a) < (b)) ? (a) : (b))
+#define	min(a, b)	(((a) < (b)) ? (a) : (b))
 #endif
 
 /* A union which permits us to convert between a double and two 32 bit ints.  */

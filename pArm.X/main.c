@@ -14,6 +14,7 @@
 #include <math.h>
 #include <float.h>
 #include <p33EP512GM604.h>
+#include <libpic30.h>
 #include "printf/io.h"
 #include "utils/types.h"
 #include "utils/uart.h"
@@ -49,6 +50,7 @@ volatile order_t *order = NULL;
  */
 static double64_t motor_movement_finished_time = LDBL_MAX;
 volatile barrier_t *barrier;
+static volatile bool is_moving = false;
 #ifdef LIMIT_SWITCH_ENABLED
 volatile uint_fast8_t limit_switch_map[4] = {0};
 #endif
@@ -56,7 +58,7 @@ volatile uint_fast8_t limit_switch_map[4] = {0};
 static bool show_cursor = true;
 #else
 static time_t last_beat = 0ULL;
-static time_t turn_led_off_time = LDBL_MAX;
+static time_t turn_led_off_time = UINT64_MAX;
 /**
  * Application's random message used for authoring the remote
  * device. When the host changes this message is destroyed.
@@ -101,7 +103,6 @@ inline void setup(void) {
     TIME_init();
 #ifdef DEBUG_ENABLED
     printf("[SETUP]\tTime set to 0. Starting count...\n");
-
     printf("[SETUP]\tAllocating pointer to order\n");
 #endif
     order = (order_t *) malloc(sizeof (order_t));
@@ -123,10 +124,6 @@ inline void setup(void) {
 #ifdef LIMIT_SWITCH_ENABLED
     CN_Init(limit_switch_map);
 #endif
-
-    PORTBbits.RB5 = 0;
-    PORTBbits.RB6 = 0;
-    PORTBbits.RB7 = 0;
 
 #ifdef DEBUG_ENABLED
     printf("[SETUP]\tChecking motor status...\n");
@@ -167,7 +164,7 @@ inline void setup(void) {
     printf("[SETUP]\tCreating barrier for motors\n");
 #endif
     barrier = BARRIER_create(MAX_MOTORS - 1);
-    // TO-DO update interrupts init with switch map
+    
     PORTBbits.RB5 = 0;
     PORTBbits.RB6 = 0;
     PORTBbits.RB7 = 0;
@@ -178,17 +175,19 @@ inline void setup(void) {
 
 inline void loop(void) {
 #ifndef CLI_MODE
-    if (TIME_now() >= turn_led_off_time) {
+    /*if (TIME_now() >= turn_led_off_time) {
+        printf("[DEBUG]\tTurning off LEDs\n");
         PORTBbits.RB5 = 0;
         PORTBbits.RB6 = 0;
         PORTBbits.RB7 = 0;
-    }
+    }*/
     if (!trusted_device) {
 #ifdef DEBUG_ENABLED
         printf("[DEBUG]\tDevice not trusted... Waiting I1\n");
 #endif
         do_handshake();
     }
+    PORTBbits.RB7 = trusted_device;
 #else
     if (show_cursor) {
         printf("$> ");
@@ -217,6 +216,7 @@ inline void loop(void) {
                         // Out-of-range
                         printf("J4\n");
                     } else {
+                        is_moving = true;
                         do_movement(expected_time);
                     }
                 }
@@ -240,6 +240,7 @@ inline void loop(void) {
                         // Out-of-range
                         printf("J4\n");
                     } else {
+                        is_moving = true;
                         do_movement(expected_time);
                     }
                 }
@@ -249,6 +250,7 @@ inline void loop(void) {
             case 28:
             {
                 double64_t expected_time = PLANNER_go_home();
+                is_moving = true;
                 do_movement(expected_time);
 #ifdef DEBUG_ENABLED
                 printf("[DEBUG]\tMoving motors to home position...\n");
@@ -263,6 +265,7 @@ inline void loop(void) {
                     printf("M1\n");
                 else // Motors not moving
                     printf("J5\n");
+                is_moving = false;
                 break;
             }
                 // M114
@@ -299,7 +302,7 @@ inline void loop(void) {
                     *RSA_key = RSA_keygen();
                     rnd_message = 0LL;
                 } else {
-                    printf("J6\n");
+                    printf("J10\n");
                 }
                 free(ord_msg);
                 break;
@@ -326,11 +329,12 @@ inline void loop(void) {
         show_cursor = true;
 #endif
     }
-    if (BARRIER_all_done(barrier)) {
+    if (is_moving && BARRIER_all_done(barrier)) {
         // Notify all motors have finished their movement
         printf("J21\n");
         // and clear barrier interrupt flag
         BARRIER_clr(barrier);
+        is_moving = false;
 #ifdef CLI_MODE
         show_cursor = true;
 #endif
@@ -343,6 +347,7 @@ inline void loop(void) {
             printf("J10\n");
             trusted_device = false;
             *RSA_key = RSA_keygen();
+            PORTBbits.RB7 = 0;
             rnd_message = 0LL;
         }
     }
@@ -374,6 +379,9 @@ inline void do_handshake(void) {
             // Initialize the seed every time this function is called
             RAND_init_seed();
             if (RSA_key == NULL) {
+#ifdef DEBUG_ENABLED
+                printf("[DEBUG]\tGenerating new RSA keys...\n");
+#endif
                 rsa_t key = RSA_keygen();
                 RSA_key = &key;
             }
@@ -418,13 +426,14 @@ inline void do_movement(double64_t expected_time) {
 
 #ifndef CLI_MODE
 inline void beat(int_fast64_t encrypted_msg) {
+    printf("BEAT!\n");
     int_fast64_t msg = RSA_decrypt(encrypted_msg, RSA_key);
     if (msg == rnd_message) {
         last_beat = TIME_now();
         PORTBbits.RB5 = 1;
         PORTBbits.RB6 = 1;
         PORTBbits.RB7 = 1;
-        turn_led_off_time = TIME_now() + 200ULL;
+        turn_led_off_time = (TIME_now() + 100ULL);
     }
 }
 #endif

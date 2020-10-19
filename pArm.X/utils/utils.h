@@ -58,8 +58,8 @@ bool __isnan(double64_t x);
 #define isnan __isnan
 #endif
 
-void delay_ms(uint64_t ms);
-void delay_us(uint64_t us);
+void delay_ms(time_t ms);
+void delay_us(time_t us);
 
 void cstrncpy(char source[], char dest[], uint16_t size);
 

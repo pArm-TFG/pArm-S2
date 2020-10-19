@@ -14,24 +14,6 @@
 #include "../utils/utils.h"
 #include "../arm_config.h"
 
-double64_t get_radius_from_height(double64_t height) {
-    double64_t radius = .0f;
-    double64_t v_distance = .0f;
-
-    if (height > 111.70f) {
-        v_distance = fabsl(215.87f - height);
-        double64_t data = (158.8f * 158.8f) - (v_distance * v_distance);
-        radius = sqrtl(data) - 33.26f;
-    } else {
-        v_distance = fabsl(height + 20.88f);
-        double64_t data = (225.0f * 225.0f) - (v_distance * v_distance);
-        radius = sqrtl(data) - 97.45f;
-    }
-
-    radius -= 44.5f;
-    return radius;
-}
-
 void do_forward_kinematics(
         const angle_t angle,
         point_t *res,
@@ -42,9 +24,12 @@ void do_forward_kinematics(
         const double64_t Tx,
         const double64_t Tz
         ) {
-    res->x = (a2 * cosl(angle.theta1) + a3 * cosl(angle.theta1 - angle.theta2) + d1) * cosl(angle.theta0) + Tx;
-    res->y = (a2 * cosl(angle.theta1) + a3 * cosl(angle.theta1 - angle.theta2) + d1) * sinl(angle.theta0);
-    res->z = a1 + (a2 * sinl(angle.theta1)) + (a3 * sinl(angle.theta1 - angle.theta2)) - Tz;
+    res->x = (a2 * cosl(angle.theta1) + a3 * cosl(angle.theta1 - angle.theta2) + d1) 
+            * cosl(angle.theta0) + Tx;
+    res->y = (a2 * cosl(angle.theta1) + a3 * cosl(angle.theta1 - angle.theta2) + d1) 
+            * sinl(angle.theta0);
+    res->z = a1 + (a2 * sinl(angle.theta1)) + (a3 * sinl(angle.theta1 - angle.theta2)) 
+            - Tz;
 }
 
 bool check_angle_constraints(angle_t *angle) {
@@ -56,86 +41,61 @@ bool check_angle_constraints(angle_t *angle) {
             (angle->theta2 < UPPER_ARM_MAX_ANGLE));
 }
 
-char inverse_kinematics(const point_t in_cartesian, angle_t *angle) {
-    double64_t xIn = .0f;
-    double64_t zIn = .0f;
-    double64_t rightAll = .0f;
-    double64_t sqrtXZ = .0f;
-    double64_t phi = .0f;
+bool check_constraints_ok(angle_t *angle, point_t *point) {
+    bool res = true;
+    if (isnan(angle->theta0) || isnan(angle->theta1) || isnan(angle->theta2) 
+            || isnan(point->x) || isnan(point->y) || isnan(point->z))
+        return false;
+    
+    if (angle->theta0 > DEG_151)
+        res = false;
+    if (angle->theta1 > DEG_135)
+        res = false;
+    if (angle->theta2 > DEG_120)
+        res = false;
+    if (sqrtl(powl(point->x, 2) + powl(point->y, 2) + powl(point->z, 2)) > 261.0F)
+        res = false;
+    if (angle->theta2 > (angle->theta1 + DEG_55))
+        res = false;
+    if ((point->x > -53.0F && point->x < 53.0F) &&
+            (point->z < 0.0F) &&
+            (point->y > -53.0F && point->y < 53.0F))
+        res = false;
+    
+    return res;
+}
 
-    // Create a copy of the struct
-    point_t point = in_cartesian;
+char inverse_kinematics(point_t in_cartesian, angle_t* angle) {
+#define AL2     (ARM_LOWER_ARM * ARM_LOWER_ARM)
+#define XYZ2    (lxyz * lxyz)
+#define AU2     (ARM_UPPER_ARM * ARM_UPPER_ARM)
 
-    double64_t angleRot = .0f;
-    double64_t angleLeft = .0f;
-    double64_t angleRight = .0f;
-
-    point.z += height_offset;
-
-    zIn = (point.z - ARM_BASE_HEIGHT) / ARM_LOWER_ARM;
-
-    double64_t xy_length = sqrtl(point.x * point.x + point.y * point.y);
-    double64_t radius = get_radius_from_height(point.z);
-
-    if ((xy_length - front_end_offset) < radius)
+    double64_t theta_0 = atan2l(in_cartesian.x, in_cartesian.y);
+    double64_t xyz = powl(in_cartesian.x, 2) +
+            powl(in_cartesian.y, 2) +
+            powl(in_cartesian.z, 2);
+    if (isnan(xyz))
         return EXIT_FAILURE;
-
-    if (point.x < .01f)
-        point.x = .01f;
-
-    // Calculate value of theta 1 (rotation angle).
-    // As we are using 'atan2', there is no need to
-    // use specific cases (y > 0, y < 0, y = 0) but just
-    // do pi - atan2(x, y);
-    angleRot = MATH_PI - atan2l(point.x, point.y);
-
-    xIn = (point.x / sinl(angleRot) - ARM_BASE_DEVIATION - front_end_offset)
-            / ARM_LOWER_ARM;
-
-    phi = atan2l(zIn, xIn);
-    sqrtXZ = sqrtl(zIn * zIn + xIn * xIn);
-
-    // Cosine law
-    rightAll = (sqrtXZ * sqrtXZ + ARM_UPPER_LOWER * ARM_UPPER_LOWER - 1) /
-            (2 * ARM_UPPER_LOWER * sqrtXZ);
-    angleRight = acosl(rightAll);
-
-    // Calculate the value of theta 2
-    rightAll = (sqrtXZ * sqrtXZ + 1 - ARM_UPPER_LOWER * ARM_UPPER_LOWER) /
-            (2 * sqrtXZ);
-    angleLeft = acosl(rightAll);
-
-    angleLeft += phi;
-    angleRight -= phi;
-
-    if (isnan(angleRot) || isnan(angleLeft) || isnan(angleRight))
+    double64_t lxyz = sqrtl(xyz);
+    double64_t theta_1 = acosl((-AL2 - XYZ2 + AU2) / (-2 * ARM_LOWER_ARM * lxyz));
+    double64_t theta_2 = acosl((-AL2 -AU2 + XYZ2) / (-2 * ARM_LOWER_ARM * ARM_UPPER_ARM));
+    double64_t phi = atan2l(in_cartesian.z, sqrtl(powl(in_cartesian.x, 2) + powl(in_cartesian.y, 2)));
+    if (isnan(theta_0) || isnan(theta_1) || isnan(theta_2) || isnan(phi))
         return EXIT_FAILURE;
-
-    angleRot = constraint(angleRot,
-            (MATH_PI * LOWER_UPPER_MIN_ANGLE) / 180.0F,
-            (MATH_PI * LOWER_UPPER_MAX_ANGLE) / 180.0F);
-    angleLeft = constraint(angleLeft,
-            (MATH_PI * LOWER_ARM_MIN_ANGLE) / 180.0F,
-            (MATH_PI * LOWER_ARM_MAX_ANGLE) / 180.0F);
-    angleRight = constraint(angleRight,
-            (MATH_PI * UPPER_ARM_MIN_ANGLE) / 180.0F,
-            (MATH_PI * UPPER_ARM_MAX_ANGLE) / 180.0F);
-
-
-    angle->theta0 = angleRot;
-    angle->theta1 = angleLeft;
-    angle->theta2 = angleRight;
-
+    
+    theta_1 += phi;
+    theta_1 -= DEG_135;
+    
+    angle->theta0 = theta_0;
+    angle->theta1 = theta_1;
+    angle->theta2 = theta_2;
+    
     return EXIT_SUCCESS;
 }
 
-char forward_kinematics(const angle_t in_angle, point_t *position) {
-    angle_t angle = in_angle;
-    if (!check_angle_constraints(&angle))
-        return EXIT_FAILURE;
-
+char forward_kinematics(angle_t in_angle, point_t *position) {
     do_forward_kinematics(
-            angle,
+            in_angle,
             position,
             ARM_BASE_HEIGHT,
             ARM_LOWER_ARM,
@@ -144,6 +104,7 @@ char forward_kinematics(const angle_t in_angle, point_t *position) {
             front_end_offset,
             -ARM_BASE_DEVIATION
             );
-
-    return EXIT_SUCCESS;
+    return check_constraints_ok(&in_angle, position) 
+            ? EXIT_SUCCESS 
+            : EXIT_FAILURE;
 }
