@@ -43,13 +43,20 @@ rsa_t *RSA_key = NULL;
  */
 volatile order_t *order = NULL;
 
-/**
- * Flag active when the handshake has been successful.
- * If there is any kind of error during the message exchange
- * the device will be marked as untrusted.
- */
-volatile bool trusted_device = false;
 
+/**
+ * 
+ */
+static double64_t motor_movement_finished_time = LDBL_MAX;
+volatile barrier_t *barrier;
+#ifdef LIMIT_SWITCH_ENABLED
+volatile uint_fast8_t limit_switch_map[4] = {0};
+#endif
+#ifdef CLI_MODE
+static bool show_cursor = true;
+#else
+static time_t last_beat = 0ULL;
+static time_t turn_led_off_time = LDBL_MAX;
 /**
  * Application's random message used for authoring the remote
  * device. When the host changes this message is destroyed.
@@ -57,25 +64,22 @@ volatile bool trusted_device = false;
 static int_fast64_t rnd_message;
 
 /**
- * 
+ * Flag active when the handshake has been successful.
+ * If there is any kind of error during the message exchange
+ * the device will be marked as untrusted.
  */
-static double64_t motor_movement_finished_time = LDBL_MAX;
-static time_t last_beat = 0ULL;
-volatile barrier_t *barrier;
-#ifdef LIMIT_SWITCH_ENABLED
-volatile uint_fast8_t limit_switch_map[4] = {0};
-#endif
-#ifdef CLI_MODE
-static bool show_cursor = true;
+volatile bool trusted_device = false;
 #endif
 
 void setup(void);
 void loop(void);
 char check_motor_status(void);
-void do_handshake(void);
 void handle_order(void);
 void do_movement(double64_t expected_time);
+#ifndef CLI_MODE
+void do_handshake(void);
 void beat(int_fast64_t encrypted_msg);
+#endif
 
 int main(void) {
     setup();
@@ -174,6 +178,11 @@ inline void setup(void) {
 
 inline void loop(void) {
 #ifndef CLI_MODE
+    if (TIME_now() >= turn_led_off_time) {
+        PORTBbits.RB5 = 0;
+        PORTBbits.RB6 = 0;
+        PORTBbits.RB7 = 0;
+    }
     if (!trusted_device) {
 #ifdef DEBUG_ENABLED
         printf("[DEBUG]\tDevice not trusted... Waiting I1\n");
@@ -199,14 +208,15 @@ inline void loop(void) {
                 } else {
                     point_t *position = (point_t *) ret.gcode_ret_val;
                     double64_t expected_time = PLANNER_move_xyz(*position);
+#ifdef DEBUG_ENABLED
+                    printf("[DEBUG]\tMoving motors to x: %Lf, y: %Lf, z: %Lf\n",
+                            position->x, position->y, position->z);
+#endif
+                    free(position);
                     if (expected_time == -1.0F) {
                         // Out-of-range
                         printf("J4\n");
                     } else {
-#ifdef DEBUG_ENABLED
-                        printf("[DEBUG]\tMoving motors to x: %Lf, y: %Lf, z: %Lf\n",
-                                position->x, position->y, position->z);
-#endif
                         do_movement(expected_time);
                     }
                 }
@@ -221,14 +231,15 @@ inline void loop(void) {
                 } else {
                     angle_t *angles = (angle_t *) ret.gcode_ret_val;
                     double64_t expected_time = PLANNER_move_angle(*angles);
+#ifdef DEBUG_ENABLED
+                    printf("[DEBUG]\tMoving motors to t0: %Lf, t1: %Lf, t2: %Lf\n",
+                            angles->theta0, angles->theta1, angles->theta2);
+#endif
+                    free(angles);
                     if (expected_time == -1.0F) {
                         // Out-of-range
                         printf("J4\n");
                     } else {
-#ifdef DEBUG_ENABLED
-                        printf("[DEBUG]\tMoving motors to t0: %Lf, t1: %Lf, t2: %Lf\n",
-                                angles->theta0, angles->theta1, angles->theta2);
-#endif
                         do_movement(expected_time);
                     }
                 }
@@ -276,6 +287,7 @@ inline void loop(void) {
                 free(position);
                 break;
             }
+#ifndef CLI_MODE
                 // I6
             case 600:
             {
@@ -301,6 +313,7 @@ inline void loop(void) {
                 free(ord_msg);
                 break;
             }
+#endif
                 // Invalid GCODE found
             default:
             {
@@ -327,7 +340,7 @@ inline void loop(void) {
         // If last beat happened at least 1 second ago
         // untrust the device and send 'J6' for informing
         if ((TIME_now() - last_beat) >= 1000ULL) {
-            printf("J8\n");
+            printf("J10\n");
             trusted_device = false;
             *RSA_key = RSA_keygen();
             rnd_message = 0LL;
@@ -346,6 +359,7 @@ inline char check_motor_status(void) {
     return MOTOR_calibrate(motors.upper_arm);
 }
 
+#ifndef CLI_MODE
 inline void do_handshake(void) {
 #ifdef DEBUG_ENABLED
     printf("[DEBUG]\tWaiting for handshake message...\n");
@@ -390,20 +404,27 @@ inline void do_handshake(void) {
         default:
         {
             // Untrusted device
-            printf("J8\n");
+            printf("J10\n");
             break;
         }
     }
 }
+#endif
 
 inline void do_movement(double64_t expected_time) {
     printf("J1 %lf\n", expected_time);
     motor_movement_finished_time = (TIME_now_us() + expected_time);
 }
 
+#ifndef CLI_MODE
 inline void beat(int_fast64_t encrypted_msg) {
     int_fast64_t msg = RSA_decrypt(encrypted_msg, RSA_key);
     if (msg == rnd_message) {
         last_beat = TIME_now();
+        PORTBbits.RB5 = 1;
+        PORTBbits.RB6 = 1;
+        PORTBbits.RB7 = 1;
+        turn_led_off_time = TIME_now() + 200ULL;
     }
 }
+#endif

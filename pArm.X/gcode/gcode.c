@@ -16,14 +16,19 @@
 #include "../printf/io.h"
 
 static buffer_t *gcode_buffer = NULL;
-//static const char *delim = ' ';
 
 double64_t GCODE_parse_number(char code, double64_t ret) {
-    char *ptr = strtok(gcode_buffer->buffer, " ");
-    while (ptr != NULL) {
-        if (*ptr == code) return atof(ptr + 1);
-        ptr = strtok(NULL, " ");
+    char *token;
+    char *ptr;
+    char *copy = (char *) malloc(gcode_buffer->bsize);
+    double64_t value_if_missing = ret;
+    strcpy(copy, gcode_buffer->buffer);
+    for (ptr = copy; ret == value_if_missing; ptr = NULL) {
+        token = strtok(ptr, " ");
+        if (token == NULL) break;
+        if (token[0] == code) ret = atof(token + 1);
     }
+    free(copy);
     return ret;
 }
 
@@ -55,14 +60,13 @@ GCODE_ret_t GCODE_process_command(volatile order_t *order) {
             // throw an error
         case 0:
         {
-            point_t position = {
-                GCODE_parse_number('X', LDBL_MIN),
-                GCODE_parse_number('Y', LDBL_MIN),
-                GCODE_parse_number('Z', LDBL_MIN)
-            };
-            if (position.x == LDBL_MIN ||
-                    position.y == LDBL_MIN ||
-                    position.z == LDBL_MIN) {
+            point_t *position = (point_t *) malloc(sizeof(point_t));
+            position->x = GCODE_parse_number('X', LDBL_MIN);
+            position->y = GCODE_parse_number('Y', LDBL_MIN);
+            position->z = GCODE_parse_number('Z', LDBL_MIN);
+            if (position->x == LDBL_MIN ||
+                    position->y == LDBL_MIN ||
+                    position->z == LDBL_MIN) {
 #ifdef DEBUG_ENABLED
                 printf("[ERROR]\tCoordinates missing for GCODE G0!\n");
 #endif
@@ -75,7 +79,7 @@ GCODE_ret_t GCODE_process_command(volatile order_t *order) {
                 ret = (GCODE_ret_t){
                     false, // is_err
                     cmd, // code
-                    &position // the return value itself
+                    position // the return value itself
                 };
             }
             break;
@@ -89,14 +93,13 @@ GCODE_ret_t GCODE_process_command(volatile order_t *order) {
             // an error
         case 1:
         {
-            angle_t angles = {
-                GCODE_parse_number('X', LDBL_MIN),
-                GCODE_parse_number('Y', LDBL_MIN),
-                GCODE_parse_number('Z', LDBL_MIN)
-            };
-            if (angles.theta0 == LDBL_MIN &&
-                    angles.theta1 == LDBL_MIN &&
-                    angles.theta2 == LDBL_MIN) {
+            angle_t *angles = (angle_t *) malloc(sizeof(angle_t));
+            angles->theta0 = GCODE_parse_number('X', LDBL_MIN);
+            angles->theta1 = GCODE_parse_number('Y', LDBL_MIN);
+            angles->theta2 = GCODE_parse_number('Z', LDBL_MIN);
+            if (angles->theta0 == LDBL_MIN &&
+                    angles->theta1 == LDBL_MIN &&
+                    angles->theta2 == LDBL_MIN) {
 #ifdef DEBUG_ENABLED
                 printf("[ERROR]\tAngles missing for GCODE G1!\n");
 #endif
@@ -109,7 +112,7 @@ GCODE_ret_t GCODE_process_command(volatile order_t *order) {
                 ret = (GCODE_ret_t){
                     false, // is_err
                     cmd, // code
-                    &angles // the return value itself
+                    angles // the return value itself
                 };
             }
             break;

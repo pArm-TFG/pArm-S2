@@ -959,7 +959,7 @@
         <property key="legacy-libc" value="true"/>
         <property key="mpreserve-all" value="false"/>
         <property key="oXC16glb-macros"
-                  value="PRINTF_INCLUDE_CONFIG_H;USE_LONG_DOUBLE;NO_CLI_MODE;DEBUG_DISABLED"/>
+                  value="PRINTF_INCLUDE_CONFIG_H;USE_LONG_DOUBLE;CLI_MODE;DEBUG_ENABLED"/>
         <property key="omit-pack-options" value="1"/>
         <property key="output-file-format" value="elf"/>
         <property key="preserve-all" value="false"/>
