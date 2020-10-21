@@ -32,12 +32,38 @@
 #include "../motor/motor.h"
 #include "../sync/barrier.h"
 
+/**
+ * Motor managed by TMR3.
+ */
 extern motor_t *TMR3_motor;
+
+/**
+ * Barrier used for synchronizing motors.
+ */
 extern volatile barrier_t *TMR3_barrier;
 
+/**
+ * Initializes the TMR3 to manage specified motor position in the given
+ * barrier.
+ * 
+ * @param motor - the motor to manage.
+ * @param barrier - the barrier that handles all the motors.
+ */
 void TMR3_Initialize(motor_t *motor, volatile barrier_t *barrier);
+
+/**
+ * TMR3 interrupt handler for managing the motor status.
+ */
 void __attribute__ ((interrupt, no_auto_psv)) _T3Interrupt(void);
+
+/**
+ * Starts the TMR3 that handles the specified motor.
+ */
 void TMR3_Start(void);
+
+/**
+ * Stops the TMR3 that handles the specified motor.
+ */
 void TMR3_Stop(void);
 
 #endif	/* TIMER3_H */

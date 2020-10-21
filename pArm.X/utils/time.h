@@ -31,14 +31,45 @@
 
 #include "types.h"
 
+/**
+ * Initializes the time counting machine.
+ */
 void TIME_init(void);
+
+/**
+ * Updates the milliseconds timestamp using the microseconds one.
+ */
 void TIME_updateMs(void);
+
+/**
+ * Obtains current time in milliseconds.
+ * 
+ * @return time_t - current time in milliseconds.
+ */
 time_t TIME_now(void);
+
+/**
+ * Obtains the current time in microseconds.
+ * 
+ * @return time_t - current time in microseconds.
+ */
 time_t TIME_now_us(void);
-void TIME_increment_us(void);
+
+/**
+ * Sets the current time with the given value, in microseconds.
+ * 
+ * @param value_us - the new timestamp.
+ */
 void TIME_set_time(time_t value_us);
 
+/**
+ * TMR1 interrupt handler - counts-up microseconds.
+ */
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void);
+
+/**
+ * TMR2 interrupt handler - counts-up milliseconds.
+ */
 void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void);
 
 #endif	/* TIME_H */

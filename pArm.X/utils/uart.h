@@ -32,8 +32,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/**
+ * Writes the given character through the UART1.
+ * @param character - the char to be written.
+ */
 void putch(char character);
+
+#ifdef USE_CUSTOM_PRINTF
+/**
+ * Wrapper for {@link putch}.
+ */
 void _putchar(char character);
+#endif
 
 #endif	/* UART_H */
 

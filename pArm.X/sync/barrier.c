@@ -63,8 +63,5 @@ void BARRIER_set_done(volatile barrier_t *barrier) {
 }
 
 bool BARRIER_all_done(volatile barrier_t *barrier) {
-//    mutex_acquire(&barrier->lock);
-//    bool flag = barrier->flag;
-//    mutex_release(&barrier->lock);
     return barrier->flag;
 }

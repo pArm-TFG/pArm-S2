@@ -24,7 +24,9 @@
  * Revision history: v1.0
  */
 #include <stdlib.h>
+#ifdef DEBUG_ENABLED
 #include "../printf/io.h"
+#endif
 #include "buffer.h"
 #include "types.h"
 

@@ -32,12 +32,38 @@
 #include "../motor/motor.h"
 #include "../sync/barrier.h"
 
+/**
+ * Motor managed by TMR4.
+ */
 extern motor_t *TMR4_motor;
+
+/**
+ * Barrier used for synchronizing motors.
+ */
 extern volatile barrier_t *TMR4_barrier;
 
+/**
+ * Initializes the TMR4 to manage specified motor position in the given
+ * barrier.
+ * 
+ * @param motor - the motor to manage.
+ * @param barrier - the barrier that handles all the motors.
+ */
 void TMR4_Initialize(motor_t *motor, volatile barrier_t *barrier);
+
+/**
+ * TMR4 interrupt handler for managing the motor status.
+ */
 void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void);
+
+/**
+ * Starts the TMR4 that handles the specified motor.
+ */
 void TMR4_Start(void);
+
+/**
+ * Stops the TMR4 that handles the specified motor.
+ */
 void TMR4_Stop(void);
 
 #endif	/* TIMER4_H */

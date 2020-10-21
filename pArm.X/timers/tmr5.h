@@ -32,12 +32,38 @@
 #include "../motor/motor.h"
 #include "../sync/barrier.h"
 
+/**
+ * Motor managed by TMR5.
+ */
 extern motor_t *TMR5_motor;
+
+/**
+ * Barrier used for synchronizing motors.
+ */
 extern volatile barrier_t *TMR5_barrier;
 
+/**
+ * Initializes the TMR5 to manage specified motor position in the given
+ * barrier.
+ * 
+ * @param motor - the motor to manage.
+ * @param barrier - the barrier that handles all the motors.
+ */
 void TMR5_Initialize(motor_t *motor, volatile barrier_t *barrier);
+
+/**
+ * TMR5 interrupt handler for managing the motor status.
+ */
 void __attribute__ ((interrupt, no_auto_psv)) _T5Interrupt(void);
+
+/**
+ * Starts the TMR5 that handles the specified motor.
+ */
 void TMR5_Start(void);
+
+/**
+ * Stops the TMR5 that handles the specified motor.
+ */
 void TMR5_Stop(void);
 
 #endif	/* TIMER3_H */

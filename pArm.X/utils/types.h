@@ -98,10 +98,25 @@ typedef struct {
 #ifndef buffer_t
 
 typedef struct {
+    /**
+     * Current buffer size. Not variable by default. {@see utils/buffer.h}
+     */
     size_t size;
+    
+    /**
+     * Current buffer size, in bytes. Not variable by default. {@see utils/buffer.h}
+     */
     size_t bsize;
+    
+    /**
+     * The buffer contents itself.
+     */
     char *buffer;
-} buffer_t;
+} 
+/**
+ * Custom buffer definition for better handling arbitrary size strings.
+ */
+buffer_t;
 #define buffer_t buffer_t
 #endif
 

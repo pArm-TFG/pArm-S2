@@ -37,10 +37,12 @@
 static buffer_t *gcode_buffer = NULL;
 
 /**
+ * With the given input code and the buffer, iterates through the latest one
+ * until the code is found or returns the default value.
  * 
- * @param code
- * @param ret
- * @return 
+ * @param code - the code to search.
+ * @param ret - return value if not found.
+ * @return the number after the given code or the given return value if not found.
  */
 double64_t GCODE_parse_number(char code, double64_t ret) {
     char *token;
@@ -57,6 +59,12 @@ double64_t GCODE_parse_number(char code, double64_t ret) {
     return ret;
 }
 
+/**
+ * Safely clears the GCODE structures.
+ * 
+ * @param ret - the return code to be returned after finishing.
+ * @return ret
+ */
 static inline GCODE_ret_t GCODE_finish(GCODE_ret_t ret) {
     BUFFER_free(gcode_buffer);
     return ret;

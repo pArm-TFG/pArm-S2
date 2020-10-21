@@ -38,18 +38,67 @@
 
 // Servo definition
 typedef struct {
+    /**
+     * A reference to the register in which the duty cycle is stored. This
+     * way, it is possible to define multiple servo_t handling different motors.
+     */
     volatile uint16_t *dutyCycleRegister;
+    
+    /**
+     * A reference to the limit switch map used to indicate whether the
+     * servomotor has eneded its movement by touching a physical limit switch.
+     * For using this field, LIMIT_SWITCH_ENABLED macro should be defined.
+     */
     volatile uint_fast8_t *limit_switch_value;
+    
+    /**
+     * The servo home position.
+     */
     double64_t home;
+    
+    /**
+     * The servo physical minimum angle.
+     */
     double64_t min_angle;
+    
+    /**
+     * The servo physical maximum angle.
+     */
     double64_t max_angle;
 } servo_t;
 
-//extern volatile uint_fast8_t limit_switch_map[4];
-
+/**
+ * Writes an angle directly into the servo register.
+ * 
+ * @param servo - the servo to move.
+ * @param angle_rad - the angle to move.
+ */
 void SERVO_write_angle(const servo_t *servo, double64_t angle_rad);
+
+/**
+ * Writes a value of milliseconds as the angle to move the servo. This
+ * milliseconds equals the duty cycle period.
+ * 
+ * @param servo - the servo to move.
+ * @param ms - the milliseconds representing the angle.
+ */
 void SERVO_write_milliseconds(const servo_t *servo, double64_t ms);
+
+/**
+ * Writes directly a value into the servo's register. Use this method
+ * with caution.
+ * 
+ * @param servo - the servo to move.
+ * @param dtc_value - the duty cycle register value.
+ */
 void SERVO_write_value(const servo_t *servo, uint16_t dtc_value);
+
+/**
+ * Obtains the equivalent milliseconds stamp representing the given angle.
+ * 
+ * @param angle_rad - the angle to transform.
+ * @return double64_t representing the milliseconds.
+ */
 double64_t SERVO_from_angle_to_ms(double64_t angle_rad);
 
 #endif	/* SERVO_H */
