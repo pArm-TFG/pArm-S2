@@ -42,11 +42,6 @@ time_t TIME_now_us(void) {
     return _now_us;
 }
 
-inline void TIME_increment_us(void) {
-    _now_us += 1ULL;
-    TIME_updateMs();
-}
-
 void TIME_set_time(time_t value_us) {
     _now_us = value_us;
     TIME_updateMs();

@@ -49,7 +49,9 @@
 #define DEG_151         2.356194490192344928847F
 #define DEG_135         2.356194490192344928847F
 #define DEG_120         2.094395102393195492308F
+#define DEG_60          1.047197551196597746154F
 #define DEG_55          0.959931088596881267308F
+#define DEG_45          0.785398163397448309616F
 
 // Possible missing functions
 #ifndef max

@@ -222,10 +222,7 @@ inline void setup(void) {
     // Init the planner so the motors are available
 #ifdef LIMIT_SWITCH_ENABLED    
     PLANNER_init(barrier, limit_switch_map);
-#else
-    PLANNER_init(barrier);
-#endif
-
+    
     // Calibrate the motors. If someone returns
     // not OK, stop execution until rebooted
     // and notify turning on an LED
@@ -245,6 +242,9 @@ inline void setup(void) {
             delay_ms(500);
         }
     }
+#else
+    PLANNER_init(barrier);
+#endif
     // Move the motors to home position
     PLANNER_go_home();
 

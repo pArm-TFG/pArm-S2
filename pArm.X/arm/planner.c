@@ -69,6 +69,16 @@ static inline double64_t expected_duration(angle_t angle) {
     return MOTOR_elapsed_time_us(max_angle);
 }
 
+static inline void map_angle(angle_t *angle) {
+    angle->theta1 = mapf(angle->theta1, .0F, DEG_135, MATH_PI, DEG_45);
+    angle->theta2 = mapf(angle->theta2, .0F, DEG_60, MATH_PI, DEG_135);
+}
+
+static inline void unmap_angle(angle_t *angle) {
+    angle->theta1 = mapf(angle->theta1, MATH_PI, DEG_45, .0F, DEG_135);
+    angle->theta2 = mapf(angle->theta2, MATH_PI, DEG_135, .0F, DEG_60);
+}
+
 #ifdef LIMIT_SWITCH_ENABLED
 void PLANNER_init(volatile barrier_t *barrier, uint_fast8_t switch_map[4]) {
     base_servo.limit_switch_value = &switch_map[0];
@@ -106,11 +116,11 @@ double64_t PLANNER_move_xyz(point_t xyz) {
     char ret = inverse_kinematics(xyz, angle);
     if (ret != EXIT_SUCCESS)
         return -1.0F;
+    map_angle(angle);
     double64_t duration = expected_duration(*angle);
     MOTOR_move(motors.base_motor, angle->theta0);
     MOTOR_move(motors.lower_arm, angle->theta1);
     MOTOR_move(motors.upper_arm, angle->theta2);
-//    double64_t expected_duration = PLANNER_move_angle(*angle);
     free(angle);
     return duration;
 }
@@ -121,8 +131,7 @@ double64_t PLANNER_move_angle(angle_t angle) {
     forward_kinematics(angle, position);
     if (!check_constraints_ok(&angle, position))
         return -1.0F;
-    /*if (!check_angle_constraints(&angle))
-        return -1.0F;*/
+    map_angle(&angle);
     MOTOR_move(motors.base_motor, angle.theta0);
     MOTOR_move(motors.lower_arm, angle.theta1);
     MOTOR_move(motors.upper_arm, angle.theta2);
@@ -136,8 +145,8 @@ void PLANNER_move_waiting(angle_t angle) {
 }
 
 uint8_t PLANNER_stop_moving(void) {
-    /*if (PLANNER_barrier->flag)
-        return EXIT_FAILURE;*/
+    if (PLANNER_barrier->flag)
+        return EXIT_FAILURE;
     MOTOR_freeze(motors.base_motor);
     MOTOR_freeze(motors.lower_arm);
     MOTOR_freeze(motors.upper_arm);
@@ -147,12 +156,9 @@ uint8_t PLANNER_stop_moving(void) {
 
 point_t *PLANNER_get_position(void) {
     point_t *position = (point_t *) malloc(sizeof (point_t));
-    angle_t angles = {
-        MOTOR_position_rad(motors.base_motor),
-        MOTOR_position_rad(motors.lower_arm),
-        MOTOR_position_rad(motors.upper_arm)
-    };
-    forward_kinematics(angles, position);
+    angle_t *angles = PLANNER_get_angles();
+    forward_kinematics(*angles, position);
+    free(angles);
     return position;
 }
 
@@ -161,6 +167,8 @@ angle_t *PLANNER_get_angles(void) {
     angles->theta0 = MOTOR_position_rad(motors.base_motor);
     angles->theta1 = MOTOR_position_rad(motors.lower_arm);
     angles->theta2 = MOTOR_position_rad(motors.upper_arm);
+    
+    unmap_angle(angles);
 
     return angles;
 }
