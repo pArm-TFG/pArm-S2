@@ -44,7 +44,6 @@ rsa_t *RSA_key = NULL;
  */
 volatile order_t *order = NULL;
 
-
 static double64_t motor_movement_finished_time = LDBL_MAX;
 static time_t movement_start_time = UINT64_MAX;
 volatile barrier_t *barrier;
@@ -123,7 +122,7 @@ inline void setup(void) {
 #ifdef LIMIT_SWITCH_ENABLED
     CN_Init(limit_switch_map);
 #endif
-    
+
 #ifdef DEBUG_ENABLED
     printf("[SETUP]\tInitializing RAND seed\n");
 #endif
@@ -135,7 +134,7 @@ inline void setup(void) {
     printf("[SETUP]\tCreating barrier for motors\n");
 #endif
     barrier = BARRIER_create(MAX_MOTORS - 1);
-    
+
 #ifdef DEBUG_ENABLED
     printf("[SETUP]\tChecking motor status...\n");
 #endif
@@ -167,7 +166,7 @@ inline void setup(void) {
     }
     // Move the motors to home position
     PLANNER_go_home();
-    
+
     PORTBbits.RB5 = 0;
     PORTBbits.RB6 = 0;
     PORTBbits.RB7 = 0;
@@ -216,9 +215,8 @@ inline void loop(void) {
                         is_moving = true;
                         printf("J1 %lf\n", (expected_time / 1000.0F));
                         movement_start_time = TIME_now_us();
-                        motor_movement_finished_time = 
+                        motor_movement_finished_time =
                                 movement_start_time + expected_time;
-//                        do_movement(expected_time);
                     }
                 }
                 break;
@@ -246,7 +244,6 @@ inline void loop(void) {
                         movement_start_time = TIME_now_us();
                         motor_movement_finished_time =
                                 movement_start_time + expected_time;
-//                        do_movement(expected_time);
                     }
                 }
                 break;
@@ -260,7 +257,6 @@ inline void loop(void) {
                 movement_start_time = TIME_now_us();
                 motor_movement_finished_time =
                         movement_start_time + expected_time;
-//                do_movement(expected_time);
 #ifdef DEBUG_ENABLED
                 printf("[DEBUG]\tMoving motors to home position...\n");
 #endif
@@ -342,6 +338,7 @@ inline void loop(void) {
         show_cursor = true;
 #endif
     }
+#ifndef USE_MOTOR_TMRS
     if (is_moving) {
         update_motor_time(motors.base_motor);
         update_motor_time(motors.lower_arm);
@@ -349,29 +346,19 @@ inline void loop(void) {
         if (TIME_now_us() >= motor_movement_finished_time) {
             printf("J21\n");
             is_moving = false;
-#ifdef CLI_MODE
-            show_cursor = true;
-#endif
         }
-    }
-//    if (is_moving && (TIME_now_us() >= motor_movement_finished_time)) {
-//        // Notify all motors have finished their movement
-//        printf("J21\n");
-//        is_moving = false;
-//#ifdef CLI_MODE
-//        show_cursor = true;
-//#endif
-//    }
-    /*if (is_moving && BARRIER_all_done(barrier)) {
+#else
+    if (is_moving && BARRIER_all_done(barrier)) {
         // Notify all motors have finished their movement
         printf("J21\n");
         // and clear barrier interrupt flag
         BARRIER_clr(barrier);
         is_moving = false;
+#endif
 #ifdef CLI_MODE
         show_cursor = true;
 #endif
-    }*/
+    }
 #ifndef CLI_MODE
     if (trusted_device) {
         // If last beat happened at least 1 second ago
@@ -398,6 +385,7 @@ inline char check_motor_status(void) {
 }
 
 #ifndef CLI_MODE
+
 inline void do_handshake(void) {
 #ifdef DEBUG_ENABLED
     printf("[DEBUG]\tWaiting for handshake message...\n");
@@ -452,11 +440,6 @@ inline void do_handshake(void) {
 }
 #endif
 
-//inline void do_movement(double64_t expected_time) {
-//    printf("J1 %lf\n", expected_time);
-//    motor_movement_finished_time = (TIME_now_us() + expected_time);
-//}
-
 void update_motor_time(motor_t *motor) {
     if (!motor->movement_finished) {
         motor->current_movement_count =
@@ -470,6 +453,7 @@ void update_motor_time(motor_t *motor) {
 }
 
 #ifndef CLI_MODE
+
 inline void beat(int_fast64_t encrypted_msg) {
     printf("BEAT!\n");
     int_fast64_t msg = RSA_decrypt(encrypted_msg, RSA_key);

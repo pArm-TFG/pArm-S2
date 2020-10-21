@@ -806,7 +806,7 @@
         <targetDevice>dsPIC33EP512GM604</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>PICkit3PlatformTool</platformTool>
+        <platformTool>noID</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.50</languageToolchainVersion>
         <platform>2</platform>
@@ -959,7 +959,7 @@
         <property key="legacy-libc" value="true"/>
         <property key="mpreserve-all" value="false"/>
         <property key="oXC16glb-macros"
-                  value="PRINTF_INCLUDE_CONFIG_H;USE_LONG_DOUBLE;CLI_MODE;DEBUG_ENABLED"/>
+                  value="PRINTF_INCLUDE_CONFIG_H;USE_LONG_DOUBLE;CLI_MODE;DEBUG_ENABLED;NO_USE_MOTOR_TMRS"/>
         <property key="omit-pack-options" value="1"/>
         <property key="output-file-format" value="elf"/>
         <property key="preserve-all" value="false"/>
