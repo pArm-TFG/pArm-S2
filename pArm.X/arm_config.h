@@ -28,6 +28,12 @@
 
 // This is a guard condition so that contents of this file are not included
 // more than once.  
+/**
+ * Different configurations are defined in this document for the pArm
+ * manipulator. As intended, multiple end-effectors can be attached,
+ * so here are the definitions for all of them (got from both GitHub
+ * UFACTORY project and custom pieces definition)
+ */
 #ifndef ARM_CONFIG_H
 #define	ARM_CONFIG_H
 
@@ -43,7 +49,7 @@
 #define DEFAULT_PEN_HEIGHT      74.43
 #define DEFAULT_PEN_FRONT       69.5
 
-#define ARM_BASE_HEIGHT         106.6
+#define ARM_BASE_HEIGHT         133.2
 #define ARM_BASE_DEVIATION      13.2
 #define ARM_LOWER_ARM           142.07
 #define ARM_UPPER_ARM           158.81

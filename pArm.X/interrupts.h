@@ -38,6 +38,7 @@
 // UART RX initializer
 void U1RX_Init(volatile order_t* order);
 #ifdef LIMIT_SWITCH_ENABLED
+// Limit switch interrupts initializer
 void CN_Init(volatile uint_fast8_t *switch_map);
 #endif
 

@@ -33,8 +33,12 @@
 #include "../utils/types.h"
 #include "../utils/uart.h"
 
-angle_t GCODE_get_position(void);
-double64_t GCODE_parse_number(char code, double64_t ret);
+/**
+ * With the given order, process the command sent to the device.
+ * 
+ * @param order the order to be parsed.
+ * @return GCODE_ret_t containing the parsed command.
+ */
 GCODE_ret_t GCODE_process_command(volatile order_t *order);
 
 #endif	/* GCODE_H */

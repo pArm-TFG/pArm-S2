@@ -34,8 +34,31 @@
 #include <stdbool.h>
 #include "../utils/types.h"
 
+/**
+ * Utility funciton used to check if the given angle and point are OK.
+ * 
+ * @param angle the input angle. Can be NULL.
+ * @param point the input point. Can be NULL.
+ * @return true or false indicating if the input params are OK.
+ */
 bool check_constraints_ok(angle_t* angle, point_t* point);
+
+/**
+ * Performs the inverse kinematics for the pArm.
+ * 
+ * @param in_cartesian the input point.
+ * @param angle a pointer in which the obtained angle will be stored.
+ * @return EXIT_SUCCESS if everything went OK or EXIT_FAILURE in other case.
+ */
 char inverse_kinematics(point_t in_cartesian, angle_t *angle);
+
+/**
+ * Performs the forward kinematics for the pArm.
+ * 
+ * @param in_angle the input angle.
+ * @param position a pointer in which the obtained position will be stored.
+ * @return EXIT_SUCCESS if everything when OK or EXIT_FAILURE in other case.
+ */
 char forward_kinematics(angle_t in_angle, point_t *position);
 
 

@@ -41,14 +41,49 @@
 #define MOTOR_elapsed_time_us(rad)      (US_PER_DEGREE * rad * MATH_TRANS)
 
 typedef struct {
+    /**
+     * Pointer storing the driver that manages the servomotor.
+     */
     servo_t *servoHandler;
+    
+    /**
+     * Motor unique identifier.
+     */
     const uint8_t id;
+    
+    /**
+     * The current movement duration, in us.
+     */
     volatile double64_t movement_duration;
+    
+    /**
+     * The current motor angle in us.
+     */
     volatile double64_t angle_us;
+    
+    /**
+     * Flag indicating that the motor has finished its movement.
+     */
     volatile bool movement_finished;
+    
+    /**
+     * Flag indicating whether the movement is clockwise or anticlockwise.
+     */
     int8_t clockwise;
+    
+    /**
+     * Volatile counter indicating the elapsed time since the movement started.
+     */
     volatile time_t current_movement_count;
+    
+    /**
+     * Function that initializes the timer attached to the motor.
+     */
     TMR_func TMR_Start;
+    
+    /**
+     * Function that finishes the timer attached to the motor.
+     */
     TMR_func TMR_Stop;
 } motor_t;
 

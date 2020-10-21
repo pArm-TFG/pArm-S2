@@ -17,6 +17,12 @@
 
 static buffer_t *gcode_buffer = NULL;
 
+/**
+ * 
+ * @param code
+ * @param ret
+ * @return 
+ */
 double64_t GCODE_parse_number(char code, double64_t ret) {
     char *token;
     char *ptr;
