@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 - present | pArm-S2 by Javinator9889
+ * 2020 | pArm-S2 by Javinator9889
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -427,6 +427,9 @@ inline void loop(void) {
         if (TIME_now_us() >= motor_movement_finished_time) {
             printf("J21\n");
             is_moving = false;
+#ifdef CLI_MODE
+            show_cursor = true;
+#endif
         }
 #else
     if (is_moving && BARRIER_all_done(barrier)) {
@@ -435,9 +438,9 @@ inline void loop(void) {
         // and clear barrier interrupt flag
         BARRIER_clr(barrier);
         is_moving = false;
-#endif
 #ifdef CLI_MODE
         show_cursor = true;
+#endif
 #endif
     }
 #ifndef CLI_MODE

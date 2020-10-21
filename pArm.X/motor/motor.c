@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 - present | pArm-S2 by Javinator9889
+ * 2020 | pArm-S2 by Javinator9889
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,11 +31,11 @@
 #include "../utils/time.h"
 
 static inline double64_t us_to_deg(double64_t us) {
-    return 180.0F - (us / US_PER_DEGREE);
+    return (us / US_PER_DEGREE);
 }
 
 static inline double64_t us_to_rad(double64_t us) {
-    return MATH_PI - ((us * (MATH_PI / 180.0F)) / US_PER_DEGREE);
+    return ((us * (MATH_PI / 180.0F)) / US_PER_DEGREE);
 }
 
 static inline double64_t rad_to_us(double64_t rad) {

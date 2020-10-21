@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 - present | pArm-S2 by Javinator9889
+ * 2020 - present | pArm-S2 by Javinator9889
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #include "../printf/io.h"
 #endif
 
-servo_t base_servo = {&SDC1, NULL, MATH_PI, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
+servo_t base_servo = {&SDC1, NULL, MATH_PI / 2, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
 servo_t lower_arm_servo = {&SDC2, NULL, MATH_PI, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE};
 servo_t upper_arm_servo = {&SDC3, NULL, MATH_PI, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE};
 servo_t end_effector_servo = {&SDC4, NULL, .0, .0, 180.};
@@ -70,11 +70,13 @@ static inline double64_t expected_duration(angle_t angle) {
 }
 
 static inline void map_angle(angle_t *angle) {
+    angle->theta0 = mapf(angle->theta0, -(MATH_PI / 2), (MATH_PI / 2), 0, MATH_PI);
     angle->theta1 = mapf(angle->theta1, .0F, DEG_135, MATH_PI, DEG_45);
     angle->theta2 = mapf(angle->theta2, .0F, DEG_60, MATH_PI, DEG_135);
 }
 
 static inline void unmap_angle(angle_t *angle) {
+    angle->theta0 = mapf(angle->theta0, 0, MATH_PI, -(MATH_PI / 2), (MATH_PI / 2));
     angle->theta1 = mapf(angle->theta1, MATH_PI, DEG_45, .0F, DEG_135);
     angle->theta2 = mapf(angle->theta2, MATH_PI, DEG_135, .0F, DEG_60);
 }
@@ -168,7 +170,5 @@ angle_t *PLANNER_get_angles(void) {
     angles->theta1 = MOTOR_position_rad(motors.lower_arm);
     angles->theta2 = MOTOR_position_rad(motors.upper_arm);
     
-    unmap_angle(angles);
-
     return angles;
 }
