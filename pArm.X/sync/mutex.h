@@ -38,7 +38,18 @@ typedef volatile unsigned char mut_t;
 #define mut_t mut_t
 #endif
 
+/**
+ * With the given lock, enter the mutual exclusion zone.
+ * 
+ * @param lock - the mutex lock.
+ */
 void mutex_acquire(mut_t *lock);
+
+/**
+ * With the given lock, exit the mutual exclusion zone.
+ * 
+ * @param lock - the mutex lock.
+ */
 void mutex_release(mut_t *lock);
 
 #endif	/* MUTEX_H */

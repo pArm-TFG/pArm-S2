@@ -110,6 +110,14 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
     }
 }
 
+void __attribute__((__interrupt__, no_auto_psv)) _U1ErrInterrupt(void) {
+    if ((U1STAbits.OERR == 1)) {
+        U1STAbits.OERR = 0;
+    }
+
+    IFS4bits.U1EIF = 0;
+}
+
 void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void) {
 #ifdef LIMIT_SWITCH_ENABLED
     if (limit_switch_map != NULL) {
@@ -120,12 +128,4 @@ void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void) {
     }
 #endif
     _CNIF = 0; // Clear the interruption flag
-}
-
-void __attribute__((__interrupt__, no_auto_psv)) _U1ErrInterrupt(void) {
-    if ((U1STAbits.OERR == 1)) {
-        U1STAbits.OERR = 0;
-    }
-
-    IFS4bits.U1EIF = 0;
 }

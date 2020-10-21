@@ -35,25 +35,99 @@
 #include "../sync/barrier.h"
 
 typedef struct {
+    /**
+     * pArm base motor, which moves along Y axis.
+     */
     motor_t *base_motor;
+    
+    /**
+     * pArm lower arm motor, which moves along X axis.
+     */
     motor_t *lower_arm;
+    
+    /**
+     * pArm upper motor, which moves along Z axis.
+     */
     motor_t *upper_arm;
+    
+    /**
+     * pArm end-effector mottor.
+     */
     motor_t *end_effector_arm;
-} motors_t;
+} 
+/**
+ * Simple struct containing pointers to every pArm motor.
+ */
+motors_t;
 
 extern motors_t motors;
 
 #ifdef LIMIT_SWITCH_ENABLED
+/**
+ * Initialize the planner so movements can be done.
+ * 
+ * @param barrier - the planner synchronization barrier.
+ * @param switch_map - an array shared with {@link interrupts.h#_CNInterrupt}.
+ */
 void PLANNER_init(barrier_t *barrier, uint_fast8_t switch_map[4]);
 #else
+/**
+ * Initialize the planner so movements can be done.
+ * 
+ * @param barrier - the planner synchronization barrier.
+ */
 void PLANNER_init(volatile barrier_t *barrier);
 #endif
+
+/**
+ * Moves every motor to its home position.
+ * 
+ * @return the time, in us, that will pass until the movement is done.
+ */
 double64_t PLANNER_go_home(void);
+
+/**
+ * Moves to the specified position at point (x, y, z).
+ * 
+ * @param xyz - the final position.
+ * @return the time, in us, that will pass until the movement is done.
+ */
 double64_t PLANNER_move_xyz(point_t xyz);
+
+/**
+ * Moves each motor to the specified angle (t0, t1, t2).
+ * 
+ * @param angle - the motors' angles.
+ * @return the time, in us, that will pass until the movement is done.
+ */
 double64_t PLANNER_move_angle(angle_t angle);
+
+/**
+ * Moves the specified angle and waits until the movement is completed.
+ * 
+ * @param angle - the motors' angles.
+ */
 void PLANNER_move_waiting(angle_t angle);
+
+/**
+ * Immediately stops any possible movement of the motors.
+ * 
+ * @return EXIT_SUCCESS if there was any movement or EXIT_FAILURE if none.
+ */
 uint8_t PLANNER_stop_moving(void);
+
+/**
+ * Obtains the current end-effector position, in terms of (x, y, z).
+ * 
+ * @return a pointer to the position.
+ */
 point_t *PLANNER_get_position(void);
+
+/**
+ * Obtains the current motor angles, in terms of (t0, t1, t2).
+ * 
+ * @return a pointer to the angles.
+ */
 angle_t *PLANNER_get_angles(void);
 
 #endif	/* PLANNER_H */

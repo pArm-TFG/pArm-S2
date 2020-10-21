@@ -41,10 +41,25 @@ void CN_Init(volatile uint_fast8_t *switch_map);
 #endif
 
 // Define Timer interrupts
+/**
+ * UART1 Transmission interrupt
+ */
 void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void);
+
+/**
+ * UART1 Reception interrupt
+ */
 void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void);
-void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void);
+
+/**
+ * UART1 Error interrupt
+ */
 void __attribute__((__interrupt__, no_auto_psv)) _U1ErrInterrupt(void);
+
+/**
+ * Peripheral change interrupt
+ */
+void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void);
 
 #endif	/* INTERRUPTS_H */
 
