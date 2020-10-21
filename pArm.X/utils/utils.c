@@ -45,8 +45,7 @@ inline double64_t mapf(double64_t x, double64_t in_min, double64_t in_max, doubl
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-#ifndef __isnan
-
+//#ifndef __isnan
 bool __isnan(double64_t x) {
     int_fast64_t hx;
     EXTRACT_WORDS64(hx, x);
@@ -54,8 +53,8 @@ bool __isnan(double64_t x) {
     hx = UINT64_C(0x7ff0000000000000) - hx;
     return (bool) (((uint64_t) hx) >> 63);
 }
-#define isnan __isnan
-#endif
+//#define isnan __isnan
+//#endif
 
 inline void delay_ms(time_t ms) {
     return delay_us(ms * 1000ULL);

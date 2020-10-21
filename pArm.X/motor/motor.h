@@ -47,6 +47,7 @@ typedef struct {
     volatile double64_t angle_us;
     volatile bool movement_finished;
     int8_t clockwise;
+    volatile time_t current_movement_count;
     TMR_func TMR_Start;
     TMR_func TMR_Stop;
 } motor_t;

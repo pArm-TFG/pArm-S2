@@ -31,6 +31,7 @@ void CN_Init(volatile uint_fast8_t *switch_map) {
 #endif
 
 void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void) {
+    PORTBbits.RB6 = U1TXREG;
     IFS0bits.U1TXIF = 0; // Clear TX Interrupt flag
 }
 
@@ -40,6 +41,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
         return;
     if (U1STAbits.URXDA == 1) {
         char received_val = U1RXREG;
+        PORTBbits.RB5 = received_val;
 #ifdef CLI_MODE
         printf("%c", received_val);
 #endif

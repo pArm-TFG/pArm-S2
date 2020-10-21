@@ -53,10 +53,9 @@ double64_t preciseMap(
 
 double64_t mapf(double64_t x, double64_t in_min, double64_t in_max, double64_t out_min, double64_t out_max);
 
-#ifndef __isnan
+//#ifndef __isnan
 bool __isnan(double64_t x);
-#define isnan __isnan
-#endif
+//#endif
 
 void delay_ms(time_t ms);
 void delay_us(time_t us);

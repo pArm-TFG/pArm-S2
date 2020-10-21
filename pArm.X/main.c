@@ -45,10 +45,8 @@ rsa_t *RSA_key = NULL;
 volatile order_t *order = NULL;
 
 
-/**
- * 
- */
 static double64_t motor_movement_finished_time = LDBL_MAX;
+static time_t movement_start_time = UINT64_MAX;
 volatile barrier_t *barrier;
 static volatile bool is_moving = false;
 #ifdef LIMIT_SWITCH_ENABLED
@@ -77,7 +75,8 @@ void setup(void);
 void loop(void);
 char check_motor_status(void);
 void handle_order(void);
-void do_movement(double64_t expected_time);
+//void do_movement(double64_t expected_time);
+void update_motor_time(motor_t *motor);
 #ifndef CLI_MODE
 void do_handshake(void);
 void beat(int_fast64_t encrypted_msg);
@@ -124,7 +123,19 @@ inline void setup(void) {
 #ifdef LIMIT_SWITCH_ENABLED
     CN_Init(limit_switch_map);
 #endif
+    
+#ifdef DEBUG_ENABLED
+    printf("[SETUP]\tInitializing RAND seed\n");
+#endif
+    // Initialize RAND seed before generating the new keys
+    RAND_init();
+    RAND_init_seed();
 
+#ifdef DEBUG_ENABLED
+    printf("[SETUP]\tCreating barrier for motors\n");
+#endif
+    barrier = BARRIER_create(MAX_MOTORS - 1);
+    
 #ifdef DEBUG_ENABLED
     printf("[SETUP]\tChecking motor status...\n");
 #endif
@@ -134,6 +145,7 @@ inline void setup(void) {
 #else
     PLANNER_init(barrier);
 #endif
+
     // Calibrate the motors. If someone returns
     // not OK, stop execution until rebooted
     // and notify turning on an LED
@@ -153,17 +165,8 @@ inline void setup(void) {
             delay_ms(500);
         }
     }
-#ifdef DEBUG_ENABLED
-    printf("[SETUP]\tInitializing RAND seed\n");
-#endif
-    // Initialize RAND seed before generating the new keys
-    RAND_init();
-    RAND_init_seed();
-
-#ifdef DEBUG_ENABLED
-    printf("[SETUP]\tCreating barrier for motors\n");
-#endif
-    barrier = BARRIER_create(MAX_MOTORS - 1);
+    // Move the motors to home position
+    PLANNER_go_home();
     
     PORTBbits.RB5 = 0;
     PORTBbits.RB6 = 0;
@@ -175,17 +178,11 @@ inline void setup(void) {
 
 inline void loop(void) {
 #ifndef CLI_MODE
-    /*if (TIME_now() >= turn_led_off_time) {
-        printf("[DEBUG]\tTurning off LEDs\n");
-        PORTBbits.RB5 = 0;
-        PORTBbits.RB6 = 0;
-        PORTBbits.RB7 = 0;
-    }*/
     if (!trusted_device) {
 #ifdef DEBUG_ENABLED
         printf("[DEBUG]\tDevice not trusted... Waiting I1\n");
 #endif
-        do_handshake();
+//        do_handshake();
     }
     PORTBbits.RB7 = trusted_device;
 #else
@@ -217,7 +214,11 @@ inline void loop(void) {
                         printf("J4\n");
                     } else {
                         is_moving = true;
-                        do_movement(expected_time);
+                        printf("J1 %lf\n", (expected_time / 1000.0F));
+                        movement_start_time = TIME_now_us();
+                        motor_movement_finished_time = 
+                                movement_start_time + expected_time;
+//                        do_movement(expected_time);
                     }
                 }
                 break;
@@ -241,7 +242,11 @@ inline void loop(void) {
                         printf("J4\n");
                     } else {
                         is_moving = true;
-                        do_movement(expected_time);
+                        printf("J1 %lf\n", (expected_time / 1000.0F));
+                        movement_start_time = TIME_now_us();
+                        motor_movement_finished_time =
+                                movement_start_time + expected_time;
+//                        do_movement(expected_time);
                     }
                 }
                 break;
@@ -251,7 +256,11 @@ inline void loop(void) {
             {
                 double64_t expected_time = PLANNER_go_home();
                 is_moving = true;
-                do_movement(expected_time);
+                printf("J1 %lf\n", (expected_time / 1000.0F));
+                movement_start_time = TIME_now_us();
+                motor_movement_finished_time =
+                        movement_start_time + expected_time;
+//                do_movement(expected_time);
 #ifdef DEBUG_ENABLED
                 printf("[DEBUG]\tMoving motors to home position...\n");
 #endif
@@ -260,12 +269,16 @@ inline void loop(void) {
                 // M1
             case 10:
             {
-                uint8_t ret = PLANNER_stop_moving();
-                if (ret == EXIT_SUCCESS)
-                    printf("M1\n");
-                else // Motors not moving
+                if (!is_moving)
                     printf("J5\n");
-                is_moving = false;
+                else {
+                    uint8_t ret = PLANNER_stop_moving();
+                    if (ret == EXIT_SUCCESS)
+                        printf("M1\n");
+                    else // Motors not moving
+                        printf("J5\n");
+                    is_moving = false;
+                }
                 break;
             }
                 // M114
@@ -329,7 +342,27 @@ inline void loop(void) {
         show_cursor = true;
 #endif
     }
-    if (is_moving && BARRIER_all_done(barrier)) {
+    if (is_moving) {
+        update_motor_time(motors.base_motor);
+        update_motor_time(motors.lower_arm);
+        update_motor_time(motors.upper_arm);
+        if (TIME_now_us() >= motor_movement_finished_time) {
+            printf("J21\n");
+            is_moving = false;
+#ifdef CLI_MODE
+            show_cursor = true;
+#endif
+        }
+    }
+//    if (is_moving && (TIME_now_us() >= motor_movement_finished_time)) {
+//        // Notify all motors have finished their movement
+//        printf("J21\n");
+//        is_moving = false;
+//#ifdef CLI_MODE
+//        show_cursor = true;
+//#endif
+//    }
+    /*if (is_moving && BARRIER_all_done(barrier)) {
         // Notify all motors have finished their movement
         printf("J21\n");
         // and clear barrier interrupt flag
@@ -338,7 +371,7 @@ inline void loop(void) {
 #ifdef CLI_MODE
         show_cursor = true;
 #endif
-    }
+    }*/
 #ifndef CLI_MODE
     if (trusted_device) {
         // If last beat happened at least 1 second ago
@@ -419,9 +452,21 @@ inline void do_handshake(void) {
 }
 #endif
 
-inline void do_movement(double64_t expected_time) {
-    printf("J1 %lf\n", expected_time);
-    motor_movement_finished_time = (TIME_now_us() + expected_time);
+//inline void do_movement(double64_t expected_time) {
+//    printf("J1 %lf\n", expected_time);
+//    motor_movement_finished_time = (TIME_now_us() + expected_time);
+//}
+
+void update_motor_time(motor_t *motor) {
+    if (!motor->movement_finished) {
+        motor->current_movement_count =
+                (TIME_now_us() - movement_start_time);
+        if (motor->current_movement_count >= motor->movement_duration) {
+            motor->movement_finished = true;
+            motor->angle_us = motor->current_movement_count;
+            motor->current_movement_count = 0ULL;
+        }
+    }
 }
 
 #ifndef CLI_MODE

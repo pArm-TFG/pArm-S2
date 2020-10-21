@@ -34,7 +34,7 @@
 #include <stdbool.h>
 #include "../utils/types.h"
 
-bool check_angle_constraints(angle_t *angle);
+bool check_constraints_ok(angle_t* angle, point_t* point);
 char inverse_kinematics(point_t in_cartesian, angle_t *angle);
 char forward_kinematics(angle_t in_angle, point_t *position);
 

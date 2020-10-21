@@ -3,18 +3,20 @@
 #include <stdlib.h>
 #include <math.h>
 #include "motor.h"
+#ifdef DEBUG_ENABLED
 #include "../printf/io.h"
+#endif
 #include "../utils/utils.h"
 #include "../utils/defs.h"
 #include "../utils/types.h"
 #include "../utils/time.h"
 
 static inline double64_t us_to_deg(double64_t us) {
-    return (us / US_PER_DEGREE);
+    return 180.0F - (us / US_PER_DEGREE);
 }
 
 static inline double64_t us_to_rad(double64_t us) {
-    return ((us * (MATH_PI / 180.0F)) / US_PER_DEGREE);
+    return MATH_PI - ((us * (MATH_PI / 180.0F)) / US_PER_DEGREE);
 }
 
 static inline double64_t rad_to_us(double64_t rad) {
@@ -25,19 +27,33 @@ static inline double64_t deg_to_us(double64_t deg) {
     return (deg * US_PER_DEGREE);
 }
 
-inline void MOTOR_move(motor_t *motor, double64_t angle_rad) {
+void MOTOR_move(motor_t *motor, double64_t angle_rad) {
+//#ifdef DEBUG_ENABLED
+//    printf("[DEBUG]\tMoving motor #%d\n", motor->id);
+//#endif
     double64_t current_angle = us_to_rad(motor->angle_us);
     double64_t expected_time_us = MOTOR_elapsed_time_us(fabsl(angle_rad - current_angle));
     motor->clockwise = (angle_rad > current_angle)
             ? 1
             : -1;
+//#ifdef DEBUG_ENABLED
+//    printf("[DEBUG]\tExpected time: %Lfus\n", expected_time_us);
+//#endif
     motor->movement_duration = expected_time_us;
     motor->movement_finished = false;
+    motor->current_movement_count = 0ULL;
+//#ifdef DEBUG_ENABLED
+//    printf("[DEBUG]\tStarting movement for motor %d\n", motor->id);
+//#endif
     SERVO_write_angle(motor->servoHandler, angle_rad);
-    motor->TMR_Start();
+    /*if (motor->TMR_Start != NULL)
+        motor->TMR_Start();*/
+#ifdef DEBUG_ENABLED
+    printf("[DEBUG]\tMotor #%d is moving\n", motor->id);
+#endif
 }
 
-inline double64_t MOTOR_home(motor_t motors[MAX_MOTORS]) {
+double64_t MOTOR_home(motor_t motors[MAX_MOTORS]) {
     double64_t max_duration = LDBL_MIN;
 
     foreach(motor_t, motor, motors) {
@@ -48,11 +64,14 @@ inline double64_t MOTOR_home(motor_t motors[MAX_MOTORS]) {
     return max_duration;
 }
 
-inline void MOTOR_freeze(motor_t *motor) {
+void MOTOR_freeze(motor_t *motor) {
     // Disable motor interrupts so stop counting
-    motor->TMR_Stop();
+//    motor->TMR_Stop();
+    motor->angle_us = motor->current_movement_count;
     // Get current position and fix the angle to its value
     SERVO_write_milliseconds(motor->servoHandler, (motor->angle_us * 1000.0F));
+    motor->current_movement_count = 0ULL;
+    motor->movement_finished = true;
 }
 
 inline double64_t MOTOR_position_us(motor_t *motor) {

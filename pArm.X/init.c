@@ -139,7 +139,8 @@ void initPWM(void) {
     TRISBbits.TRISB11 = 0; // PWM3L
     TRISBbits.TRISB13 = 0; // PMW2L
     TRISBbits.TRISB15 = 0; // PWM1L
-    TRISBbits.TRISB14 = 0; // PWM1H
+    TRISAbits.TRISA7 = 0;  // PWM4L
+//    TRISBbits.TRISB14 = 0; // PWM1H
 
     PTCON2bits.PCLKDIV = 0b110; // Prescaler 1:32
 
@@ -161,13 +162,15 @@ void initPWM(void) {
     SPHASE3 = 0;
     SPHASE2 = 0;
     SPHASE1 = 0;
-    PHASE1 = 0;
+    SPHASE4 = 0;
+//    PHASE1 = 0;
 
     // By default, set no duty cycle of programmed signals
     SDC3 = 0;
     SDC2 = 0;
     SDC1 = 0;
-    PDC1 = 0;
+    SDC4 = 0;
+//    PDC1 = 0;
 
     // Disable Dead Time values
     ALTDTR4 = 0;
@@ -204,7 +207,7 @@ void initPWM(void) {
     IOCON3bits.PENL = 1;
     IOCON2bits.PENL = 1;
     IOCON1bits.PENL = 1;
-    IOCON1bits.PENH = 1;
+//    IOCON1bits.PENH = 1;
     // Disable high output as we are not using it
     IOCON4bits.PENH = 0;
     IOCON3bits.PENH = 0;
