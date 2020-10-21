@@ -24,7 +24,7 @@ void TMR4_Initialize(motor_t *motor, volatile barrier_t *barrier) {
     //TMR4 0; 
     TMR4 = 0x00;
     //Period = 1 us; Frequency = 59904000 Hz; PR4 59903;
-    PR4 = 0x257;
+    PR4 = 0x3B;
     //TCKPS 1:1; T32 16 Bit; TON enabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
     T4CON = 0x0;
 
@@ -33,7 +33,7 @@ void TMR4_Initialize(motor_t *motor, volatile barrier_t *barrier) {
 }
 
 void __attribute__((interrupt, no_auto_psv)) _T4Interrupt(void) {
-    TMR4_count += 10L;
+    TMR4_count += 1L;
     
     if (TMR4_count >= duration)
         TMR4_Stop();

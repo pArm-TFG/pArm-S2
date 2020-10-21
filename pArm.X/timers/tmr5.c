@@ -24,7 +24,7 @@ void TMR5_Initialize(motor_t *motor, volatile barrier_t *barrier) {
     //TMR5 0; 
     TMR5 = 0x00;
     //Period = 1 us; Frequency = 59904000 Hz; PR5 59903; 
-    PR5 = 0x257;
+    PR5 = 0x3B;
     //TCKPS 1:1; TON enabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
     T5CON = 0x0;
 
@@ -33,7 +33,7 @@ void TMR5_Initialize(motor_t *motor, volatile barrier_t *barrier) {
 }
 
 void __attribute__((interrupt, no_auto_psv)) _T5Interrupt(void) {
-    TMR5_count += 10L;
+    TMR5_count += 1L;
 
     if (TMR5_count >= duration)
         TMR5_Stop();

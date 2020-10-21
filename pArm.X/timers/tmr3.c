@@ -24,7 +24,7 @@ void TMR3_Initialize(motor_t *motor, volatile barrier_t *barrier) {
     //TMR3 0; 
     TMR3 = 0x00;
     //Period = 1 us; Frequency = 59904000 Hz; PR3 59903; 
-    PR3 = 0x257;
+    PR3 = 0x3B;
     //TCKPS 1:1; TON disabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
     T3CON = 0x0;
 
@@ -34,7 +34,7 @@ void TMR3_Initialize(motor_t *motor, volatile barrier_t *barrier) {
 }
 
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void) {
-    TMR3_count += 10L;
+    TMR3_count += 1L;
     
     if (TMR3_count >= duration)
         TMR3_Stop();

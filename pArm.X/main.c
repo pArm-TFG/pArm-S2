@@ -182,7 +182,7 @@ inline void loop(void) {
 #ifdef DEBUG_ENABLED
         printf("[DEBUG]\tDevice not trusted... Waiting I1\n");
 #endif
-//        do_handshake();
+        do_handshake();
     }
     PORTBbits.RB7 = trusted_device;
 #else
