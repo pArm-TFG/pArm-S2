@@ -47,6 +47,10 @@ static inline double64_t deg_to_us(double64_t deg) {
 }
 
 void MOTOR_move(motor_t *motor, double64_t angle_rad) {
+#ifdef DEBUG_MODE
+    double64_t angle_deg = us_to_deg(motor->angle_us);
+    printf("[DEBUG]\tMotor #%d at position: %Lf\n", motor->id, angle_deg);
+#endif
     double64_t current_angle = us_to_rad(motor->angle_us);
     double64_t expected_time_us = MOTOR_elapsed_time_us(fabsl(angle_rad - current_angle));
     motor->clockwise = (angle_rad > current_angle)

@@ -35,24 +35,84 @@
 #include "../utils/utils.h"
 #include "../motor/kinematics.h"
 #include "../arm_config.h"
+#ifdef USE_MOTOR_TMRS
 #include "../timers/tmr3.h"
 #include "../timers/tmr4.h"
 #include "../timers/tmr5.h"
+#endif
 #include "../utils/defs.h"
 #include "../sync/barrier.h"
 #ifdef DEBUG_ENABLED
 #include "../printf/io.h"
 #endif
 
-servo_t base_servo = {&SDC1, NULL, MATH_PI / 2, LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
+servo_t base_servo = {&SDC1, NULL, (MATH_PI / 2), LOWER_UPPER_MIN_ANGLE, LOWER_UPPER_MAX_ANGLE};
 servo_t lower_arm_servo = {&SDC2, NULL, MATH_PI, LOWER_ARM_MIN_ANGLE, LOWER_ARM_MAX_ANGLE};
-servo_t upper_arm_servo = {&SDC3, NULL, MATH_PI, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE};
+servo_t upper_arm_servo = {&SDC3, NULL, DEG_55, UPPER_ARM_MIN_ANGLE, UPPER_ARM_MAX_ANGLE};
 servo_t end_effector_servo = {&SDC4, NULL, .0, .0, 180.};
 
-motor_t base_motor = {&base_servo, 0ULL, .0F, .0F, false, 1, 0ULL, TMR3_Start, TMR3_Stop};
-motor_t lower_arm_motor = {&lower_arm_servo, 1ULL, .0F, .0F, false, 1, 0ULL, TMR4_Start, TMR4_Stop};
-motor_t upper_arm_motor = {&upper_arm_servo, 2ULL, .0F, .0F, false, 1, 0ULL, TMR5_Start, TMR5_Stop};
-motor_t end_effetor_motor = {&end_effector_servo, 3ULL, .0F, .0F, false, 1, 0ULL, NULL, NULL};
+motor_t base_motor = {
+    &base_servo,
+    0ULL,
+    .0F,
+    .0F,
+    false,
+    1,
+    0ULL,
+#ifdef USE_MOTOR_TMRS
+    TMR3_Start,
+    TMR3_Stop
+#else
+    NULL,
+    NULL
+#endif
+};
+
+motor_t lower_arm_motor = {
+    &lower_arm_servo,
+    1ULL,
+    .0F,
+    .0F,
+    false,
+    1,
+    0ULL,
+#ifdef USE_MOTOR_TMRS
+    TMR4_Start,
+    TMR4_Stop
+#else
+    NULL,
+    NULL
+#endif
+};
+
+motor_t upper_arm_motor = {
+    &upper_arm_servo,
+    2ULL,
+    .0F,
+    .0F,
+    false,
+    1,
+    0ULL,
+#ifdef USE_MOTOR_TMRS
+    TMR5_Start,
+    TMR5_Stop
+#else
+    NULL,
+    NULL
+#endif
+};
+
+motor_t end_effetor_motor = {
+    &end_effector_servo,
+    3ULL,
+    .0F,
+    .0F,
+    false,
+    1,
+    0ULL,
+    NULL,
+    NULL
+};
 
 motors_t motors = {&base_motor, &lower_arm_motor, &upper_arm_motor, &end_effetor_motor};
 volatile barrier_t *PLANNER_barrier;
@@ -70,30 +130,41 @@ static inline double64_t expected_duration(angle_t angle) {
 }
 
 static inline void map_angle(angle_t *angle) {
-    angle->theta0 = mapf(angle->theta0, -(MATH_PI / 2), (MATH_PI / 2), 0, MATH_PI);
+    double64_t motor_t2 = (DEG_190 - (DEG_135 - angle->theta1) - angle->theta2);
+//    double64_t motor_t2 = fabsl(angle->theta2 - angle->theta1);
+    angle->theta0 = mapf(angle->theta0, .0F, MATH_PI, MATH_PI, .0F);
     angle->theta1 = mapf(angle->theta1, .0F, DEG_135, MATH_PI, DEG_45);
-    angle->theta2 = mapf(angle->theta2, .0F, DEG_60, MATH_PI, DEG_135);
+    angle->theta2 = motor_t2;
+//    angle->theta2 = mapf(motor_t2, .0F, DEG_55, DEG_55, .0F);
 }
 
 static inline void unmap_angle(angle_t *angle) {
-    angle->theta0 = mapf(angle->theta0, 0, MATH_PI, -(MATH_PI / 2), (MATH_PI / 2));
+    angle->theta0 = mapf(angle->theta0, MATH_PI, .0F, .0F, MATH_PI);
     angle->theta1 = mapf(angle->theta1, MATH_PI, DEG_45, .0F, DEG_135);
-    angle->theta2 = mapf(angle->theta2, MATH_PI, DEG_135, .0F, DEG_60);
+    angle->theta2 = (-angle->theta2 + DEG_190 - (DEG_135 - angle->theta1));
+//    angle->theta2 = mapf(angle->theta2, MATH_PI, DEG_135, .0F, DEG_55);
+    
+//    angle->theta2 += angle->theta1;
+    
 }
 
 #ifdef LIMIT_SWITCH_ENABLED
+
 void PLANNER_init(volatile barrier_t *barrier, uint_fast8_t switch_map[4]) {
     base_servo.limit_switch_value = &switch_map[0];
     lower_arm_servo.limit_switch_value = &switch_map[1];
     upper_arm_servo.limit_switch_value = &switch_map[2];
     end_effector_servo.limit_switch_value = &switch_map[3];
 #else
+
 void PLANNER_init(volatile barrier_t *barrier) {
 #endif
     PLANNER_barrier = barrier;
+#ifdef USE_MOTOR_TMRS
     TMR3_Initialize(motors.base_motor, PLANNER_barrier);
     TMR4_Initialize(motors.lower_arm, PLANNER_barrier);
     TMR5_Initialize(motors.upper_arm, PLANNER_barrier);
+#endif
 }
 
 double64_t PLANNER_go_home(void) {
@@ -118,7 +189,20 @@ double64_t PLANNER_move_xyz(point_t xyz) {
     char ret = inverse_kinematics(xyz, angle);
     if (ret != EXIT_SUCCESS)
         return -1.0F;
+    printf("Obtained angles: t0: %Lf | t1. %Lf | t2: %Lf\n",
+            (angle->theta0 * MATH_TRANS), 
+            (angle->theta1 * MATH_TRANS),
+            (angle->theta2 * MATH_TRANS));
     map_angle(angle);
+#ifdef DEBUG_ENABLED
+    printf("[DEBUG]\tMoving:\n"
+            "\tbase motor to %Lfdeg\n"
+            "\tlower motor to: %Lfdeg\n"
+            "\tupper motor to: %Lfdeg\n", 
+            (angle->theta0 * MATH_TRANS),
+            (angle->theta1 * MATH_TRANS),
+            (angle->theta2 * MATH_TRANS));
+#endif
     double64_t duration = expected_duration(*angle);
     MOTOR_move(motors.base_motor, angle->theta0);
     MOTOR_move(motors.lower_arm, angle->theta1);
@@ -129,9 +213,9 @@ double64_t PLANNER_move_xyz(point_t xyz) {
 
 double64_t PLANNER_move_angle(angle_t angle) {
     BARRIER_clr(PLANNER_barrier);
-    point_t *position = (point_t *) malloc(sizeof(point_t));
-    forward_kinematics(angle, position);
-    if (!check_constraints_ok(&angle, position))
+    point_t *position = (point_t *) malloc(sizeof (point_t));
+    char ret = forward_kinematics(angle, position);
+    if (ret != EXIT_SUCCESS)
         return -1.0F;
     map_angle(&angle);
     MOTOR_move(motors.base_motor, angle.theta0);
@@ -169,6 +253,6 @@ angle_t *PLANNER_get_angles(void) {
     angles->theta0 = MOTOR_position_rad(motors.base_motor);
     angles->theta1 = MOTOR_position_rad(motors.lower_arm);
     angles->theta2 = MOTOR_position_rad(motors.upper_arm);
-    
+
     return angles;
 }

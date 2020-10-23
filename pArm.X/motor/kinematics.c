@@ -46,17 +46,18 @@ void do_forward_kinematics(
         const double64_t Tx,
         const double64_t Tz
         ) {
-    res->x = (a2 * cosl(angle.theta1) + a3 * cosl(angle.theta1 - angle.theta2) + d1) 
+    double64_t t1 = (DEG_135 - angle.theta1);
+    res->x = (a2 * cosl(t1) + a3 * cosl(MATH_PI - t1 - angle.theta2) + d1)
             * cosl(angle.theta0) + Tx;
-    res->y = (a2 * cosl(angle.theta1) + a3 * cosl(angle.theta1 - angle.theta2) + d1) 
+    res->y = (a2 * cosl(t1) + a3 * cosl(MATH_PI - t1 - angle.theta2) + d1)
             * sinl(angle.theta0);
-    res->z = a1 + (a2 * sinl(angle.theta1)) + (a3 * sinl(angle.theta1 - angle.theta2)) 
+    res->z = a1 + (a2 * sinl(t1)) + (a3 * sinl(MATH_PI - t1 - angle.theta2))
             - Tz;
 }
 
 bool check_constraints_ok(angle_t *angle, point_t *point) {
     bool res = true;
-    if (__isnan(angle->theta0) || __isnan(angle->theta1) || __isnan(angle->theta2) 
+    if (__isnan(angle->theta0) || __isnan(angle->theta1) || __isnan(angle->theta2)
             || __isnan(point->x) || __isnan(point->y) || __isnan(point->z))
         return false;
 
@@ -106,14 +107,18 @@ char inverse_kinematics(point_t in_cartesian, angle_t* angle) {
 #define AL2     (ARM_LOWER_ARM * ARM_LOWER_ARM)
 #define AU2     (ARM_UPPER_ARM * ARM_UPPER_ARM)
 
-    double64_t theta_0 = atan2l(in_cartesian.x, in_cartesian.y);
-    double64_t xyz = powl(in_cartesian.x, 2) +
-            powl(in_cartesian.y, 2) +
-            powl(in_cartesian.z, 2);
+    in_cartesian.x = (in_cartesian.x < 11.5F) ? 11.5F : in_cartesian.x;
+
+    double64_t xyz = (powl(in_cartesian.x, 2.0F) +
+            powl(in_cartesian.y, 2.0F) +
+            powl(in_cartesian.z, 2.0F));
     double64_t lxyz = sqrtl(xyz);
+    double64_t theta_0 = atan2l(in_cartesian.x, in_cartesian.y);
     double64_t theta_1 = acosl((-AL2 - xyz + AU2) / (-2 * ARM_LOWER_ARM * lxyz));
     double64_t theta_2 = acosl((-AL2 - AU2 + xyz) / (-2 * ARM_LOWER_ARM * ARM_UPPER_ARM));
-    double64_t phi = atan2l(in_cartesian.z, sqrtl(powl(in_cartesian.x, 2) + powl(in_cartesian.y, 2)));
+
+    double64_t lxy = sqrtl(powl(in_cartesian.x, 2.0F) + powl(in_cartesian.y, 2.0F));
+    double64_t phi = atan2l(in_cartesian.z, lxy);
 
     theta_1 += phi;
     theta_1 = DEG_135 - theta_1;
@@ -122,7 +127,9 @@ char inverse_kinematics(point_t in_cartesian, angle_t* angle) {
     angle->theta1 = theta_1;
     angle->theta2 = theta_2;
 
+#ifdef CLI_MODE
     if (check_constraints_ok(angle, &in_cartesian) == true)
+#endif
         return EXIT_SUCCESS;
     return EXIT_FAILURE;
 }
@@ -138,7 +145,11 @@ char forward_kinematics(angle_t in_angle, point_t *position) {
             front_end_offset,
             -ARM_BASE_DEVIATION
             );
+#ifdef CLI_MODE
     return check_constraints_ok(&in_angle, position)
             ? EXIT_SUCCESS
             : EXIT_FAILURE;
+#else
+    return EXIT_SUCCESS;
+#endif
 }

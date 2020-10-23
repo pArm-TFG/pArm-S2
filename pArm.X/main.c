@@ -34,6 +34,7 @@
 #include <float.h>
 #include <p33EP512GM604.h>
 #include <libpic30.h>
+#include <string.h>
 #include "printf/io.h"
 #include "utils/types.h"
 #include "utils/uart.h"
@@ -262,7 +263,7 @@ inline void loop(void) {
 #ifdef DEBUG_ENABLED
         printf("[DEBUG]\tDevice not trusted... Waiting I1\n");
 #endif
-        do_handshake();
+//        do_handshake();
     }
     PORTBbits.RB7 = trusted_device;
 #else
@@ -294,7 +295,7 @@ inline void loop(void) {
                         printf("J4\n");
                     } else {
                         is_moving = true;
-                        printf("J1 %lf\n", (expected_time / 1000.0F));
+                        printf("J1 %Lf\n", (expected_time / 1000.0F));
                         movement_start_time = TIME_now_us();
                         motor_movement_finished_time =
                                 movement_start_time + expected_time;
@@ -321,7 +322,7 @@ inline void loop(void) {
                         printf("J4\n");
                     } else {
                         is_moving = true;
-                        printf("J1 %lf\n", (expected_time / 1000.0F));
+                        printf("J1 %Lf\n", (expected_time / 1000.0F));
                         movement_start_time = TIME_now_us();
                         motor_movement_finished_time =
                                 movement_start_time + expected_time;
@@ -334,7 +335,7 @@ inline void loop(void) {
             {
                 double64_t expected_time = PLANNER_go_home();
                 is_moving = true;
-                printf("J1 %lf\n", (expected_time / 1000.0F));
+                printf("J1 %Lf\n", (expected_time / 1000.0F));
                 movement_start_time = TIME_now_us();
                 motor_movement_finished_time =
                         movement_start_time + expected_time;
@@ -410,7 +411,9 @@ inline void loop(void) {
                 // Invalid GCODE found
             default:
             {
-                printf("J3\n");
+                // Ignore empty instructions
+                if (strcmp(order->order_buffer->buffer, "") != 0)
+                    printf("J3 '%s'\n", order->order_buffer->buffer);
                 break;
             }
         }
@@ -446,7 +449,7 @@ inline void loop(void) {
 #ifndef CLI_MODE
     if (trusted_device) {
         // If last beat happened at least 1 second ago
-        // untrust the device and send 'J6' for informing
+        // untrust the device and send 'J10' for informing
         if ((TIME_now() - last_beat) >= 1000ULL) {
             printf("J10\n");
             trusted_device = false;
@@ -542,13 +545,9 @@ void update_motor_time(motor_t *motor) {
 #ifndef CLI_MODE
 
 inline void beat(int_fast64_t encrypted_msg) {
-    printf("BEAT!\n");
     int_fast64_t msg = RSA_decrypt(encrypted_msg, RSA_key);
     if (msg == rnd_message) {
         last_beat = TIME_now();
-        PORTBbits.RB5 = 1;
-        PORTBbits.RB6 = 1;
-        PORTBbits.RB7 = 1;
     }
 }
 #endif

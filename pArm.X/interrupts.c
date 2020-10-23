@@ -97,7 +97,8 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
                     uart_buffer, 
                     urx_order->order_buffer->size);
             uart_chars = 0U;
-            urx_order->message_received = true;
+            if (strcmp(urx_order->order_buffer->buffer, "") != 0)
+                urx_order->message_received = true;
         } else {
             uart_buffer[uart_chars++] = received_val;
             if (uart_chars >= 1024) {
