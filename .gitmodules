@@ -1,0 +1,7 @@
+[submodule "pArm.X/printf"]
+	path = pArm.X/printf
+	url = https://github.com/pArm-TFG/printf.git
+
+[submodule "pArm.X/rsa"]
+	path = pArm.X/rsa
+	url = https://github.com/pArm-TFG/RSA.git

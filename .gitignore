@@ -50,3 +50,12 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# MPLAB IDE files
+# Ignoring files according to http://microchip.wikidot.com/faq:72
+pArm.X/build/
+pArm.X/dist/
+#Ingoring private Makefiles, to create them open the MPLAB IDE or use the C:\Program Files (x86)\Microchip\MPLABX\<VERSION>\mplab_ide\bin\prjMakefilesGenerator.bat script
+pArm.X/nbproject/Makefile-*
+pArm.X/nbproject/Package-*
+pArm.X/nbproject/private/
