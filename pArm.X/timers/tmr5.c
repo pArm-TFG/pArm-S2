@@ -26,14 +26,17 @@
 
 #include <p33EP512GM604.h>
 #include "tmr5.h"
+#include "../utils/defs.h"
 #include "../utils/types.h"
 #include "../motor/motor.h"
 #include "../sync/barrier.h"
+#include "../motor/servo.h"
 
-motor_t *TMR5_motor;
-volatile barrier_t *TMR5_barrier;
+static motor_t *TMR5_motor;
+static volatile barrier_t *TMR5_barrier;
 static volatile int_fast32_t TMR5_count;
 static volatile int_fast32_t duration;
+static int_fast8_t amount;
 
 void TMR5_Initialize(motor_t *motor, volatile barrier_t *barrier) {
     TMR5_motor = motor;
@@ -43,7 +46,7 @@ void TMR5_Initialize(motor_t *motor, volatile barrier_t *barrier) {
     //TMR5 0; 
     TMR5 = 0x00;
     //Period = 1 us; Frequency = 59904000 Hz; PR5 59903; 
-    PR5 = 0x3B;
+    PR5 = TMR_VALUE;
     //TCKPS 1:1; TON enabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
     T5CON = 0x0;
 
@@ -52,17 +55,28 @@ void TMR5_Initialize(motor_t *motor, volatile barrier_t *barrier) {
 }
 
 void __attribute__((interrupt, no_auto_psv)) _T5Interrupt(void) {
-    TMR5_count += 1L;
-
-    if (TMR5_count >= duration)
+    uint16_t dc = SERVO_position(TMR5_motor->servoHandler);
+    dc += amount;
+    SERVO_write_value(TMR5_motor->servoHandler, dc);
+    if (dc == TMR5_motor->target_dc_value) {
         TMR5_Stop();
+    }
 
     IFS1bits.T5IF = 0;
 }
 
 void TMR5_Start(void) {
-    /* Clear old value*/
-    TMR5_count = .0F;
+    // Setup the amount value to +1 if current value is
+    // lower than expected value, or -1 otherwise. '0' if
+    // equals
+    uint16_t dc = SERVO_position(TMR5_motor->servoHandler);
+    uint16_t target_dc = TMR5_motor->target_dc_value;
+    amount = (dc < target_dc) ? 1 : ((dc > target_dc) ? -1 : 0);
+    
+#ifdef DEBUG_ENABLED
+    printf("[DEBUG]\tMotor#5 duty cycle is %d - moving to %d with step of %d\n",
+            dc, target_dc, amount);
+#endif
 
     /*Enable the interrupt*/
     IEC1bits.T5IE = 1;
@@ -72,11 +86,11 @@ void TMR5_Start(void) {
 }
 
 void TMR5_Stop(void) {
+#ifdef DEBUG_ENABLED
+    printf("[DEBUG]\tMotor#5 has finished moving!\n");
+#endif
     TMR5_motor->movement_finished = true;
     BARRIER_arrive(TMR5_barrier);
-    // If movement is clockwise then add the count to current angle_us
-    // else, the count must be substracted
-    TMR5_motor->angle_us += (TMR5_motor->clockwise * TMR5_count);
     /* Stop the Timer */
     T5CONbits.TON = 0;
 

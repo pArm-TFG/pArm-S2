@@ -26,14 +26,17 @@
 
 #include <p33EP512GM604.h>
 #include "tmr4.h"
+#include "../utils/defs.h"
 #include "../utils/types.h"
 #include "../motor/motor.h"
 #include "../sync/barrier.h"
+#include "../motor/servo.h"
 
-motor_t *TMR4_motor;
-volatile barrier_t *TMR4_barrier;
+static motor_t *TMR4_motor;
+static volatile barrier_t *TMR4_barrier;
 static volatile int_fast32_t TMR4_count;
 static volatile int_fast32_t duration;
+static int_fast8_t amount;
 
 void TMR4_Initialize(motor_t *motor, volatile barrier_t *barrier) {
     TMR4_motor = motor;
@@ -42,8 +45,8 @@ void TMR4_Initialize(motor_t *motor, volatile barrier_t *barrier) {
 
     //TMR4 0; 
     TMR4 = 0x00;
-    //Period = 1 us; Frequency = 59904000 Hz; PR4 59903;
-    PR4 = 0x3B;
+    //Period = 1 ms; Frequency = 59904000 Hz; PR4 59903;
+    PR4 = TMR_VALUE;
     //TCKPS 1:1; T32 16 Bit; TON enabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
     T4CON = 0x0;
 
@@ -52,17 +55,28 @@ void TMR4_Initialize(motor_t *motor, volatile barrier_t *barrier) {
 }
 
 void __attribute__((interrupt, no_auto_psv)) _T4Interrupt(void) {
-    TMR4_count += 1L;
-    
-    if (TMR4_count >= duration)
+    uint16_t dc = SERVO_position(TMR4_motor->servoHandler);
+    dc += amount;
+    SERVO_write_value(TMR4_motor->servoHandler, dc);
+    if (dc == TMR4_motor->target_dc_value) {
         TMR4_Stop();
+    }
 
     IFS1bits.T4IF = 0;
 }
 
 void TMR4_Start(void) {
-    /* Clear old value*/
-    TMR4_count = .0F;
+    // Setup the amount value to +1 if current value is
+    // lower than expected value, or -1 otherwise. '0' if
+    // equals
+    uint16_t dc = SERVO_position(TMR4_motor->servoHandler);
+    uint16_t target_dc = TMR4_motor->target_dc_value;
+    amount = (dc < target_dc) ? 1 : ((dc > target_dc) ? -1 : 0);
+    
+#ifdef DEBUG_ENABLED
+    printf("[DEBUG]\tMotor#4 duty cycle is %d - moving to %d with step of %d\n",
+            dc, target_dc, amount);
+#endif
 
     /*Enable the interrupt*/
     IEC1bits.T4IE = 1;
@@ -72,11 +86,11 @@ void TMR4_Start(void) {
 }
 
 void TMR4_Stop(void) {
+#ifdef DEBUG_ENABLED
+    printf("[DEBUG]\tMotor#4 has finished moving!\n");
+#endif
     TMR4_motor->movement_finished = true;
     BARRIER_arrive(TMR4_barrier);
-    // If movement is clockwise then add the count to current angle_us
-    // else, the count must be substracted
-    TMR4_motor->angle_us += (TMR4_motor->clockwise * TMR4_count);
     /* Stop the Timer */
     T4CONbits.TON = 0;
 

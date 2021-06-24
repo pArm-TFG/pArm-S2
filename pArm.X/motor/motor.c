@@ -35,7 +35,7 @@ static inline double64_t us_to_deg(double64_t us) {
 }
 
 static inline double64_t us_to_rad(double64_t us) {
-    return ((us * (MATH_PI / 180.0F)) / US_PER_DEGREE);
+    return ((us * MATH_TRANS_I) / US_PER_DEGREE);
 }
 
 static inline double64_t rad_to_us(double64_t rad) {
@@ -51,18 +51,19 @@ void MOTOR_move(motor_t *motor, double64_t angle_rad) {
     double64_t angle_deg = us_to_deg(motor->angle_us);
     printf("[DEBUG]\tMotor #%d at position: %Lf\n", motor->id, angle_deg);
 #endif
-    double64_t current_angle = us_to_rad(motor->angle_us);
-    double64_t expected_time_us = MOTOR_elapsed_time_us(fabsl(angle_rad - current_angle));
-    motor->clockwise = (angle_rad > current_angle)
-            ? 1
-            : -1;
-    motor->movement_duration = expected_time_us;
     motor->movement_finished = false;
-    motor->current_movement_count = 0ULL;
-    SERVO_write_angle(motor->servoHandler, angle_rad);
+    motor->target_dc_value = SERVO_from_angle_to_dc(angle_rad);
+    motor->movement_duration = TMR_FREQ_US * 
+            abs(motor->target_dc_value - SERVO_position(motor->servoHandler));
 #ifdef USE_MOTOR_TMRS
-    if (motor->TMR_Start != NULL)
+    if ((motor->TMR_Start != NULL) && (motor->is_first_position_known)) {
         motor->TMR_Start();
+    } else {
+#endif
+        SERVO_write_angle(motor->servoHandler, angle_rad);
+#ifdef USE_MOTOR_TMRS
+        motor->is_first_position_known = true;
+    }
 #endif
 #ifdef DEBUG_ENABLED
     printf("[DEBUG]\tMotor #%d is moving\n", motor->id);
@@ -74,11 +75,6 @@ void MOTOR_freeze(motor_t *motor) {
     // Disable motor interrupts so stop counting
     motor->TMR_Stop();
 #endif
-    motor->angle_us = motor->current_movement_count;
-    // Get current position and fix the angle to its value
-    SERVO_write_milliseconds(motor->servoHandler, (motor->angle_us * 1000.0F));
-    motor->current_movement_count = 0ULL;
-    motor->movement_finished = true;
 }
 
 inline double64_t MOTOR_position_us(motor_t *motor) {
@@ -86,11 +82,12 @@ inline double64_t MOTOR_position_us(motor_t *motor) {
 }
 
 inline double64_t MOTOR_position_rad(motor_t *motor) {
-    return us_to_rad(motor->angle_us);
+    return SERVO_to_rad(motor->servoHandler);
+    //    return us_to_rad(motor->angle_us);
 }
 
 inline double64_t MOTOR_position_deg(motor_t *motor) {
-    return us_to_deg(motor->angle_us);
+    return MATH_TRANS * MOTOR_position_rad(motor);
 }
 
 inline bool check_motor_finished(motor_t *motor, time_t max_waiting_time) {
@@ -98,8 +95,8 @@ inline bool check_motor_finished(motor_t *motor, time_t max_waiting_time) {
     if (*motor->servoHandler->limit_switch_value == 1)
         return true;
 #endif
-    return ((TIME_now_us() >= max_waiting_time)) 
-            ? true 
+    return ((TIME_now_us() >= max_waiting_time))
+            ? true
             : motor->movement_finished;
 }
 

@@ -93,11 +93,12 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
                 uart_chars = 0U;
                 return;
             }
-            strncpy(urx_order->order_buffer->buffer,
-                    uart_buffer, 
-                    urx_order->order_buffer->size);
+            strcpy(urx_order->order_buffer->buffer, uart_buffer);
+//            strncpy(urx_order->order_buffer->buffer,
+//                    uart_buffer,
+//                    urx_order->order_buffer->size);
             uart_chars = 0U;
-            if (strcmp(urx_order->order_buffer->buffer, "") != 0)
+            if (urx_order->order_buffer->buffer[0] != '\0')
                 urx_order->message_received = true;
         } else {
             uart_buffer[uart_chars++] = received_val;

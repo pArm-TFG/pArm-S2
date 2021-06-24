@@ -94,12 +94,38 @@ void SERVO_write_milliseconds(const servo_t *servo, double64_t ms);
 void SERVO_write_value(const servo_t *servo, uint16_t dtc_value);
 
 /**
+ * Converts the given angle (in radians) to the expected duty
+ * cycle value, by using the following equation:
+ * 
+ *                  Fosc
+ * DC = ——————————————————————————————
+ *               1
+ *       ———————————————— · 1000 · 64
+ *       rad_to_ms(angle)
+ * 
+ * @param angle_rad - the angle, expressed in radians.
+ * @return the expected duty cycle value, as an int.
+ */
+uint16_t SERVO_from_angle_to_dc(double64_t angle_rad);
+
+/**
  * Obtains the equivalent milliseconds stamp representing the given angle.
  * 
  * @param angle_rad - the angle to transform.
  * @return double64_t representing the milliseconds.
  */
 double64_t SERVO_from_angle_to_ms(double64_t angle_rad);
+
+uint16_t SERVO_position(const servo_t*);
+
+/**
+ * With the given servo, obtains the approximate position
+ * in radians using the duty cycle value.
+ * 
+ * @param servo - the servo to which obtain the angle.
+ * @return the angle, in radians.
+ */
+double64_t SERVO_to_rad(const servo_t *servo);
 
 #endif	/* SERVO_H */
 

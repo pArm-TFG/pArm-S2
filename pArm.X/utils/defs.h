@@ -39,6 +39,10 @@
 #define MIN_PULSE_MS    0.75F
 #define MAX_PULSE_MS    2.25F
 
+// Servo speed - adjusts timer value
+#define TMR_VALUE       0x74FF
+#define TMR_FREQ_US     500.0F
+
 // UART delay
 #define DELAY_105uS asm volatile ("REPEAT, #4201"); Nop(); // 105uS delay
 
