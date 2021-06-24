@@ -29,7 +29,7 @@ void SERVO_write_angle(const servo_t *servo, double64_t angle_rad) {
 }
 
 inline void SERVO_write_milliseconds(const servo_t *servo, double64_t ms) {
-    *servo->dutyCycleRegister = (uint16_t) (FOSC / ((1 / ms) * 1000 * 64));
+    SERVO_write_value(servo, (uint16_t) (1872 * ms));
 }
 
 inline void SERVO_write_value(const servo_t *servo, uint16_t dutyCycleValue) {
@@ -37,5 +37,18 @@ inline void SERVO_write_value(const servo_t *servo, uint16_t dutyCycleValue) {
 }
 
 inline double64_t SERVO_from_angle_to_ms(double64_t angle_rad) {
-    return mapf(angle_rad, .0F, MATH_PI, MIN_PULSE_MS, MAX_PULSE_MS);
+    return (double64_t) (((3.0 * angle_rad) / (2.0 * MATH_PI)) + 0.75);
+}
+
+inline uint16_t SERVO_from_angle_to_dc(double64_t angle_rad) {
+    double64_t ms = SERVO_from_angle_to_ms(angle_rad);
+    return (uint16_t) (1872 * ms);
+}
+
+inline double64_t SERVO_to_rad(const servo_t *servo) {
+    return (double64_t) ((MATH_PI * (*servo->dutyCycleRegister - 1404)) / 2808);
+}
+
+inline uint16_t SERVO_position(const servo_t *servo) {
+    return *servo->dutyCycleRegister;
 }

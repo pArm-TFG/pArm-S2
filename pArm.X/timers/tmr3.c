@@ -26,14 +26,20 @@
 
 #include <p33EP512GM604.h>
 #include "tmr3.h"
+#include "../utils/defs.h"
 #include "../utils/types.h"
 #include "../motor/motor.h"
 #include "../sync/barrier.h"
+#include "../motor/servo.h"
+#ifdef DEBUG_ENABLED
+#include "../printf/io.h"
+#endif
 
-motor_t *TMR3_motor;
-volatile barrier_t *TMR3_barrier;
+static motor_t *TMR3_motor;
+static volatile barrier_t *TMR3_barrier;
 static volatile int_fast32_t TMR3_count;
 static volatile int_fast32_t duration;
+static int_fast8_t amount;
 
 void TMR3_Initialize(motor_t *motor, volatile barrier_t *barrier) {
     TMR3_motor = motor;
@@ -42,8 +48,8 @@ void TMR3_Initialize(motor_t *motor, volatile barrier_t *barrier) {
     
     //TMR3 0; 
     TMR3 = 0x00;
-    //Period = 1 us; Frequency = 59904000 Hz; PR3 59903; 
-    PR3 = 0x3B;
+    //Period = 1 ms; Frequency = 59904000 Hz; PR3 59903;
+    PR3 = TMR_VALUE;
     //TCKPS 1:1; TON disabled; TSIDL disabled; TCS FOSC/2; TGATE disabled; 
     T3CON = 0x0;
 
@@ -53,18 +59,27 @@ void TMR3_Initialize(motor_t *motor, volatile barrier_t *barrier) {
 }
 
 void __attribute__((interrupt, no_auto_psv)) _T3Interrupt(void) {
-    TMR3_count += 1L;
-    
-    if (TMR3_count >= duration)
+    uint16_t dc = SERVO_position(TMR3_motor->servoHandler);
+    dc += amount;
+    SERVO_write_value(TMR3_motor->servoHandler, dc);
+    if (dc == TMR3_motor->target_dc_value) {
         TMR3_Stop();
-    
+    }
     IFS0bits.T3IF = 0;
 }
 
 void TMR3_Start(void) {
-    /* Clear old value*/
-    TMR3_count = .0F;
-    duration = (int_fast32_t) TMR3_motor->movement_duration;
+    // Setup the amount value to +1 if current value is
+    // lower than expected value, or -1 otherwise. '0' if
+    // equals
+    uint16_t dc = SERVO_position(TMR3_motor->servoHandler);
+    uint16_t target_dc = TMR3_motor->target_dc_value;
+    amount = (dc < target_dc) ? 1 : ((dc > target_dc) ? -1 : 0);
+    
+#ifdef DEBUG_ENABLED
+    printf("[DEBUG]\tMotor#3 duty cycle is %d - moving to %d with step of %d\n",
+            dc, target_dc, amount);
+#endif
     
     /*Enable the interrupt*/
     IEC0bits.T3IE = 1;
@@ -76,11 +91,11 @@ void TMR3_Start(void) {
 }
 
 void TMR3_Stop(void) {
+#ifdef DEBUG_ENABLED
+    printf("[DEBUG]\tMotor#3 has finished moving!\n");
+#endif
     TMR3_motor->movement_finished = true;
     BARRIER_arrive(TMR3_barrier);
-    // If movement is clockwise then add the count to current angle_us
-    // else, the count must be substracted
-    TMR3_motor->angle_us += (TMR3_motor->clockwise * TMR3_count);
     /* Stop the Timer */
     T3CONbits.TON = 0;
 

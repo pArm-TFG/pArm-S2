@@ -60,19 +60,21 @@ typedef struct {
     volatile double64_t angle_us;
     
     /**
+     * The motor target duty cycle, expressed
+     * in terms of a RAW value
+     */
+    volatile uint16_t target_dc_value;
+    
+    /**
      * Flag indicating that the motor has finished its movement.
      */
     volatile bool movement_finished;
     
     /**
-     * Flag indicating whether the movement is clockwise or anticlockwise.
+     * Value that indicates whether if the first position is known
+     * or not. By default, False.
      */
-    int8_t clockwise;
-    
-    /**
-     * Volatile counter indicating the elapsed time since the movement started.
-     */
-    volatile time_t current_movement_count;
+    bool is_first_position_known;
     
     /**
      * Function that initializes the timer attached to the motor.

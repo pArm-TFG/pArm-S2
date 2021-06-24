@@ -32,15 +32,15 @@
 #include "../motor/motor.h"
 #include "../sync/barrier.h"
 
-/**
- * Motor managed by TMR4.
- */
-extern motor_t *TMR4_motor;
-
-/**
- * Barrier used for synchronizing motors.
- */
-extern volatile barrier_t *TMR4_barrier;
+///**
+// * Motor managed by TMR4.
+// */
+//extern motor_t *TMR4_motor;
+//
+///**
+// * Barrier used for synchronizing motors.
+// */
+//extern volatile barrier_t *TMR4_barrier;
 
 /**
  * Initializes the TMR4 to manage specified motor position in the given
